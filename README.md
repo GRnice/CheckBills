@@ -1,2 +1,0 @@
-# CheckBills
-projet ELIM
