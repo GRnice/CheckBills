@@ -28,7 +28,7 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(Home.this,CamActivity.class));
+                startActivity(new Intent(Home.this,ProcedureTicket.class));
             }
         });
 
@@ -81,7 +81,8 @@ public class Home extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            startActivity(new Intent(this,CamActivity.class));
+            Intent myIntent = new Intent(Home.this, ProcedureTicket.class);
+            Home.this.startActivity(myIntent);
         } else if (id == R.id.nav_historique) {
 
         } else if (id == R.id.nav_parametres) {
