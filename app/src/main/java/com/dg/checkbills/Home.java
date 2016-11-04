@@ -80,13 +80,19 @@ public class Home extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_camera)
+        {
             startActivity(new Intent(this,CamActivity.class));
-        } else if (id == R.id.nav_historique) {
+        }
+        else if (id == R.id.nav_historique)
+        {
+            startActivity(new Intent(this,HistoriqueActivity.class));
+        }
+        else if (id == R.id.nav_parametres)
+        {
 
-        } else if (id == R.id.nav_parametres) {
-
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_share)
+        {
 
         }
 
