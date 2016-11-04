@@ -22,7 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CamActivity" />
+
+        <activity android:name=".ProcedureTicket"></activity>
         <activity
             android:name=".HistoriqueActivity"
             android:label="@string/title_activity_historique"
