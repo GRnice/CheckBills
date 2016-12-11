@@ -23,13 +23,8 @@ public class ProcedureTicket extends FragmentActivity
         dispatchTakePictureIntent();
     }
 
-<<<<<<< HEAD
 
-    private void dispatchTakePictureIntent()
-    {
-=======
     private void dispatchTakePictureIntent() {
->>>>>>> b79c4cd50151fadedabfc3bd507a4d3b08b420ad
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null)
@@ -44,16 +39,6 @@ public class ProcedureTicket extends FragmentActivity
     }
 
     @Override
-<<<<<<< HEAD
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
-        {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            myImage.setImageBitmap(imageBitmap);
-        }
-=======
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -82,7 +67,6 @@ public class ProcedureTicket extends FragmentActivity
                 }
 
 
->>>>>>> b79c4cd50151fadedabfc3bd507a4d3b08b420ad
     }
 
 
