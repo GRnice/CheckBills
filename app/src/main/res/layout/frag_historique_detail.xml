@@ -1,12 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
+    <TextView
+        android:text="TitreTicket"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/button"
-        android:layout_gravity="center_horizontal" />
-</LinearLayout>
+        android:layout_marginTop="21dp"
+        android:id="@+id/titleDetailHistorique"
+        android:layout_marginStart="19dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:fontFamily="sans-serif"
+        android:textSize="24sp"
+        android:textStyle="normal|bold" />
+
+    <Button
+        android:text="Afficher le lieu d'achat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button2"
+        android:elevation="0dp"
+        android:background="@android:color/holo_orange_light"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/dateDetailHistorique" />
+
+    <Button
+        android:text="Supprimer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button5"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@android:color/holo_red_light" />
+
+    <Button
+        android:text="Modifier"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button4"
+        android:background="@android:color/holo_green_light"
+        android:layout_above="@+id/button5"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="11dp" />
+
+    <TextView
+        android:text="Montant : 50€"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/montantDetailHistorique"
+        android:layout_below="@+id/dateDetailHistorique"
+        android:layout_alignStart="@+id/dateDetailHistorique"
+        android:layout_marginTop="45dp" />
+
+    <TextView
+        android:text="Date : 12 Décembre 2016"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dateDetailHistorique"
+        android:layout_below="@+id/imageButton"
+        android:layout_alignStart="@+id/titleDetailHistorique"
+        android:layout_marginTop="12dp" />
+
+    <ImageButton
+        app:srcCompat="@android:color/darker_gray"
+        android:id="@+id/imageButton"
+        android:layout_width="200px"
+        android:layout_height="200px"
+        android:layout_marginStart="24dp"
+        android:layout_alignTop="@+id/titleDetailHistorique"
+        android:layout_toEndOf="@+id/button2" />
+
+</RelativeLayout>

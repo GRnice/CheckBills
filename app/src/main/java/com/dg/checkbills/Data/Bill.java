@@ -3,6 +3,7 @@ package com.dg.checkbills.Data;
 import android.media.Image;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -22,9 +23,11 @@ public class Bill implements Serializable
     private Boutique boutique;
     private Date date;
     private int ID;
+    private String nom;
 
-    public Bill(TYPE_CONTENT_BILL type, int montant, Boutique boutique, Date date)
+    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, Date date)
     {
+        this.nom = nom;
         this.typeDeTicket = type;
         this.montant = montant;
         this.boutique = boutique;
@@ -35,6 +38,21 @@ public class Bill implements Serializable
     public int getId()
     {
         return ID;
+    }
+
+    public String getNom()
+    {
+        return this.nom;
+    }
+
+    public String getDate()
+    {
+        return DateFormat.getDateInstance().format(this.date);
+    }
+
+    public int getMontant()
+    {
+        return this.montant;
     }
 
 }

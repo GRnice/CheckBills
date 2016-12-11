@@ -31,7 +31,7 @@ public class BillsManager
     }
 
     /**
-     * Supprime tout les tickets, pratique pour les tests...
+     * Supprime le ticket, pratique pour les tests...
      * @param context
      * @param ticket
      * @return

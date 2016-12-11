@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorButtonNormal">
+
+    <TextView
+        android:text="Nom ticket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="19dp"
+        android:id="@+id/nomTicket"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textSize="18sp" />
+
+    <TextView
+        android:text="1€"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/nomTicket"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="31dp"
+        android:id="@+id/item_price"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <TextView
+        android:text="28 janvier 2016"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dateTicket"
+        android:layout_marginStart="24dp"
+        android:layout_alignBottom="@+id/item_price"
+        android:layout_alignStart="@+id/nomTicket" />
+</RelativeLayout>
