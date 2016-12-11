@@ -10,5 +10,19 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.dg.checkbills.ProcedureTicket">
 
+    <fragment
+        android:name="com.dg.checkbills.PhotoFragment"
+        android:id="@+id/scanFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <fragment
+        android:name="com.dg.checkbills.TicketInformation"
+        android:id="@+id/ticketInfoFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+
 
 </RelativeLayout>
