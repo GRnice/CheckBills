@@ -13,9 +13,10 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 
-public class TicketInformation extends Fragment {
+public class TicketInformation extends Fragment
+{
     private FragmentActivity mListener;
-    private Button myButton;
+    private Button buttonValidation;
     private Spinner firstSpinner;
 
 
@@ -39,6 +40,14 @@ public class TicketInformation extends Fragment {
         // Apply the adapter to the spinner
         firstSpinner.setAdapter(adapter);
 
+        buttonValidation = (Button) getView().findViewById(R.id.buttonValiderTicket);
+        buttonValidation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
     }
 
     @Override
@@ -53,7 +62,10 @@ public class TicketInformation extends Fragment {
         return inflater.inflate(R.layout.fragment_ticket_information, container, false);
     }
 
-
+    public void saveTicket()
+    {
+        // ICI on sauve le ticket
+    }
 
     @Override
     public void onAttach(Context context) {

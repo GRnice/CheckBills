@@ -96,10 +96,10 @@
         android:layout_weight="0.2">
 
         <Button
-            android:text="Send to server"
+            android:text="Valider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/button" />
+            android:id="@+id/buttonValiderTicket" />
 
     </LinearLayout>
 
