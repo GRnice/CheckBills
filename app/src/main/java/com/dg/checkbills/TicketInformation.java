@@ -15,7 +15,6 @@ import android.widget.Spinner;
 
 public class TicketInformation extends Fragment
 {
-    private FragmentActivity mListener;
     private Button buttonValidation;
     private Spinner firstSpinner;
 
@@ -71,7 +70,7 @@ public class TicketInformation extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-            mListener = (FragmentActivity) context;
+      //      mListener = (FragmentActivity) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -81,7 +80,7 @@ public class TicketInformation extends Fragment
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+     //   mListener = null;
     }
 
 
