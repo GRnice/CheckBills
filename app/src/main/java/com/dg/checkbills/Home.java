@@ -1,8 +1,13 @@
 package com.dg.checkbills;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.WakefulBroadcastReceiver;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Historique.HistoriqueActivity;
 
 
@@ -20,12 +26,21 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (! isMyServiceRunning(ServiceSocket.class,this))
+        {
+            Log.e("GEN NEW SERVICE","GEN AT ONCREATE");
+            WakefulBroadcastReceiver wakeful = new WakefulReceiver();
+            Intent intent = new Intent(Home.this,ServiceSocket.class);
+            wakeful.startWakefulService(this,intent);
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +66,16 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     public void onDestroy()
     {
         super.onDestroy();
+    }
+
+    public static boolean isMyServiceRunning(Class<?> serviceClass, Activity act) {
+        ActivityManager manager = (ActivityManager) act.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -106,5 +131,16 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public class WakefulReceiver extends WakefulBroadcastReceiver {
+        public WakefulReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            startWakefulService(context,intent);
+        }
     }
 }

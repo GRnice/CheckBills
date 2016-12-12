@@ -14,7 +14,6 @@ public class Bill implements Serializable
     /**
      * Un ticket est défini par son type, son montant, l'heure, la date de sa prise, sa photo ainsi que la boutique associée
      */
-
     private  static  final  long serialVersionUID =  1350792821376720032L;
 
     private TYPE_CONTENT_BILL typeDeTicket;

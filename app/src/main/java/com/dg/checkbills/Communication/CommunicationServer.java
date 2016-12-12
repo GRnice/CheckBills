@@ -4,9 +4,7 @@ package com.dg.checkbills.Communication;
 import android.app.Service;
 
 import android.content.Intent;
-import android.os.MemoryFile;
 import android.util.Log;
-
 
 import com.dg.checkbills.Daemon.ServiceSocket;
 
@@ -22,13 +20,13 @@ import java.net.Socket;
  * Class used to manage the socket (IO) with the server
  * Connect to SOCKET_ADDR, set receivers and emit events
  *
- * Created by Team PFE 2016-2017 Cheebane-Dib-Giangrasso-Hossam
  */
 public class CommunicationServer extends Thread implements Runnable
 {
+    //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
     public static final String SOCKET_ADDR = "10.1.99.212";
 
-    public static final int PORT = 3000;
+    public static final int PORT = 3200;
     private Socket m_sock;
     private BufferedReader input;
     private PrintWriter output;
@@ -80,7 +78,7 @@ public class CommunicationServer extends Thread implements Runnable
         while(this.run)
         {
             intent = new Intent();
-            intent.setAction(ServiceSocket.ACTION_RECEIVE_FROM_SERVER);
+            intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_SERVER);
             try
             {
                 line = input.readLine();
@@ -113,7 +111,7 @@ public class CommunicationServer extends Thread implements Runnable
         this.output.println(message);
     }
 
-    public synchronized void deconnect()
+    private synchronized void deconnect()
     {
         try {
             this.m_sock.close();
