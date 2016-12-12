@@ -2,6 +2,7 @@ package com.dg.checkbills;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -12,12 +13,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.dg.checkbills.Daemon.ServiceSocket;
+import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Storage.BillsManager;
+
+import java.net.Socket;
+import java.util.Date;
+
 
 public class TicketInformation extends Fragment
 {
     private Button buttonValidation;
     private Spinner firstSpinner;
-
 
     // Required empty public constructor
     public TicketInformation() { }
@@ -43,10 +50,16 @@ public class TicketInformation extends Fragment
         buttonValidation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent();
+                intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_ACTIVITY);
+                intent.putExtra("NEWBILL",true);
+                intent.putExtra("MONTANT",50);
+                intent.putExtra("NOM","Un Ticket");
+                intent.putExtra("BOUTIQUE",new Boutique());
+                intent.putExtra("DATE",new Date());
+                getActivity().sendBroadcast(intent);
             }
         });
-
     }
 
     @Override

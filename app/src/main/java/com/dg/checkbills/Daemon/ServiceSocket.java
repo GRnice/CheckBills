@@ -10,6 +10,13 @@ import android.util.Log;
 
 import com.dg.checkbills.Communication.CommunicationServer;
 import com.dg.checkbills.Communication.NetworkUtil;
+import com.dg.checkbills.Data.Bill;
+import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
+import com.dg.checkbills.Storage.BillsManager;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by Remy on 11/12/2016.
@@ -36,6 +43,8 @@ public class ServiceSocket extends Service
         activityReceiver = new ActivityReceiver();
         serverReceiver = new ServerReceiver();
         networkChangeReceiver = new NetworkChangeReceiver();
+
+        Log.e("PK TANT DE HAINE","YOLO");
 
         // ECOUTE DES MESSAGES PROVENANTS DU SERVEUR
         IntentFilter intentFilter = new IntentFilter();
@@ -97,7 +106,18 @@ public class ServiceSocket extends Service
         {
             // ICI on recoit les messages provenants d'une activité
 
-            boolean newTicket = arg1.getBooleanExtra("NEWTICKET", false);
+            boolean newBill = arg1.getBooleanExtra("NEWBILL", false);
+            if (newBill)
+            {
+                int montant = arg1.getIntExtra("MONTANT",-1);
+                String nom = arg1.getStringExtra("NOM");
+                Boutique boutique = (Boutique) arg1.getSerializableExtra("BOUTIQUE");
+                Date date = (Date) arg1.getSerializableExtra("DATE");
+                BillsManager managerData = new BillsManager();
+                Bill nwBill = new Bill(TYPE_CONTENT_BILL.LOISIR,nom,montant,boutique,date);
+                Log.e("COUCOU","TRUSTME");
+                managerData.store(getBaseContext(),nwBill);
+            }
         }
 
     }
