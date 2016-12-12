@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 public class PhotoFragment extends Fragment {
     private ImageView imgTicket;
     private Button scanButton;
-    private FragmentActivity mListener;
 
     // Required empty public constructor
     public PhotoFragment() {
@@ -27,24 +25,6 @@ public class PhotoFragment extends Fragment {
     }
 
 
-    // This method is called after the parent Activity's onCreate() method has completed.
-    // Accessing the view hierarchy of the parent activity must be done in the onActivityCreated.
-    // At this point, it is safe to search for activity View objects by their ID, for example.
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        scanButton = (Button) getView().findViewById(R.id.btnscan);
-        scanButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                ((ProcedureTicket) getActivity()).getNext();
-                return;
-            }
-        });
-
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,8 +34,19 @@ public class PhotoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.fragment_photo, container, false);
+        scanButton = (Button) v.findViewById(R.id.btnscan);
+        scanButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                ((ProcedureTicket) getActivity()).getNext();
+                return;
+            }
+        });
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_photo, container, false);
+        return v;
     }
 
     @Override
@@ -70,7 +61,7 @@ public class PhotoFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof Activity) {
-            mListener = (FragmentActivity) context;
+
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -80,7 +71,6 @@ public class PhotoFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     public void putPhoto(Bitmap img) {

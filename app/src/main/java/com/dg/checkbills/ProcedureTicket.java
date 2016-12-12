@@ -26,6 +26,7 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
     private LocationManager lm;
     private Calendar cal;
     private String strDate;
+    private Location location;
 
 
     @Override
@@ -33,11 +34,16 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_procedure_ticket);
+        photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
+        ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
+
         dispatchTakePictureIntent();
 
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         checkPermission(Manifest.permission.ACCESS_FINE_LOCATION,1,0);
         lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,500,0, this);
+
+
     }
 
 
@@ -52,6 +58,7 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
             strDate = sdf.format(cal.getTime());
             Log.d("DATE", strDate);
+            ticketInfoFragment.setTicketDate(strDate);
 
         }
     }
@@ -68,20 +75,20 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
 
-            photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
-            photoFragment.putPhoto(imageBitmap);
 
-            ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
+            photoFragment.putPhoto(imageBitmap);
             ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
+
+            ticketInfoFragment.setLocation(location);
         }
 
     }
 
 
     @Override
-    public void onLocationChanged(Location location) {
-        Log.d("POSLOGLAT", (String.valueOf(location.getLongitude())) + " " +
-                String.valueOf(location.getLatitude()));
+    public void onLocationChanged(Location loc) {
+        location = loc;
+        Log.d("POSLOGLAT", (String.valueOf(location.getLongitude())) + " " + String.valueOf(location.getLatitude()));
 
     }
 
