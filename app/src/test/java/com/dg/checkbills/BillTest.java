@@ -22,9 +22,10 @@ public class BillTest
         Bill bill;
         TYPE_CONTENT_BILL type = TYPE_CONTENT_BILL.ALIMENTAIRE;
         int montant = 45;
+        String nom = "Unticket";
         Boutique boutique = new Boutique();
         Date heure = new Date(System.currentTimeMillis());
-        bill = new Bill(type,montant,boutique,heure);
+        bill = new Bill(type,nom,montant,boutique,heure);
         assertTrue(bill.getId() == montant + boutique.hashCode() + heure.hashCode());
     }
 
