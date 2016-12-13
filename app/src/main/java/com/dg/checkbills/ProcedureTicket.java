@@ -78,7 +78,7 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
 
             photoFragment.putPhoto(imageBitmap);
             ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
-
+            ticketInfoFragment.setImageTicket(imageBitmap);
             ticketInfoFragment.setLocation(location);
         }
 

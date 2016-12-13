@@ -82,12 +82,31 @@ public class ServiceSocket extends Service
         return null;
     }
 
-    private boolean sendBill()
+
+    public void sendImage(Bill myBill) {
+        String imgString = myBill.getImage();
+        StringBuilder res =  new StringBuilder();
+        for(int i = 0; i < imgString.length(); i+=4096) {
+            comm.sendMessage(imgString.substring(i, Math.min(i + 4096, imgString.length())));
+        }
+    }
+
+    private boolean sendBill(Bill myBill)
     {
-        /*comm.setActionIntent(ACTION_TO_SERVICE_FROM_SERVER);
+        comm = new CommunicationServer();
+        comm.setActionIntent(ACTION_TO_SERVICE_FROM_SERVER);
         comm.setService(this);
         comm.start();
-        */
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        comm.sendMessage("DATE*" + myBill.getDate());
+        comm.sendMessage("MONTANT*" + String.valueOf(myBill.getMontant()));
+        comm.sendMessage("IMAGE*" + myBill.getImage().split(",").length);
+        sendImage(myBill);
+
         return true;
     }
 
@@ -111,12 +130,16 @@ public class ServiceSocket extends Service
             {
                 int montant = arg1.getIntExtra("MONTANT",-1);
                 String nom = arg1.getStringExtra("NOM");
+                String typeAchat = (String) arg1.getSerializableExtra("TYPEACHAT");
                 Boutique boutique = (Boutique) arg1.getSerializableExtra("BOUTIQUE");
-                Date date = (Date) arg1.getSerializableExtra("DATE");
+                String date = (String) arg1.getSerializableExtra("DATE");
+                byte[] image = (byte[]) arg1.getSerializableExtra("IMAGE");
+
                 BillsManager managerData = new BillsManager();
-                Bill nwBill = new Bill(TYPE_CONTENT_BILL.LOISIR,nom,montant,boutique,date);
+                Bill nwBill = new Bill(TYPE_CONTENT_BILL.LOISIR,nom,montant,boutique,date,image);
                 Log.e("COUCOU","TRUSTME");
                 managerData.store(getBaseContext(),nwBill);
+                sendBill(nwBill);
             }
         }
 

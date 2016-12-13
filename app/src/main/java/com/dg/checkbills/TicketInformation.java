@@ -3,9 +3,11 @@ package com.dg.checkbills;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Data.Boutique;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Date;
 
 
@@ -26,6 +29,7 @@ public class TicketInformation extends Fragment
     private Spinner marketPlaceSpinner;
     private Spinner typeAchatSpinner;
     private TextView date;
+    private Bitmap imgTicket;
 
     private String ticketDate;
     private Location longLat;
@@ -75,8 +79,19 @@ public class TicketInformation extends Fragment
                 intent.putExtra("NEWBILL",true);
                 intent.putExtra("MONTANT",50);
                 intent.putExtra("NOM","Un Ticket");
-                intent.putExtra("BOUTIQUE",new Boutique());
-                intent.putExtra("DATE",new Date());
+                intent.putExtra("TYPEACHAT", typeAchatSpinner.getSelectedItem().toString());
+                intent.putExtra("BOUTIQUE",new Boutique(marketPlaceSpinner.getSelectedItem().toString(), longLat.getLongitude(), longLat.getLatitude()));
+                Log.d("Boutique ",marketPlaceSpinner.getSelectedItem().toString() );
+                intent.putExtra("DATE",ticketDate);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                imgTicket.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                intent.putExtra("IMAGE", byteArray);
+
+
+
                 getActivity().sendBroadcast(intent);
             }
         });
@@ -114,6 +129,10 @@ public class TicketInformation extends Fragment
     public void setTicketDate(String date) {
         ticketDate = date;
         this.date.setText(ticketDate);
+    }
+
+    public void setImageTicket(Bitmap ticketBitmap) {
+        imgTicket = ticketBitmap;
     }
 
 

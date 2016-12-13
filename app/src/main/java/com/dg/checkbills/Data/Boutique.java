@@ -13,12 +13,15 @@ public class Boutique implements Serializable
      */
 
     private double latitude, longitude;
+    private String boutiqueName;
 
     private  static  final  long serialVersionUID =  1332792844476720732L;
 
-    public Boutique()
+    public Boutique(String name, double longi, double lat)
     {
-
+        this.latitude = lat;
+        this.longitude = longi;
+        this.boutiqueName = name;
     }
 
 }

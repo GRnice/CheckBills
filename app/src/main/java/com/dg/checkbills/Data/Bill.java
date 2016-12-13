@@ -17,19 +17,20 @@ public class Bill implements Serializable
     private  static  final  long serialVersionUID =  1350792821376720032L;
 
     private TYPE_CONTENT_BILL typeDeTicket;
-    private transient Image imageDuTicket; // L'image n'est pas serializable
+    private byte[] imageDuTicket; // L'image n'est pas serializable
     private int montant;
     private Boutique boutique;
-    private Date date;
+    private String date;
     private int ID;
     private String nom;
 
-    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, Date date)
+    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date, byte[] img)
     {
         this.nom = nom;
         this.typeDeTicket = type;
         this.montant = montant;
         this.boutique = boutique;
+        this.imageDuTicket = img;
         this.date = date;
         this.ID = this.boutique.hashCode() + this.montant + this.date.hashCode();
     }
@@ -46,7 +47,19 @@ public class Bill implements Serializable
 
     public String getDate()
     {
-        return DateFormat.getDateInstance().format(this.date);
+        return this.date;
+    }
+
+    public String getImage(){
+        StringBuilder str = new StringBuilder();
+        for(int i = 0; i < imageDuTicket.length; i++) {
+            str.append(imageDuTicket[i]);
+
+            if(i != imageDuTicket.length - 1) {
+                str.append(",");
+            }
+        }
+        return str.toString();
     }
 
     public int getMontant()
