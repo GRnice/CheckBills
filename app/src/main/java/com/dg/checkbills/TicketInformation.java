@@ -75,6 +75,9 @@ public class TicketInformation extends Fragment
         buttonValidation.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
+                longLat = new Location("s");
+                longLat.setLatitude(45.5);
+                longLat.setLongitude(7.2);
                 intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_ACTIVITY);
                 intent.putExtra("NEWBILL",true);
                 intent.putExtra("MONTANT",50);

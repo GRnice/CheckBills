@@ -85,9 +85,14 @@ public class ServiceSocket extends Service
 
     public void sendImage(Bill myBill) {
         String imgString = myBill.getImage();
-        StringBuilder res =  new StringBuilder();
-        for(int i = 0; i < imgString.length(); i+=4096) {
+        for(int i = 0; i < imgString.length(); i+=4096)
+        {
             comm.sendMessage(imgString.substring(i, Math.min(i + 4096, imgString.length())));
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
