@@ -9,9 +9,11 @@ import android.util.Log;
 import com.dg.checkbills.Daemon.ServiceSocket;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -24,12 +26,13 @@ import java.net.Socket;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "10.0.2.181";
+    public static final String SOCKET_ADDR = "10.212.118.187";
 
     public static final int PORT = 3200;
     private Socket m_sock;
     private BufferedReader input;
-    private PrintWriter output;
+    private PrintWriter outputString;
+    private OutputStream outputByte;
     private String actionIntent;
     private Service service;
     boolean run;
@@ -68,7 +71,8 @@ public class CommunicationServer extends Thread implements Runnable
         try
         {
             input = new BufferedReader(new InputStreamReader(m_sock.getInputStream()));
-            output = new PrintWriter(m_sock.getOutputStream(),true);
+            outputString = new PrintWriter(m_sock.getOutputStream(),true);
+            outputByte = m_sock.getOutputStream();
         } catch (IOException e)
         {
             e.printStackTrace();
@@ -106,9 +110,22 @@ public class CommunicationServer extends Thread implements Runnable
 
     }
 
+    public synchronized void sendMessage(byte[] bytearray)
+    {
+        try
+        {
+            outputByte.write(bytearray);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
     public synchronized void sendMessage(String message)
     {
-        this.output.print(message);
+        this.outputString.println(message);
     }
 
     private synchronized void deconnect()

@@ -84,16 +84,18 @@ public class ServiceSocket extends Service
 
 
     public void sendImage(Bill myBill) {
-        String imgString = myBill.getImage();
-        for(int i = 0; i < imgString.length(); i+=4096)
+        byte[] imgString = myBill.getImage();
+        comm.sendMessage(imgString);
+        /*for(int i = 0; i < imgString.length; i+=4096)
         {
-            comm.sendMessage(imgString.substring(i, Math.min(i + 4096, imgString.length())));
+            // ici on ENVOI QUE DES BYTES
+
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private boolean sendBill(Bill myBill)
@@ -103,13 +105,17 @@ public class ServiceSocket extends Service
         comm.setService(this);
         comm.start();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        comm.sendMessage("DATE*" + myBill.getDate());
-        comm.sendMessage("MONTANT*" + String.valueOf(myBill.getMontant()));
-        comm.sendMessage("IMAGE*" + myBill.getImage().split(",").length);
+        comm.sendMessage("DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())+"*IMAGE*"+myBill.getImage().length);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         sendImage(myBill);
 
         return true;

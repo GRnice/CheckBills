@@ -24,7 +24,7 @@ public class Bill implements Serializable
     private int ID;
     private String nom;
 
-    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date, byte[] img)
+    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date,byte[] img)
     {
         this.nom = nom;
         this.typeDeTicket = type;
@@ -50,16 +50,8 @@ public class Bill implements Serializable
         return this.date;
     }
 
-    public String getImage(){
-        StringBuilder str = new StringBuilder();
-        for(int i = 0; i < imageDuTicket.length; i++) {
-            str.append(imageDuTicket[i]);
-
-            if(i != imageDuTicket.length - 1) {
-                str.append(",");
-            }
-        }
-        return str.toString();
+    public byte[] getImage(){
+        return this.imageDuTicket;
     }
 
     public int getMontant()

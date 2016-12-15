@@ -1,11 +1,21 @@
 import socket, select
 from threading import Thread
 import math
+import os
 #import signal
+
+hashmapClientSock = dict()
 
 class ClientRequest:
     def __init__(self):
-        pass
+        self.state = None
+
+    def setwaitingfor(self,state):
+        self.state = state
+
+    def waitingfor(self):
+        return self.state
+        
 
 class Server(Thread):
     def __init__(self,port,sizeBuffer,maxClientSocket):
@@ -32,52 +42,47 @@ class Server(Thread):
         
         print("Server started on port " + str(self.PORT) + " [ok]")
         print("=============SERVEUR ONLINE=============")
+        checksum = 0
         while self.serverOnline:
         # Get the list sockets which are ready to be read through select
 
             read_sockets,write_sockets,error_sockets = select.select(self.CONNECTION_LIST,[],[])
-            print(read_sockets)
+            
             for sock in read_sockets:
                 if sock == server_socket:
                     print("Client (%s) is connected" % sock)
                     sockfd, addr = server_socket.accept()
                     self.CONNECTION_LIST.append(sockfd)
+                    hashmapClientSock[sockfd] = ClientRequest()
                     
                 else:
                     # Data received from client, process it
                     try:
                         data = sock.recv(self.RECV_BUFFER)
-                        data = data.decode('utf-8')
-                        #print(data)
+                        clientrequest = hashmapClientSock[sock]
+                        message = None
                         if len(data) > 0:
-                            # IMAGE*sizeImage
-                            if (len(data) > 5 and data[0:5] == "IMAGE"):
-                                tabdata = data.split("*")
-                                sizeImage = int(tabdata[1])
+                            try:
+                                message = data.decode('utf-8')
+                                print(message)
+                                if ("DATE" in message[0:4]):
+                                    tabdata = message.split('*')
+                                    date = tabdata[1]
+                                    montant = tabdata[3]
+                                    sizeImage = int(tabdata[5])
 
-                                nbIteration = math.ceil(sizeImage / self.RECV_BUFFER)
-                                with open("./fileTmp.bmp","wb") as file:
+                            except:
+                                print(data[0])
+                                checksum = checksum + len(data)
+                                print(checksum)
+                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.png"):
+                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'wb')
+                                    file.close()
+                                    
+                                file = open("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg",'ab')
+                                file.write(data)
+                                file.close()
 
-                                    for i in range(0,nbIteration):
-                                        dataImage = sock.recv(self.RECV_BUFFER)
-                                        dataImage = dataImage.decode('utf-8')
-                                        dataImage = dataImage.split(",")
-                                        for elt in dataImage:
-                                            file.write(int(elt))
-                                
-                            # DATE*contenu
-                            elif (len(data) > 4 and data[0:4] == "DATE"):
-                                tabdata = data.split("*")
-                                contenu = tabdata[1]
-                                #print(contenu)
-
-
-                            elif (len(data) > 7 and data[0:7] == "MONTANT"):
-                                tabdata = data.split("*")
-                                contenu = tabdata[1]
-                                #print(contenu)
-                                
-                                
 
                         else:
                             print("Client (%s) is offline" % sock)
@@ -86,8 +91,9 @@ class Server(Thread):
                             sock.close()
 
 
-                    except:
-                        print("Client (%s) is offline" % sock)
+                    except Exception as e:
+                        print(e)
+                        print("(Exception) Client (%s) is offline" % sock)
                         index = self.CONNECTION_LIST.index(sock)
                         self.CONNECTION_LIST.pop(index)
                         sock.close()
