@@ -98,18 +98,21 @@ public class ServiceSocket extends Service
         }*/
     }
 
-    private boolean sendBill(Bill myBill)
+    private boolean sendBill(String idTel,Bill myBill)
     {
         comm = new CommunicationServer();
         comm.setActionIntent(ACTION_TO_SERVICE_FROM_SERVER);
         comm.setService(this);
         comm.start();
+
+        Boutique boutique = myBill.getBoutique();
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        comm.sendMessage("DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())+"*IMAGE*"+myBill.getImage().length);
+        comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
+                +"*LONG*"+String.valueOf(boutique.getLongitude())+"*LAT*"+String.valueOf(boutique.getLatitude()));
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -139,6 +142,7 @@ public class ServiceSocket extends Service
             boolean newBill = arg1.getBooleanExtra("NEWBILL", false);
             if (newBill)
             {
+                String idTel = arg1.getStringExtra("IDTEL");
                 int montant = arg1.getIntExtra("MONTANT",-1);
                 String nom = arg1.getStringExtra("NOM");
                 String typeAchat = (String) arg1.getSerializableExtra("TYPEACHAT");
@@ -150,7 +154,7 @@ public class ServiceSocket extends Service
                 Bill nwBill = new Bill(TYPE_CONTENT_BILL.LOISIR,nom,montant,boutique,date,image);
                 Log.e("COUCOU","TRUSTME");
                 managerData.store(getBaseContext(),nwBill);
-                sendBill(nwBill);
+                sendBill(idTel,nwBill);
             }
         }
 

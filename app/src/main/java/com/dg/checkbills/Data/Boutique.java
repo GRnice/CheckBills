@@ -24,4 +24,14 @@ public class Boutique implements Serializable
         this.boutiqueName = name;
     }
 
+    public double getLatitude()
+    {
+        return latitude;
+    }
+
+    public double getLongitude()
+    {
+        return longitude;
+    }
+
 }

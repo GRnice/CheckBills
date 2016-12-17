@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +27,7 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
     private LocationManager lm;
     private Calendar cal;
     private String strDate;
+    private String androidId;
     private Location location;
 
 
@@ -36,12 +38,15 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
         setContentView(R.layout.activity_procedure_ticket);
         photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
         ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
+        androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
 
         dispatchTakePictureIntent();
 
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         checkPermission(Manifest.permission.ACCESS_FINE_LOCATION,1,0);
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,500,0, this);
+        //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,500,0, this);
+        location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 
     }
@@ -84,6 +89,20 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
 
     }
 
+    public String getAndroidId()
+    {
+        return this.androidId;
+    }
+
+    public String getLatitude()
+    {
+        return String.valueOf(location.getLatitude());
+    }
+
+    public String getLongitude()
+    {
+        return String.valueOf(location.getLongitude());
+    }
 
     @Override
     public void onLocationChanged(Location loc) {

@@ -65,11 +65,12 @@ class Server(Thread):
                             try:
                                 message = data.decode('utf-8')
                                 print(message)
-                                if ("DATE" in message[0:4]):
+                                if ("ID" in message[0:2]):
                                     tabdata = message.split('*')
-                                    date = tabdata[1]
-                                    montant = tabdata[3]
-                                    sizeImage = int(tabdata[5])
+                                    idtel = tabdata[1]
+                                    date = tabdata[3]
+                                    montant = tabdata[5]
+                                    sizeImage = tabdata[7]
 
                             except:
                                 print(data[0])

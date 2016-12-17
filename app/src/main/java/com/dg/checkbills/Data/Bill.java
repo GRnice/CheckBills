@@ -59,4 +59,8 @@ public class Bill implements Serializable
         return this.montant;
     }
 
+    public Boutique getBoutique()
+    {
+        return boutique;
+    }
 }

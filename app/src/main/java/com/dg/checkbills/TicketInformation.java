@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +46,7 @@ public class TicketInformation extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -79,12 +81,14 @@ public class TicketInformation extends Fragment
                 longLat.setLatitude(45.5);
                 longLat.setLongitude(7.2);
                 intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_ACTIVITY);
+                ProcedureTicket activity = (ProcedureTicket) getActivity();
+                intent.putExtra("IDTEL",activity.getAndroidId());
                 intent.putExtra("NEWBILL",true);
                 intent.putExtra("MONTANT",50);
                 intent.putExtra("NOM","Un Ticket");
                 intent.putExtra("TYPEACHAT", typeAchatSpinner.getSelectedItem().toString());
                 intent.putExtra("BOUTIQUE",new Boutique(marketPlaceSpinner.getSelectedItem().toString(), longLat.getLongitude(), longLat.getLatitude()));
-                Log.d("Boutique ",marketPlaceSpinner.getSelectedItem().toString() );
+                Log.d("Boutique ",marketPlaceSpinner.getSelectedItem().toString());
                 intent.putExtra("DATE",ticketDate);
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
