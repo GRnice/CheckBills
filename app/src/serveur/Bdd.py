@@ -3,6 +3,8 @@
 
 import sqlite3 as lite
 
+##comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
+##        +"*LONG*"+String.valueOf(boutique.getLongitude())+"*LAT*"+String.valueOf(boutique.getLatitude()));
 
 class BaseDeDonnee:
 
@@ -10,11 +12,11 @@ class BaseDeDonnee:
         self.conn = lite.connect("ma_base.db")
         self.cur = self.conn.cursor()
 
-    
+
     def createTable(self):
         try:
             self.cur.execute(
-                "CREATE TABLE Tickets(id INTEGER PRIMARY KEY, title TEXT, date TEXT, montant TEXT, imageBytes TEXT)" )
+            "CREATE TABLE Tickets(id INTEGER PRIMARY KEY,title TEXT, date TEXT, montant TEXT, longitude TEXT, latitude TEXT, imageBytes TEXT)" )
             self.conn.commit()
             print("Table Tickets created")
             return 0
@@ -24,8 +26,8 @@ class BaseDeDonnee:
 
     def insertToTable(self, idTicket):  ## APRES obj ticket en param
         try:
-            self.cur.execute("INSERT INTO Tickets(id, title, date, montant, imageBytes) VALUES (?, ?, ?, ?, ?)",
-                            (idTicket, "carrefourTicket", "123DCSD", "15.00", "123 1212 367"))  ## tout est string
+            self.cur.execute("INSERT INTO Tickets(id, title, date, montant, longitude, latitude,imageBytes) VALUES (?,?,?,?,?,?,?)",
+                            (idTicket, "carrefourTicket", "123DCSD", "15.00", "6.00013", "7.12123","123 1212 367"))  ## tout est string
             self.conn.commit()
             print("insertGood")
             return 0
@@ -45,7 +47,7 @@ class BaseDeDonnee:
 
     def getFromTable(self, idTicket): 
         try:
-            self.cur.execute("SELECT id, title, date, montant, imageBytes FROM Tickets WHERE id = ?",(idTicket,))
+            self.cur.execute("SELECT id, title, date, montant, longitude, latitude, imageBytes FROM Tickets WHERE id = ?",(idTicket,))
             tck1 = self.cur.fetchone()
             print(tck1)
             return 0
@@ -61,11 +63,12 @@ class BaseDeDonnee:
             print(row)
                 
                 
-##bd = BaseDeDonnee()
-##bd.createTable()
-##bd.insertToTable(1)
-##bd.insertToTable(2)
-##bd.insertToTable(3)
-##bd.deleteFromTable(3)
-##bd.getFromTable(2)
-##bd.readTable()
+bd = BaseDeDonnee()
+bd.createTable()
+bd.insertToTable(1)
+bd.insertToTable(2)
+bd.insertToTable(3)
+bd.deleteFromTable(3)
+
+bd.getFromTable(2)
+bd.readTable()
