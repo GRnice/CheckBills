@@ -15,9 +15,6 @@ import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
 import com.dg.checkbills.Storage.BillsManager;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
  * Created by Remy on 11/12/2016.
  */
@@ -111,15 +108,24 @@ public class ServiceSocket extends Service
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        // ID*idxxxx*DATE*string*MONTANT*40*IDBOUTIQUE*f8e9*TITRE*xxtitrexx*TYPEBILL*x
         comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
-                +"*LONG*"+String.valueOf(boutique.getLongitude())+"*LAT*"+String.valueOf(boutique.getLatitude()));
+                + "*IDBOUTIQUE*" + myBill.getBoutique().getId()+"*TITRE*"+myBill.getNom()+"*TYPEBILL*"+myBill.getType());
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         sendImage(myBill);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        comm.sendMessage("IMAGECHECK");
 
         return true;
     }

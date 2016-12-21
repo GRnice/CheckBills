@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Created by Remy on 31/10/2016.
  */
-public class Bill implements Serializable
+public class Bill extends Data implements Serializable
 {
     /**
      * Un ticket est défini par son type, son montant, l'heure, la date de sa prise, sa photo ainsi que la boutique associée
@@ -21,8 +21,6 @@ public class Bill implements Serializable
     private int montant;
     private Boutique boutique;
     private String date;
-    private int ID;
-    private String nom;
 
     public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date,byte[] img)
     {
@@ -32,17 +30,7 @@ public class Bill implements Serializable
         this.boutique = boutique;
         this.imageDuTicket = img;
         this.date = date;
-        this.ID = this.boutique.hashCode() + this.montant + this.date.hashCode();
-    }
-
-    public int getId()
-    {
-        return ID;
-    }
-
-    public String getNom()
-    {
-        return this.nom;
+        this.id = String.valueOf(this.boutique.hashCode() + this.montant + this.date.hashCode());
     }
 
     public String getDate()
@@ -50,7 +38,8 @@ public class Bill implements Serializable
         return this.date;
     }
 
-    public byte[] getImage(){
+    public byte[] getImage()
+    {
         return this.imageDuTicket;
     }
 
@@ -62,5 +51,9 @@ public class Bill implements Serializable
     public Boutique getBoutique()
     {
         return boutique;
+    }
+
+    public String getType() {
+        return typeDeTicket.toString();
     }
 }
