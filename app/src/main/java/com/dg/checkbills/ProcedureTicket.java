@@ -1,15 +1,12 @@
 package com.dg.checkbills;
 
 
-import android.Manifest;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
@@ -20,14 +17,11 @@ import android.view.View;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
-import com.dg.checkbills.Historique.HistoriqueDetailFragment;
-import com.dg.checkbills.Historique.HistoriqueListingFragment;
-import com.dg.checkbills.Storage.BillsManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+
 
 public class ProcedureTicket extends FragmentActivity
 {

@@ -20,7 +20,4 @@ public class Boutique extends Data
         this.nom = name;
     }
 
-
-
-
 }

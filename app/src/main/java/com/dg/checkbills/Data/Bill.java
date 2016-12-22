@@ -21,6 +21,7 @@ public class Bill extends Data
     private int montant;
     private Boutique boutique;
     private String date;
+    private boolean isOnCloud;
 
     public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date,byte[] img)
     {
@@ -30,6 +31,7 @@ public class Bill extends Data
         this.boutique = boutique;
         this.imageDuTicket = img;
         this.date = date;
+        this.isOnCloud = false;
         this.id = String.valueOf(this.boutique.hashCode() + this.montant + this.date.hashCode());
     }
 
@@ -41,6 +43,7 @@ public class Bill extends Data
         this.boutique = boutique;
         this.imageDuTicket = img;
         this.date = date;
+        this.isOnCloud = false;
         this.id = String.valueOf(this.boutique.hashCode() + this.montant + this.date.hashCode());
         switch (type.toUpperCase())
         {
@@ -80,5 +83,10 @@ public class Bill extends Data
 
     public String getType() {
         return typeDeTicket.toString();
+    }
+
+    public void setIsOnCloud(boolean isOnCloud)
+    {
+        this.isOnCloud = isOnCloud;
     }
 }

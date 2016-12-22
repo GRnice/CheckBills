@@ -23,16 +23,20 @@ import java.util.ArrayList;
  * Created by Remy on 11/12/2016.
  */
 
-public class ServiceSocket extends Service
+public class ServiceSocket extends Service implements TimerListener
 {
 
-    private CommunicationServer comm;
-    private ActivityReceiver activityReceiver;
-    private ServerReceiver serverReceiver;
+    private CommunicationServer comm; // permet de dialoguer avec le serveur
+    private ActivityReceiver activityReceiver; // ecoute les messages émis par les differentes activity
+    private ServerReceiver serverReceiver; // ecoute les messages émis par le serveur
     private NetworkChangeReceiver networkChangeReceiver;
 
-    private ArrayList<Bill> billsArray;
-    private ArrayList<Boutique> boutiqueArray;
+    private ArrayList<Bill> billsArray; // tableau de tickets
+    private ArrayList<Boutique> boutiqueArray; // tableau de boutiques
+
+    private StringBuilder boutiqueStringReceived; // contient toutes les boutiques transmisent sous forme de string
+    private Bill billSending;
+    // par le serveur, ce tableau sera traité quand toutes les boutiques auront été recues.
 
     public ServiceSocket()
     {
@@ -66,6 +70,8 @@ public class ServiceSocket extends Service
         registerReceiver(networkChangeReceiver, intentFilter);
 
         super.onStartCommand(intent,flags,startId);
+
+        requestBoutique(); // demande de charger les dernieres boutiques
         return START_NOT_STICKY;
     }
 
@@ -86,15 +92,82 @@ public class ServiceSocket extends Service
         return null;
     }
 
+    /**
+     * Cette methode demande au serveur de transmettre les boutiques à l'application
+     */
+    private void requestBoutique()
+    {
+        boutiqueStringReceived = new StringBuilder();
+        comm = new CommunicationServer(this,"REQUESTBOUTIQUE",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
+        comm.start();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startTimer("REQUEST_BOUTIQUE_TIMER",10); // si au bout de 10 secondes tout n'a pas été transféré on
+                                                    // arrete la communication
+        comm.sendMessage("REQUEST_ALL_BOUTIQUES");
+    }
 
+    /**
+     * Traite les boutiques transmisent par le serveur
+     */
+    private void treatRequestBoutique()
+    {
+        comm.interrupt(); // arret du socket dédié au REQUEST_ALL_BOUTIQUES
+        comm = null;
+        String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
+        for (String aBoutique : allBoutiques)
+        {
+            String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
+            Boutique nwBoutique = new Boutique(aBoutiqueSplit[1],aBoutiqueSplit[3]);
+            BoutiqueManager.store(getBaseContext(),nwBoutique);
+            this.boutiqueArray.add(nwBoutique);
+        }
+    }
+
+    /**
+     * Traite les erreurs de connexion
+     */
+    public void treatFailSocket()
+    {
+        if (comm.getTag().equals("REQUESTBOUTIQUE"))
+        {
+            boutiqueStringReceived = new StringBuilder();
+            comm.interrupt();
+            comm = null;
+        }
+        else if(comm.getTag().equals("SENDBILL"))
+        {
+            comm.interrupt();
+            billSending.setIsOnCloud(false); // pas émis
+            billsArray.add(billSending); // mais quand meme ajouté
+            billSending = null;
+            comm = null;
+        }
+    }
+
+    private void startTimer(String tag,int secondes)
+    {
+        Timer unTimer = new Timer();
+        unTimer.setTag(tag); unTimer.setTimer(secondes);unTimer.setTimerListener(this);
+        unTimer.execute();
+    }
+
+
+
+    /**
+     * Envoie un ticket crée par l'utilisateur au serveur
+     * @param idTel
+     * @param myBill
+     * @return
+     */
     private boolean sendBill(String idTel,Bill myBill)
     {
-        comm = new CommunicationServer();
-        comm.setActionIntent(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-        comm.setService(this);
+        comm = new CommunicationServer(this,"SENDBILL",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.start();
 
-        Boutique boutique = myBill.getBoutique();
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -118,8 +191,27 @@ public class ServiceSocket extends Service
         }
 
         comm.sendMessage("IMAGECHECK");
+
         comm.interrupt();
+        billSending.setIsOnCloud(true); // il a bien été émis
+        billsArray.add(billSending);
+        billSending = null;
+        comm = null;
         return true;
+    }
+
+    /**
+     * Methode appellée par un asynctask qui a compté n secondes
+     * @param tag
+     */
+    @Override
+    public void timeout(String tag)
+    {
+        if (comm != null)
+        {
+            Log.e("TIMEOUT!!","STOPSOCKET");
+            treatFailSocket();
+        }
     }
 
     /**
@@ -144,8 +236,7 @@ public class ServiceSocket extends Service
                 String idTel = arg1.getStringExtra("IDTEL");
                 Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
                 BillsManager.store(getBaseContext(),nwBill);
-                billsArray.add(nwBill);
-
+                billSending = nwBill;
                 sendBill(idTel,nwBill);
             }
 
@@ -165,7 +256,6 @@ public class ServiceSocket extends Service
                 sendBroadcast(intentBoutique);
             }
         }
-
     }
 
     /**
@@ -175,11 +265,27 @@ public class ServiceSocket extends Service
      */
     private class ServerReceiver extends BroadcastReceiver
     {
-
         @Override
         public void onReceive(Context arg0, Intent arg1)
         {
+            if (comm != null && arg1.hasExtra("FAILSOCKET"))
+            {
+                treatFailSocket();
+            }
 
+            if (comm != null && comm.getTag().equals("REQUESTBOUTIQUE"))
+            {
+                String message = arg1.getStringExtra("MESSAGE");
+                if (message.equals("BOUTIQUECHECK"))
+                {
+                    treatRequestBoutique();
+
+                }
+                else
+                {
+                    boutiqueStringReceived.append(message);
+                }
+            }
         }
 
     }
@@ -197,7 +303,7 @@ public class ServiceSocket extends Service
             int status = NetworkUtil.getConnectivityStatusString(context);
             if (CONNECTIVITY_CHANGED.equals(intent.getAction()))
             {
-                if(status==NetworkUtil.NETWORK_STATUS_NOT_CONNECTED)
+                if (status==NetworkUtil.NETWORK_STATUS_NOT_CONNECTED)
                 {
 
                 }

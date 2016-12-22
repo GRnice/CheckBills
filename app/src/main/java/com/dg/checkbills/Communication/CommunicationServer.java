@@ -36,35 +36,56 @@ public class CommunicationServer extends Thread implements Runnable
     private OutputStream outputByte;
     private String actionIntent;
     private Service service;
+    private String tag;
     boolean run;
+    boolean isDeconnect; // si à false alors ne pas emettre un FAILSOCKET,
+                        // car le socket a été interrompu intentionnellement
 
     public CommunicationServer()
     {
         super();
     }
 
-    public synchronized void setActionIntent(String action)
+    public CommunicationServer(Service service,String tag,String actionIntent)
     {
-        actionIntent = action;
+        super();
+        this.actionIntent = actionIntent;
+        this.tag = tag;
+        this.service = service;
+    }
+
+    public String getTag()
+    {
+        return tag;
+    }
+
+    private void sendMessageToService(String key,String message)
+    {
+        Intent intent = new Intent();
+        intent.setAction(actionIntent);
+        intent.putExtra(key, message);
+        synchronized (this.service)
+        {
+            this.service.sendBroadcast(intent);
+        }
     }
 
 
-    public synchronized void setService(Service ser)
-    {
-        this.service = ser;
-    }
     @Override
     public void run()
     {
         String line;
-
+        isDeconnect = false;
         try
         {
             m_sock = new Socket(SOCKET_ADDR, PORT);
         }
         catch (IOException e)
         {
-
+            if (!isDeconnect)
+            {
+                sendMessageToService("FAILSOCKET","");
+            }
             e.printStackTrace();
             return;
         }
@@ -76,34 +97,32 @@ public class CommunicationServer extends Thread implements Runnable
             outputByte = m_sock.getOutputStream();
         } catch (IOException e)
         {
+            if (!isDeconnect)
+            {
+                sendMessageToService("FAILSOCKET","");
+            }
             e.printStackTrace();
         }
         this.run = true;
-        Intent intent;
         while(this.run)
         {
-            intent = new Intent();
-            intent.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
+
             try
             {
                 line = input.readLine();
 
                 if (line != null)
                 {
-                    /*if(line.equals(STOPSUIVI)){
-                        intent.putExtra(STOPSUIVI, true);
-                    } else if(line.equals(OKPROMENADE)){
-                        intent.putExtra(OKPROMENADE, true);
-                    }*/
-                    synchronized (this.service)
-                    {
-                        this.service.sendBroadcast(intent);
-                    }
+                    sendMessageToService("MESSAGE",line);
                     Log.e("RECEIVE THIS -> ",line);
                 }
 
             } catch (IOException e)
             {
+                if (!isDeconnect)
+                {
+                    sendMessageToService("FAILSOCKET","");
+                }
                 e.printStackTrace();
                 break;
             }
@@ -132,6 +151,7 @@ public class CommunicationServer extends Thread implements Runnable
     private synchronized void deconnect()
     {
         try {
+            this.isDeconnect = true;
             this.m_sock.close();
         } catch (IOException e) {
             e.printStackTrace();
