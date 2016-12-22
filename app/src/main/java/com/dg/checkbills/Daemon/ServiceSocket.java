@@ -36,6 +36,7 @@ public class ServiceSocket extends Service implements TimerListener
 
     private StringBuilder boutiqueStringReceived; // contient toutes les boutiques transmisent sous forme de string
     private Bill billSending;
+    private Timer aTimer;
     // par le serveur, ce tableau sera traité quand toutes les boutiques auront été recues.
 
     public ServiceSocket()
@@ -117,6 +118,7 @@ public class ServiceSocket extends Service implements TimerListener
     {
         comm.interrupt(); // arret du socket dédié au REQUEST_ALL_BOUTIQUES
         comm = null;
+        Log.e("ALL_BOUTIQUE_RECEIVED",boutiqueStringReceived.toString());
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
         for (String aBoutique : allBoutiques)
         {
@@ -150,9 +152,9 @@ public class ServiceSocket extends Service implements TimerListener
 
     private void startTimer(String tag,int secondes)
     {
-        Timer unTimer = new Timer();
-        unTimer.setTag(tag); unTimer.setTimer(secondes);unTimer.setTimerListener(this);
-        unTimer.execute();
+        aTimer = new Timer();
+        aTimer.setTag(tag); aTimer.setTimer(secondes);aTimer.setTimerListener(this);
+        aTimer.execute();
     }
 
 
@@ -276,8 +278,11 @@ public class ServiceSocket extends Service implements TimerListener
             if (comm != null && comm.getTag().equals("REQUESTBOUTIQUE"))
             {
                 String message = arg1.getStringExtra("MESSAGE");
+                Log.e("MESSAGEREQUEST",message);
                 if (message.equals("BOUTIQUECHECK"))
                 {
+                    aTimer.cancel(true);
+                    aTimer = null;
                     treatRequestBoutique();
 
                 }

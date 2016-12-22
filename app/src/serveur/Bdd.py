@@ -5,7 +5,7 @@ import sqlite3 as lite
 
 class BaseDeDonneeBoutique:
     def __init__(self):
-        self.conn = lite.connect("boutiques.db")
+        self.conn = lite.connect("boutiques.db",check_same_thread=False)
         self.cur = self.conn.cursor()
         self.createTable()
 
@@ -61,7 +61,7 @@ class BaseDeDonneeBoutique:
 class BaseDeDonneeTicket:
 
     def __init__(self):
-        self.conn = lite.connect("tickets.db")
+        self.conn = lite.connect("tickets.db",check_same_thread=False)
         self.cur = self.conn.cursor()
         self.createTable()
 

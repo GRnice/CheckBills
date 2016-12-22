@@ -79,21 +79,23 @@ class Server(Thread):
 
                                 elif("REQUEST_ALL_BOUTIQUES" in message[0:21]):
                                     print("requestBoutique du tel")
-                                    socket.send(self.bddBoutique.getListBoutique() + "\r\n".encode('utf-8'))
+                                    print(type(self.bddBoutique.getListBoutique()))
+                                    sock.send((self.bddBoutique.getListBoutique() + "\r\n").encode('utf-8'))
+                                    sock.send("BOUTIQUECHECK\r\n".encode('utf-8'))
 
                                 elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
                                      self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
                                     
                                 elif("IMAGECHECK" in message[0:10]):
-                                    clientrequest.state+=1
+                                    clientrequest.state += 1
                                     print("client State ", clientrequest.state)
                                     ## insert dans la table .. not GOOD, passe pas ici pr le moment
 
                               
                                     
 
-                            except:
-                                print(data[0])
+                            except Exception as e:
+                                print(e)
                                 checksum = checksum + len(data)  
                                 print(checksum)  
                                 if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg"):
