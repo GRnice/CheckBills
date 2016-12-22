@@ -2,20 +2,21 @@ import socket, select
 from threading import Thread
 import math
 import os
-#import signal
+import Bdd
+import signal
 
 hashmapClientSock = dict()
 
 class ClientRequest:
     def __init__(self):
-        self.state = None
+        self.state = 0  ## 0, 1, 2
 
-    def setwaitingfor(self,state):
-        self.state = state
-
-    def waitingfor(self):
-        return self.state
-        
+##    def setwaitingfor(self,state):
+##        self.state = state
+##
+##    def waitingfor(self):
+##        return self.state
+      
 
 class Server(Thread):
     def __init__(self,port,sizeBuffer,maxClientSocket):
@@ -25,9 +26,11 @@ class Server(Thread):
         self.maxClientSocket = maxClientSocket
         self.CONNECTION_LIST = [] # liste des patients connectés (socket)
         self.serverOnline = False
+        self.bddTicket = Bdd.BaseDeDonneeTicket()
+        self.bddBoutique = Bdd.BaseDeDonneeBoutique()
 
-    def receive_signal(signum,stack):
-        pass
+    def receive_signal(signum):
+        self.serverOnline = False
 
     def stopServer(self):
         self.serverOnline = False
@@ -55,6 +58,7 @@ class Server(Thread):
                     self.CONNECTION_LIST.append(sockfd)
                     hashmapClientSock[sockfd] = ClientRequest()
                     
+                    
                 else:
                     # Data received from client, process it
                     try:
@@ -70,19 +74,37 @@ class Server(Thread):
                                     idtel = tabdata[1]
                                     date = tabdata[3]
                                     montant = tabdata[5]
-                                    sizeImage = tabdata[7]
+                                    clientrequest.state+=1
+                                    print("client State ", clientrequest.state)
+
+                                elif("REQUEST_ALL_BOUTIQUES" in message[0:21]):
+                                    print("requestBoutique du tel")
+                                    socket.send(self.bddBoutique.getListBoutique() + "\r\n".encode('utf-8'))
+
+                                elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
+                                     self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
+                                    
+                                elif("IMAGECHECK" in message[0:10]):
+                                    clientrequest.state+=1
+                                    print("client State ", clientrequest.state)
+                                    ## insert dans la table .. not GOOD, passe pas ici pr le moment
+
+                              
+                                    
 
                             except:
                                 print(data[0])
-                                checksum = checksum + len(data)
-                                print(checksum)
-                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.png"):
-                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'wb')
+                                checksum = checksum + len(data)  
+                                print(checksum)  
+                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg"):
+                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg",'wb')
                                     file.close()
                                     
                                 file = open("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg",'ab')
                                 file.write(data)
+                                ##self.writeImgInText("imageText", str(data))
                                 file.close()
+                                print("FIN close IMAGE")
 
 
                         else:
@@ -103,8 +125,14 @@ class Server(Thread):
         server_socket.close()
         print("=============SERVEUR OFFLINE=============")
 
+
+    def writeImgInText(self, nomFichier, data):
+        with open (nomFichier + ".txt", "a") as fp:
+            fp.write(data)
+        fp.close()
+
 if __name__ == "__main__":
     serve = Server(3200,4096,200) # sur le port 3000
     serve.start()
-    #signal.signal(signal.SIGINT,serve.receive_signal)
+    signal.signal(signal.SIGINT,serve.receive_signal)
     serve.join()

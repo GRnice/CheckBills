@@ -7,6 +7,7 @@ class BaseDeDonneeBoutique:
     def __init__(self):
         self.conn = lite.connect("boutiques.db")
         self.cur = self.conn.cursor()
+        self.createTable()
 
     def createTable(self):
         try:
@@ -62,6 +63,7 @@ class BaseDeDonneeTicket:
     def __init__(self):
         self.conn = lite.connect("tickets.db")
         self.cur = self.conn.cursor()
+        self.createTable()
 
     def createTable(self):
         try:
@@ -121,8 +123,8 @@ tck2 = "ID*idTel1*DATE*12/12/2015 12:15:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre
 tck3 = "ID*idTel2*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre3*TYPEBILL*2"
 tck4 = "ID*idTel2*DATE*12/12/2015 12:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3"
 
-##bd = BaseDeDonneeTicket()
-##bd.createTable()
+#bd = BaseDeDonneeTicket()
+#bd.createTable()
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
@@ -135,8 +137,8 @@ tck4 = "ID*idTel2*DATE*12/12/2015 12:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre
 
 
 ###### BOUTIQUES test
-##bdBoutique = BaseDeDonneeBoutique()
-##bdBoutique.createTable()
+#bdBoutique = BaseDeDonneeBoutique()
+#bdBoutique.createTable()
 
 b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
 b4 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
