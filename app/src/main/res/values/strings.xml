@@ -17,9 +17,10 @@
     </string-array>
 
     <string-array name="type_achat">
-        <item>Courses</item>
-        <item>Habit</item>
-        <item>Nourriture</item>
+        <item>Alimentaire</item>
+        <item>Vacances</item>
+        <item>Professionnel</item>
+        <item>Loisir</item>
     </string-array>
 
 </resources>

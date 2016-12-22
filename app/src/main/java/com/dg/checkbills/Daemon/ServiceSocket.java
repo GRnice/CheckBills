@@ -10,10 +10,14 @@ import android.util.Log;
 
 import com.dg.checkbills.Communication.CommunicationServer;
 import com.dg.checkbills.Communication.NetworkUtil;
+import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
 import com.dg.checkbills.Storage.BillsManager;
+import com.dg.checkbills.Storage.BoutiqueManager;
+
+import java.util.ArrayList;
 
 /**
  * Created by Remy on 11/12/2016.
@@ -21,14 +25,14 @@ import com.dg.checkbills.Storage.BillsManager;
 
 public class ServiceSocket extends Service
 {
-    final public static String ACTION_SEND_TO_ACTIVITY = "DATA_TO_ACTIVITY";
-    final public static String ACTION_TO_SERVICE_FROM_ACTIVITY = "DATA_ACTIVITY_TO_SERVICE";
-    final public static String ACTION_TO_SERVICE_FROM_SERVER = "DATA_SERVER_TO_SERVICE";
 
     private CommunicationServer comm;
     private ActivityReceiver activityReceiver;
     private ServerReceiver serverReceiver;
     private NetworkChangeReceiver networkChangeReceiver;
+
+    private ArrayList<Bill> billsArray;
+    private ArrayList<Boutique> boutiqueArray;
 
     public ServiceSocket()
     {
@@ -41,16 +45,19 @@ public class ServiceSocket extends Service
         serverReceiver = new ServerReceiver();
         networkChangeReceiver = new NetworkChangeReceiver();
 
+        billsArray = BillsManager.load(getBaseContext());
+        boutiqueArray = BoutiqueManager.load(getBaseContext());
+
         Log.e("PK TANT DE HAINE","YOLO");
 
         // ECOUTE DES MESSAGES PROVENANTS DU SERVEUR
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_TO_SERVICE_FROM_SERVER);
+        intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         registerReceiver(serverReceiver,intentFilter);
 
         // ECOUTE DES MESSAGES PROVENANTS DE L'ACTIVITE
         intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_TO_SERVICE_FROM_ACTIVITY);
+        intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
         registerReceiver(activityReceiver,intentFilter);
 
         // ECOUTE DU CHANGEMENT DE L'ETAT DU RESEAU
@@ -59,7 +66,7 @@ public class ServiceSocket extends Service
         registerReceiver(networkChangeReceiver, intentFilter);
 
         super.onStartCommand(intent,flags,startId);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -80,25 +87,10 @@ public class ServiceSocket extends Service
     }
 
 
-    public void sendImage(Bill myBill) {
-        byte[] imgString = myBill.getImage();
-        comm.sendMessage(imgString);
-        /*for(int i = 0; i < imgString.length; i+=4096)
-        {
-            // ici on ENVOI QUE DES BYTES
-
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
-    }
-
     private boolean sendBill(String idTel,Bill myBill)
     {
         comm = new CommunicationServer();
-        comm.setActionIntent(ACTION_TO_SERVICE_FROM_SERVER);
+        comm.setActionIntent(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.setService(this);
         comm.start();
 
@@ -117,7 +109,7 @@ public class ServiceSocket extends Service
             e.printStackTrace();
         }
 
-        sendImage(myBill);
+        comm.sendMessage(myBill.getImage());
 
         try {
             Thread.sleep(1000);
@@ -126,7 +118,7 @@ public class ServiceSocket extends Service
         }
 
         comm.sendMessage("IMAGECHECK");
-
+        comm.interrupt();
         return true;
     }
 
@@ -146,21 +138,31 @@ public class ServiceSocket extends Service
             // ICI on recoit les messages provenants d'une activité
 
             boolean newBill = arg1.getBooleanExtra("NEWBILL", false);
+
             if (newBill)
             {
                 String idTel = arg1.getStringExtra("IDTEL");
-                int montant = arg1.getIntExtra("MONTANT",-1);
-                String nom = arg1.getStringExtra("NOM");
-                String typeAchat = (String) arg1.getSerializableExtra("TYPEACHAT");
-                Boutique boutique = (Boutique) arg1.getSerializableExtra("BOUTIQUE");
-                String date = (String) arg1.getSerializableExtra("DATE");
-                byte[] image = (byte[]) arg1.getSerializableExtra("IMAGE");
+                Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
+                BillsManager.store(getBaseContext(),nwBill);
+                billsArray.add(nwBill);
 
-                BillsManager managerData = new BillsManager();
-                Bill nwBill = new Bill(TYPE_CONTENT_BILL.LOISIR,nom,montant,boutique,date,image);
-                Log.e("COUCOU","TRUSTME");
-                managerData.store(getBaseContext(),nwBill);
                 sendBill(idTel,nwBill);
+            }
+
+            if (arg1.hasExtra("GETBILLS"))
+            {
+                Intent intentBills = new Intent();
+                intentBills.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
+                intentBills.putExtra("BILLS",billsArray);
+                sendBroadcast(intentBills);
+            }
+
+            if (arg1.hasExtra("GETBOUTIQUES"))
+            {
+                Intent intentBoutique = new Intent();
+                intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
+                intentBoutique.putExtra("BOUTIQUES",boutiqueArray);
+                sendBroadcast(intentBoutique);
             }
         }
 

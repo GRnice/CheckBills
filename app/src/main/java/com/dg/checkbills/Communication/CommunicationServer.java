@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.util.Log;
 
+import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Daemon.ServiceSocket;
 
 import java.io.BufferedReader;
@@ -26,7 +27,7 @@ import java.net.Socket;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "10.212.118.187";
+    public static final String SOCKET_ADDR = "192.168.1.13";
 
     public static final int PORT = 3200;
     private Socket m_sock;
@@ -82,7 +83,7 @@ public class CommunicationServer extends Thread implements Runnable
         while(this.run)
         {
             intent = new Intent();
-            intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_SERVER);
+            intent.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
             try
             {
                 line = input.readLine();

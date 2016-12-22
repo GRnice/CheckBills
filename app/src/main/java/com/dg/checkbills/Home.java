@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +21,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.dg.checkbills.Daemon.ServiceSocket;
+import com.dg.checkbills.Data.Bill;
+import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Historique.HistoriqueActivity;
+import com.dg.checkbills.Storage.BillsManager;
+import com.dg.checkbills.Storage.BoutiqueManager;
+
+import java.util.ArrayList;
 
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -31,7 +38,6 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -47,8 +53,9 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                startActivity(new Intent(Home.this,ProcedureTicket.class));
+                Intent myIntent = new Intent(Home.this, ProcedureTicket.class);
+                startActivity(myIntent);
+                finish();
             }
         });
 
@@ -119,11 +126,17 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_camera)
+        {
             Intent myIntent = new Intent(Home.this, ProcedureTicket.class);
-            Home.this.startActivity(myIntent);
-        } else if (id == R.id.nav_historique) {
-            startActivity(new Intent(this,HistoriqueActivity.class));
+            startActivity(myIntent);
+            finish();
+        }
+        else if (id == R.id.nav_historique)
+        {
+            Intent intentHistorique = new Intent(this,HistoriqueActivity.class);
+            startActivity(intentHistorique);
+            finish();
         } else if (id == R.id.nav_parametres) {
 
         } else if (id == R.id.nav_share)
@@ -137,7 +150,8 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     }
 
     public class WakefulReceiver extends WakefulBroadcastReceiver {
-        public WakefulReceiver() {
+        public WakefulReceiver()
+        {
         }
 
         @Override

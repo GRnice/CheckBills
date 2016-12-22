@@ -14,6 +14,7 @@ import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.R;
 import com.dg.checkbills.Storage.BillsManager;
 
+import java.io.IOError;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -22,21 +23,23 @@ import java.util.ArrayList;
  */
 public class HistoriqueListingFragment extends FragmentHistorique
 {
-    ArrayList<String> arrayticket;
     ArrayList<Bill> arrayObjectBill;
-    BillsManager managerData;
-    ListView listingView;
+    ListView listingView = null;
 
     public HistoriqueListingFragment()
     {
         super();
     }
 
-    public void updateListing(ArrayList<Bill> array)
+    public void setArrayBills(ArrayList<Bill> arrayBill)
     {
-        this.arrayObjectBill = array;
-        final AdapterListing listingAdapter = new AdapterListing(getActivity(),R.layout.item_listing_historique,this.arrayObjectBill );
-        listingView.setAdapter(listingAdapter);
+        this.arrayObjectBill = arrayBill;
+        if (listingView != null)
+        {
+            final AdapterListing listingAdapter = new AdapterListing(getActivity(),R.layout.item_listing_historique,this.arrayObjectBill );
+            listingView.setAdapter(listingAdapter);
+        }
+
     }
 
     @Override
@@ -44,10 +47,6 @@ public class HistoriqueListingFragment extends FragmentHistorique
     {
         super.onCreate(saved);
         this.title = "Historique";
-        this.arrayticket = new ArrayList<>();
-        this.managerData = new BillsManager();
-        AsynckTaskLoadBills asynckTaskLoadBills = new AsynckTaskLoadBills();
-        asynckTaskLoadBills.execute(this.managerData);
     }
 
     @Override
@@ -66,26 +65,13 @@ public class HistoriqueListingFragment extends FragmentHistorique
                 historiqueAct.ticketSelected(arrayObjectBill.get(position));
             }
         });
+
+        if (this.arrayObjectBill != null)
+        {
+            final AdapterListing listingAdapter = new AdapterListing(getActivity(),R.layout.item_listing_historique,this.arrayObjectBill );
+            listingView.setAdapter(listingAdapter);
+        }
         return v;
-    }
-
-    public class AsynckTaskLoadBills extends AsyncTask<BillsManager,Void,Void>
-    {
-        ArrayList<Bill> listing;
-
-        @Override
-        protected Void doInBackground(BillsManager... params)
-        {
-            BillsManager billsManager = params[0];
-            listing = billsManager.load(getActivity());
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result)
-        {
-            updateListing(listing);
-        }
     }
 
 }

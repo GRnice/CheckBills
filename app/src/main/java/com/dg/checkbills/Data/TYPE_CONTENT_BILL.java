@@ -21,6 +21,7 @@ public enum TYPE_CONTENT_BILL implements Serializable
         this.id = name;
     }
 
+
     public String toString()
     {
         return String.valueOf(this.id);

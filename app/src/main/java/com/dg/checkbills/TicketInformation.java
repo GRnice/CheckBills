@@ -14,11 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Daemon.ServiceSocket;
+import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
@@ -30,10 +34,10 @@ public class TicketInformation extends Fragment
     private Spinner marketPlaceSpinner;
     private Spinner typeAchatSpinner;
     private TextView date;
+    private EditText editTextMontant;
     private Bitmap imgTicket;
 
     private String ticketDate;
-    private Location longLat;
 
 
 
@@ -72,44 +76,39 @@ public class TicketInformation extends Fragment
         // Apply the adapter to the spinner
         typeAchatSpinner.setAdapter(adapterAchat);
 
+        editTextMontant = ((EditText) v.findViewById(R.id.editTextMontant));
 
         buttonValidation = (Button) v.findViewById(R.id.buttonValiderTicket);
         buttonValidation.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
-                longLat = new Location("s");
-                longLat.setLatitude(45.5);
-                longLat.setLongitude(7.2);
-                intent.setAction(ServiceSocket.ACTION_TO_SERVICE_FROM_ACTIVITY);
+                intent.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+
                 ProcedureTicket activity = (ProcedureTicket) getActivity();
                 intent.putExtra("IDTEL",activity.getAndroidId());
                 intent.putExtra("NEWBILL",true);
-                intent.putExtra("MONTANT",50);
-                intent.putExtra("NOM","Un Ticket");
-                intent.putExtra("TYPEACHAT", typeAchatSpinner.getSelectedItem().toString());
-                intent.putExtra("BOUTIQUE",new Boutique(marketPlaceSpinner.getSelectedItem().toString(), longLat.getLongitude(), longLat.getLatitude()));
-                Log.d("Boutique ",marketPlaceSpinner.getSelectedItem().toString());
-                intent.putExtra("DATE",ticketDate);
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 imgTicket.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
+                String montant = editTextMontant.getText().toString().trim();
+                Log.e("M%ONTNY",montant);
+                Log.e("SIZE",String.valueOf(montant.length()));
+                Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
+                        ,"unTicket"
+                        ,Integer.parseInt(montant)
+                        ,new Boutique("idxxx",marketPlaceSpinner.getSelectedItem().toString())
+                        ,ticketDate
+                        ,byteArray);
 
-                intent.putExtra("IMAGE", byteArray);
-
-
-
+                intent.putExtra("BILL",nwBill);
                 getActivity().sendBroadcast(intent);
+                ((ProcedureTicket) getActivity()).backToHome();
             }
         });
 
         // Inflate the layout for this fragment
         return v;
-    }
-
-    public void saveTicket()
-    {
-        // ICI on sauve le ticket
     }
 
     @Override
@@ -129,9 +128,6 @@ public class TicketInformation extends Fragment
         //   mListener = null;
     }
 
-    public void setLocation(Location loc) {
-        longLat = loc;
-    }
 
     public void setTicketDate(String date) {
         ticketDate = date;
@@ -141,8 +137,6 @@ public class TicketInformation extends Fragment
     public void setImageTicket(Bitmap ticketBitmap) {
         imgTicket = ticketBitmap;
     }
-
-
 
 
 }

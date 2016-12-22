@@ -2,8 +2,10 @@ package com.dg.checkbills;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,44 +17,70 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.dg.checkbills.Constantes.BroadcastAddr;
+import com.dg.checkbills.Data.Bill;
+import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Historique.HistoriqueDetailFragment;
+import com.dg.checkbills.Historique.HistoriqueListingFragment;
+import com.dg.checkbills.Storage.BillsManager;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ProcedureTicket extends FragmentActivity implements LocationListener
+public class ProcedureTicket extends FragmentActivity
 {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private PhotoFragment photoFragment = null;
     private TicketInformation ticketInfoFragment = null;
-    private LocationManager lm;
     private Calendar cal;
     private String strDate;
     private String androidId;
-    private Location location;
+    private ServiceReceiver serviceReceiver;
 
+    private ArrayList<Bill> billArrayList;
+    private ArrayList<Boutique> boutiqueArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        serviceReceiver = new ServiceReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
+        registerReceiver(serviceReceiver,intentFilter);
+
+        Intent boutiqueRequest = new Intent();
+        boutiqueRequest.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+        boutiqueRequest.putExtra("GETBOUTIQUES",true);
+        sendBroadcast(boutiqueRequest);
+
         setContentView(R.layout.activity_procedure_ticket);
         photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
         ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
         androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-
-
         dispatchTakePictureIntent();
-
-        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        checkPermission(Manifest.permission.ACCESS_FINE_LOCATION,1,0);
-        //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,500,0, this);
-        location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
 
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        backToHome();
+    }
 
-    private void dispatchTakePictureIntent() {
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        unregisterReceiver(serviceReceiver);
+    }
+
+
+    private void dispatchTakePictureIntent()
+    {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -68,7 +96,8 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
         }
     }
 
-    public void getNext() {
+    public void getNext()
+    {
         photoFragment.getView().setVisibility(View.INVISIBLE);
         ticketInfoFragment.getView().setVisibility(View.VISIBLE);
     }
@@ -84,7 +113,6 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
             photoFragment.putPhoto(imageBitmap);
             ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
             ticketInfoFragment.setImageTicket(imageBitmap);
-            ticketInfoFragment.setLocation(location);
         }
 
     }
@@ -94,44 +122,34 @@ public class ProcedureTicket extends FragmentActivity implements LocationListene
         return this.androidId;
     }
 
-    public String getLatitude()
+    public void backToHome()
     {
-        return String.valueOf(location.getLatitude());
+        Intent intentHome = new Intent(this,Home.class);
+        startActivity(intentHome);
+        finish();
     }
 
-    public String getLongitude()
+    /**
+     * ServerReceiver , recoit les messages venants du service
+     *
+     * ACTION_RECEIVE_FROM_SERVICE
+     */
+    private class ServiceReceiver extends BroadcastReceiver
     {
-        return String.valueOf(location.getLongitude());
-    }
 
-    @Override
-    public void onLocationChanged(Location loc) {
-        location = loc;
-        Log.d("POSLOGLAT", (String.valueOf(location.getLongitude())) + " " + String.valueOf(location.getLatitude()));
+        @Override
+        public void onReceive(Context arg0, Intent arg1)
+        {
+            if (arg1.hasExtra("BILLS"))
+            {
+                billArrayList = (ArrayList<Bill>) arg1.getSerializableExtra("BILLS");
+            }
 
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        checkPermission(Manifest.permission.ACCESS_FINE_LOCATION,1,0);
-        lm.removeUpdates(this);
-        super.onDestroy();
+            if (arg1.hasExtra("BOUTIQUES"))
+            {
+                boutiqueArrayList = (ArrayList<Boutique>) arg1.getSerializableExtra("BOUTIQUES");
+            }
+        }
     }
 
 }

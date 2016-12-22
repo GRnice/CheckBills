@@ -1,13 +1,14 @@
 package com.dg.checkbills.Storage;
 
 /**
- * Created by Remy on 31/10/2016.
+ * Created by Remy on 21/12/2016.
  */
 
 import android.content.Context;
 
 
 import com.dg.checkbills.Data.Bill;
+import com.dg.checkbills.Data.Boutique;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,49 +24,46 @@ import java.util.ArrayList;
 /**
  * BillsManager gère les billets stockés en local
  */
-public class BillsManager
+public class BoutiqueManager
 {
-
-
-    public BillsManager()
+    public BoutiqueManager()
     {
+
     }
 
     /**
      * Supprime le ticket, pratique pour les tests...
      * @param context
-     * @param ticket
+     * @param boutique
      * @return
      */
-    public static boolean flush(Context context,Bill ticket)
+    public static boolean flush(Context context,Boutique boutique)
     {
-        return context.deleteFile(String.valueOf(ticket.getId()));
+        return context.deleteFile("BOUTIQUE-"+String.valueOf(boutique.getId()));
     }
 
     /**
-     * Sauve un ticket dans un fichier pour le rendre persistant, il sera transféré plus tard sur le cloud
+     * Sauve un boutique dans un fichier pour le rendre persistant, il sera transféré plus tard sur le cloud
      * @param context
-     * @param ticket
+     * @param boutique
      */
-    public static void store(Context context, Bill ticket)
+    public static void store(Context context, Boutique boutique)
     {
-
         FileOutputStream fos = null;
         ObjectOutputStream os;
         try
         {
-            fos = context.openFileOutput(String.valueOf(ticket.getId()), Context.MODE_PRIVATE);
+            fos = context.openFileOutput("BOUTIQUE-"+String.valueOf(boutique.getId()), Context.MODE_PRIVATE);
             os = new ObjectOutputStream(fos);
 
-            os.writeObject(ticket);
+            os.writeObject(boutique);
             os.close();
             fos.close();
         }
         catch (FileNotFoundException e)
         {
             e.printStackTrace();
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -78,10 +76,10 @@ public class BillsManager
      * @param context
      * @return
      */
-    public static ArrayList<Bill> load(Context context)
+    public static ArrayList<Boutique> load(Context context)
     {
-        ArrayList<Bill> listOfBills = new ArrayList<>();
 
+        ArrayList<Boutique> listOfBoutique = new ArrayList<>();
         FileInputStream fis = null;
         ObjectInputStream is= null;
 
@@ -100,7 +98,7 @@ public class BillsManager
             {
                 // path[path.length - 1] est le nom du fichier
                 String nameFile = path[path.length - 1];
-                if (! nameFile.substring(0,8).equals("BOUTIQUE"))
+                if (nameFile.substring(0,8).equals("BOUTIQUE"))
                 {
                     fis = context.openFileInput(nameFile);
                     is = new ObjectInputStream(fis);
@@ -110,16 +108,16 @@ public class BillsManager
                         {
                             obj = is.readObject();
 
-                            listOfBills.add((Bill) obj);
+                            listOfBoutique.add((Boutique) obj);
                         }
                         catch(ClassNotFoundException c)
                         {
                             c.printStackTrace();
                         }
                     }
-
                     is.close();
                 }
+
 
             } catch (OptionalDataException e) {
                 e.printStackTrace();
@@ -134,6 +132,6 @@ public class BillsManager
         }
 
 
-        return listOfBills;
+        return listOfBoutique;
     }
 }

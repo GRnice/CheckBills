@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by Remy on 31/10/2016.
  */
-public class Boutique extends Data implements Serializable
+public class Boutique extends Data
 {
     /**
      * Boutique a un nom et un ID
