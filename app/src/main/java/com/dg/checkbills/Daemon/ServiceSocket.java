@@ -140,7 +140,7 @@ public class ServiceSocket extends Service implements TimerListener
      */
     public void treatFailSocket()
     {
-        stopTimer();
+        if (aTimer != null) {stopTimer();}
         if (comm.getTag().equals("REQUESTBOUTIQUE"))
         {
             boutiqueStringReceived = new StringBuilder();
