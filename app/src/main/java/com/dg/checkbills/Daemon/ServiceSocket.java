@@ -194,7 +194,7 @@ public class ServiceSocket extends Service implements TimerListener
         comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
                 + "*IDBOUTIQUE*" + myBill.getBoutique().getId()+"*TITRE*"+myBill.getNom()+"*TYPEBILL*"+myBill.getType());
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -202,13 +202,18 @@ public class ServiceSocket extends Service implements TimerListener
         comm.sendMessage(myBill.getImage());
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         comm.sendMessage("IMAGECHECK");
         stopTimer();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         comm.interrupt();
         billSending.setIsOnCloud(true); // il a bien été émis
         billsArray.add(billSending);
