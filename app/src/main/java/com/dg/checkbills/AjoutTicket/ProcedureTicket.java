@@ -1,4 +1,4 @@
-package com.dg.checkbills;
+package com.dg.checkbills.AjoutTicket;
 
 
 
@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,8 @@ import android.view.View;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Home;
+import com.dg.checkbills.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ public class ProcedureTicket extends FragmentActivity
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private PhotoFragment photoFragment = null;
     private TicketInformation ticketInfoFragment = null;
+    private SelectionBoutiqueFragment selectionBoutiqueFragment = null;
     private Calendar cal;
     private String strDate;
     private String androidId;
@@ -54,6 +58,10 @@ public class ProcedureTicket extends FragmentActivity
         setContentView(R.layout.activity_procedure_ticket);
         photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
         ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
+        ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
+        selectionBoutiqueFragment = (SelectionBoutiqueFragment) getSupportFragmentManager().findFragmentById(R.id.listingBoutique);
+
+        selectionBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
         androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         dispatchTakePictureIntent();
 
@@ -105,7 +113,6 @@ public class ProcedureTicket extends FragmentActivity
 
 
             photoFragment.putPhoto(imageBitmap);
-            ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
             ticketInfoFragment.setImageTicket(imageBitmap);
         }
 
@@ -123,6 +130,24 @@ public class ProcedureTicket extends FragmentActivity
         finish();
     }
 
+    public void showListingBoutiques()
+    {
+        photoFragment.getView().setVisibility(View.INVISIBLE);
+        ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
+        selectionBoutiqueFragment.getView().setVisibility(View.VISIBLE);
+    }
+
+    public void showTicketInfo(@Nullable String b)
+    {
+        if (b != null)
+        {
+            ticketInfoFragment.setBoutiqueSelected(b);
+        }
+        photoFragment.getView().setVisibility(View.INVISIBLE);
+        ticketInfoFragment.getView().setVisibility(View.VISIBLE);
+        selectionBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+    }
+
     /**
      * ServerReceiver , recoit les messages venants du service
      *
@@ -137,11 +162,13 @@ public class ProcedureTicket extends FragmentActivity
             if (arg1.hasExtra("BILLS"))
             {
                 billArrayList = (ArrayList<Bill>) arg1.getSerializableExtra("BILLS");
+
             }
 
             if (arg1.hasExtra("BOUTIQUES"))
             {
                 boutiqueArrayList = (ArrayList<Boutique>) arg1.getSerializableExtra("BOUTIQUES");
+                selectionBoutiqueFragment.setListofBoutiques(boutiqueArrayList);
             }
         }
     }

@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ProcedureTicket"></activity>
+        <activity android:name=".AjoutTicket.ProcedureTicket"></activity>
         <activity
             android:name=".Historique.HistoriqueActivity"
             android:label="@string/title_activity_historique"

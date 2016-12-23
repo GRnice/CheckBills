@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
@@ -20,14 +18,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.dg.checkbills.AjoutTicket.ProcedureTicket;
 import com.dg.checkbills.Daemon.ServiceSocket;
-import com.dg.checkbills.Data.Bill;
-import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Historique.HistoriqueActivity;
-import com.dg.checkbills.Storage.BillsManager;
-import com.dg.checkbills.Storage.BoutiqueManager;
-
-import java.util.ArrayList;
 
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener

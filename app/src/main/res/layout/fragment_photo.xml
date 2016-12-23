@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.dg.checkbills.PhotoFragment"
+    tools:context="com.dg.checkbills.AjoutTicket.PhotoFragment"
     android:weightSum="1">
 
     <!-- TODO: Update blank fragment layout -->

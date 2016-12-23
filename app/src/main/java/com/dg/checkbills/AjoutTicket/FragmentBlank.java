@@ -1,10 +1,12 @@
-package com.dg.checkbills;
+package com.dg.checkbills.AjoutTicket;
 
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.dg.checkbills.R;
 
 /**
  * Created by Remy on 03/11/2016.

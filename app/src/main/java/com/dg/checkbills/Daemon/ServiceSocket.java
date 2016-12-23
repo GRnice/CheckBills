@@ -99,6 +99,7 @@ public class ServiceSocket extends Service implements TimerListener
     private void requestBoutique()
     {
         boutiqueStringReceived = new StringBuilder();
+        Log.e("PKDEUXFOIS","dd");
         comm = new CommunicationServer(this,"REQUESTBOUTIQUE",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.start();
         try {
@@ -121,13 +122,17 @@ public class ServiceSocket extends Service implements TimerListener
         comm = null;
         Log.e("ALL_BOUTIQUE_RECEIVED",boutiqueStringReceived.toString());
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
+        boutiqueArray = new ArrayList<>();
         for (String aBoutique : allBoutiques)
         {
+
             String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
             Boutique nwBoutique = new Boutique(aBoutiqueSplit[1],aBoutiqueSplit[3]);
             BoutiqueManager.store(getBaseContext(),nwBoutique);
             this.boutiqueArray.add(nwBoutique);
         }
+
+        Log.e("IZELOS",String.valueOf(boutiqueArray.size()));
     }
 
     /**

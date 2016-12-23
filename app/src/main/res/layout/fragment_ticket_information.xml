@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.dg.checkbills.TicketInformation"
+    tools:context="com.dg.checkbills.AjoutTicket.TicketInformation"
     android:weightSum="1">
 
 
@@ -41,11 +41,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.5">
 
-                <Spinner
-                    android:layout_width="157dp"
-                    android:layout_height="39dp"
-                    android:layout_marginTop="50dp"
-                    android:id="@+id/spinner" /> 
+                 
+
+                <Button
+                    android:text="Selectionner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/button_select_boutique"
+                    android:layout_weight="1" />
             </LinearLayout>
          </LinearLayout>
 

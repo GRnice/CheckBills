@@ -1,18 +1,17 @@
-package com.dg.checkbills;
+package com.dg.checkbills.AjoutTicket;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-
+import com.dg.checkbills.R;
 
 
 public class PhotoFragment extends Fragment {

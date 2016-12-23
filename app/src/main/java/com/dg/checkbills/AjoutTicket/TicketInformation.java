@@ -1,12 +1,10 @@
-package com.dg.checkbills;
+package com.dg.checkbills.AjoutTicket;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,24 +17,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dg.checkbills.Constantes.BroadcastAddr;
-import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
-import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
+import com.dg.checkbills.R;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
 
 
 public class TicketInformation extends Fragment
 {
     private Button buttonValidation;
-    private Spinner marketPlaceSpinner;
+
+    private Button selectionBoutique;
     private Spinner typeAchatSpinner;
     private TextView date;
     private EditText editTextMontant;
     private Bitmap imgTicket;
-
     private String ticketDate;
 
 
@@ -60,13 +56,14 @@ public class TicketInformation extends Fragment
         View v =  inflater.inflate(R.layout.fragment_ticket_information, container, false);
 
         date = (TextView) v.findViewById(R.id.date);
-        marketPlaceSpinner = (Spinner) v.findViewById(R.id.spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.market_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        marketPlaceSpinner.setAdapter(adapter);
+        selectionBoutique = (Button) v.findViewById(R.id.button_select_boutique);
+
+        selectionBoutique.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ProcedureTicket) getActivity()).showListingBoutiques();
+            }
+        });
 
         typeAchatSpinner = (Spinner) v.findViewById(R.id.spinner1);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -97,7 +94,7 @@ public class TicketInformation extends Fragment
                 Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
                         ,"unTicket"
                         ,Integer.parseInt(montant)
-                        ,new Boutique("idxxx",marketPlaceSpinner.getSelectedItem().toString())
+                        ,new Boutique("idxxx",selectionBoutique.getText().toString())
                         ,ticketDate
                         ,byteArray);
 
@@ -134,7 +131,13 @@ public class TicketInformation extends Fragment
         this.date.setText(ticketDate);
     }
 
-    public void setImageTicket(Bitmap ticketBitmap) {
+    public void setBoutiqueSelected(String b)
+    {
+        selectionBoutique.setText(b);
+    }
+
+    public void setImageTicket(Bitmap ticketBitmap)
+    {
         imgTicket = ticketBitmap;
     }
 

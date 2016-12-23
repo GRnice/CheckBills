@@ -8,20 +8,25 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.dg.checkbills.ProcedureTicket">
+    tools:context="com.dg.checkbills.AjoutTicket.ProcedureTicket">
 
     <fragment
-        android:name="com.dg.checkbills.PhotoFragment"
+        android:name="com.dg.checkbills.AjoutTicket.PhotoFragment"
         android:id="@+id/scanFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <fragment
-        android:name="com.dg.checkbills.TicketInformation"
+        android:name="com.dg.checkbills.AjoutTicket.TicketInformation"
         android:id="@+id/ticketInfoFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <fragment
+        android:name="com.dg.checkbills.AjoutTicket.SelectionBoutiqueFragment"
+        android:id="@+id/listingBoutique"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 
