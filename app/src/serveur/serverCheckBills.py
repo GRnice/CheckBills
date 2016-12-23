@@ -95,14 +95,13 @@ class Server(Thread):
                                     
 
                             except Exception as e:
-                                print(e)
                                 checksum = checksum + len(data)  
                                 print(checksum)  
-                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg"):
-                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg",'wb')
+                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.png"):
+                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'wb')
                                     file.close()
                                     
-                                file = open("c:\\Users\\Remy\\Desktop\\fileTmp.jpeg",'ab')
+                                file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'ab')
                                 file.write(data)
                                 ##self.writeImgInText("imageText", str(data))
                                 file.close()

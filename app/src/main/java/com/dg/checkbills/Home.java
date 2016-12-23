@@ -96,8 +96,6 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -134,7 +132,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
         else if (id == R.id.nav_historique)
         {
-            Intent intentHistorique = new Intent(this,HistoriqueActivity.class);
+            Intent intentHistorique = new Intent(Home.this,HistoriqueActivity.class);
             startActivity(intentHistorique);
             finish();
         } else if (id == R.id.nav_parametres) {

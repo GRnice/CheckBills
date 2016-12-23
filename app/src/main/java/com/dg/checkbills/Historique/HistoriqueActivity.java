@@ -34,6 +34,7 @@ public class HistoriqueActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_historique);
+
         barreDuTitre = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(barreDuTitre);
 
@@ -42,10 +43,12 @@ public class HistoriqueActivity extends AppCompatActivity
         intentFilter.addAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
         registerReceiver(serviceReceiver,intentFilter);
 
-        Intent billsRequest = new Intent();
-        billsRequest.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
-        billsRequest.putExtra("GETBILLS",true);
-        sendBroadcast(billsRequest);
+        Log.e("TRYY","TRYY");
+        Intent intent = new Intent();
+        intent.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+        intent.putExtra("GETBILLS",true);
+
+        sendBroadcast(intent);
 
 
     }
@@ -104,13 +107,14 @@ public class HistoriqueActivity extends AppCompatActivity
      */
     private class ServiceReceiver extends BroadcastReceiver
     {
-
         @Override
         public void onReceive(Context arg0, Intent arg1)
         {
+            Log.e("GGII","??");
             if (arg1.hasExtra("BILLS"))
             {
                 arrayBill = (ArrayList<Bill>) arg1.getSerializableExtra("BILLS");
+                Log.e("BIENRECU","??");
                 HistoriqueListingFragment fragListing = new HistoriqueListingFragment();
                 fragListing.setArrayBills(arrayBill);
                 setFragment(fragListing);

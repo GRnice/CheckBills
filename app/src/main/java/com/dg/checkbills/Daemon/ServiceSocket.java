@@ -46,6 +46,8 @@ public class ServiceSocket extends Service implements TimerListener
     @Override
     public int onStartCommand(Intent intent,int flags,int startId)
     {
+        super.onStartCommand(intent,flags,startId);
+
         activityReceiver = new ActivityReceiver();
         serverReceiver = new ServerReceiver();
         networkChangeReceiver = new NetworkChangeReceiver();
@@ -69,8 +71,6 @@ public class ServiceSocket extends Service implements TimerListener
         intentFilter = new IntentFilter();
         intentFilter.addAction(NetworkChangeReceiver.CONNECTIVITY_CHANGED);
         registerReceiver(networkChangeReceiver, intentFilter);
-
-        super.onStartCommand(intent,flags,startId);
 
         requestBoutique(); // demande de charger les dernieres boutiques
         return START_NOT_STICKY;
@@ -116,6 +116,7 @@ public class ServiceSocket extends Service implements TimerListener
      */
     private void treatRequestBoutique()
     {
+        stopTimer();
         comm.interrupt(); // arret du socket dédié au REQUEST_ALL_BOUTIQUES
         comm = null;
         Log.e("ALL_BOUTIQUE_RECEIVED",boutiqueStringReceived.toString());
@@ -134,6 +135,7 @@ public class ServiceSocket extends Service implements TimerListener
      */
     public void treatFailSocket()
     {
+        stopTimer();
         if (comm.getTag().equals("REQUESTBOUTIQUE"))
         {
             boutiqueStringReceived = new StringBuilder();
@@ -157,6 +159,12 @@ public class ServiceSocket extends Service implements TimerListener
         aTimer.execute();
     }
 
+    private void stopTimer()
+    {
+        aTimer.cancel(true);
+        aTimer = null;
+    }
+
 
 
     /**
@@ -167,6 +175,7 @@ public class ServiceSocket extends Service implements TimerListener
      */
     private boolean sendBill(String idTel,Bill myBill)
     {
+        BillsManager.store(getBaseContext(),myBill);
         comm = new CommunicationServer(this,"SENDBILL",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.start();
 
@@ -175,6 +184,7 @@ public class ServiceSocket extends Service implements TimerListener
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        startTimer("SEND_BILL_TIMER",10);
         // ID*idxxxx*DATE*string*MONTANT*40*IDBOUTIQUE*f8e9*TITRE*xxtitrexx*TYPEBILL*x
         comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
                 + "*IDBOUTIQUE*" + myBill.getBoutique().getId()+"*TITRE*"+myBill.getNom()+"*TYPEBILL*"+myBill.getType());
@@ -193,11 +203,10 @@ public class ServiceSocket extends Service implements TimerListener
         }
 
         comm.sendMessage("IMAGECHECK");
-
+        stopTimer();
         comm.interrupt();
         billSending.setIsOnCloud(true); // il a bien été émis
         billsArray.add(billSending);
-        billSending = null;
         comm = null;
         return true;
     }
@@ -230,20 +239,19 @@ public class ServiceSocket extends Service implements TimerListener
         public void onReceive(Context arg0, Intent arg1)
         {
             // ICI on recoit les messages provenants d'une activité
-
-            boolean newBill = arg1.getBooleanExtra("NEWBILL", false);
-
-            if (newBill)
+            Log.e("XXB","");
+            Log.e("LOOL","");
+            if (arg1.hasExtra("NEWBILL"))
             {
                 String idTel = arg1.getStringExtra("IDTEL");
                 Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
-                BillsManager.store(getBaseContext(),nwBill);
                 billSending = nwBill;
                 sendBill(idTel,nwBill);
             }
-
+            Log.e("CHIER","");
             if (arg1.hasExtra("GETBILLS"))
             {
+                Log.e("GETBILLSrequest","");
                 Intent intentBills = new Intent();
                 intentBills.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBills.putExtra("BILLS",billsArray);
@@ -281,8 +289,6 @@ public class ServiceSocket extends Service implements TimerListener
                 Log.e("MESSAGEREQUEST",message);
                 if (message.equals("BOUTIQUECHECK"))
                 {
-                    aTimer.cancel(true);
-                    aTimer = null;
                     treatRequestBoutique();
 
                 }
