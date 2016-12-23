@@ -10,6 +10,7 @@ hashmapClientSock = dict()
 class ClientRequest:
     def __init__(self):
         self.state = 0  ## 0, 1, 2
+        self.ticketInfo = None  ## ID*6146b8a7edfd942a*DATE*23/12/2016 12:34 PM*MO ...
 
 ##    def setwaitingfor(self,state):
 ##        self.state = state
@@ -70,10 +71,11 @@ class Server(Thread):
                                 message = data.decode('utf-8')
                                 print(message)
                                 if ("ID" in message[0:2]):
-                                    tabdata = message.split('*')
-                                    idtel = tabdata[1]
-                                    date = tabdata[3]
-                                    montant = tabdata[5]
+                                    #tabdata = message.split('*')
+                                    #idtel = tabdata[1]
+                                    #date = tabdata[3]
+                                    #montant = tabdata[5]
+                                    clientrequest.ticketInfo = message
                                     clientrequest.state+=1
                                     print("client State ", clientrequest.state)
 
@@ -86,10 +88,19 @@ class Server(Thread):
                                 elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
                                      self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
                                     
-                                elif("IMAGECHECK" in message[0:10]):
+                                elif("IMAGECHECK" in message[0:10]):  ## passe pas ICI sur mac ..
                                     clientrequest.state += 1
                                     print("client State ", clientrequest.state)
-                                    ## insert dans la table .. not GOOD, passe pas ici pr le moment
+
+
+                                    # ID*6146b8a7edfd942a*DATE*23/12/2016 12:34 PM*MONTANT*32*IDBOUTIQUE*idxxx*TITRE*unTicket*TYPEBILL*3
+                                    if(clientrequest.state == 2):
+                                        print("insertion")
+                                        self.bddTicket.insertToTable(clientrequest.ticketInfo)
+                                        ##self.bddTicket.readTable()  ## pr test
+                                        clientrequest.state = 0  ## reset state
+                                        
+                                    
 
                               
                                     
@@ -97,13 +108,14 @@ class Server(Thread):
                             except Exception as e:
                                 checksum = checksum + len(data)  
                                 print(checksum)  
-                                if not os.path.exists("c:\\Users\\Remy\\Desktop\\fileTmp.png"):
-                                    file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'wb')
+                                if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[9] + ".png"):  ## change the pic Name, on peut mettre (idTel + date) comme nom sinon  
+                                    file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'wb')
                                     file.close()
                                     
-                                file = open("c:\\Users\\Remy\\Desktop\\fileTmp.png",'ab')
+                                file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'ab')
                                 file.write(data)
-                                ##self.writeImgInText("imageText", str(data))
+                                if(clientrequest.ticketInfo != None):
+                                    self.writeImgInText(clientrequest.ticketInfo.split("*")[9], data) ## [9] --> nomDuTicket
                                 file.close()
                                 print("FIN close IMAGE")
 
@@ -128,7 +140,7 @@ class Server(Thread):
 
 
     def writeImgInText(self, nomFichier, data):
-        with open (nomFichier + ".txt", "a") as fp:
+        with open (nomFichier + ".txt", "ab") as fp:
             fp.write(data)
         fp.close()
 
