@@ -94,7 +94,7 @@ public class TicketInformation extends Fragment
                 Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
                         ,"unTicket"
                         ,Integer.parseInt(montant)
-                        ,new Boutique("idxxx",selectionBoutique.getText().toString())
+                        ,new Boutique("1",selectionBoutique.getText().toString())
                         ,ticketDate
                         ,byteArray);
 

@@ -97,7 +97,7 @@ class Server(Thread):
                                     if(clientrequest.state == 2):
                                         print("insertion")
                                         self.bddTicket.insertToTable(clientrequest.ticketInfo)
-                                        ##self.bddTicket.readTable()  ## pr test
+                                        self.bddTicket.readTable()  ## pr test
                                         clientrequest.state = 0  ## reset state
                                         
                                     

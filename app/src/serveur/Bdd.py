@@ -112,7 +112,10 @@ class BaseDeDonneeTicket:
     def readTable(self):   
         self.cur.execute("SELECT * FROM Tickets")
         rows = self.cur.fetchall()
+        print("YOLO")
+        print(rows)
         for row in rows:
+            print("1")
             print(row)
                 
                 
@@ -122,13 +125,14 @@ tck1 = "ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre
 tck2 = "ID*idTel1*DATE*12/12/2015 12:15:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre2*TYPEBILL*0"
 tck3 = "ID*idTel2*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre3*TYPEBILL*2"
 tck4 = "ID*idTel2*DATE*12/12/2015 12:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3"
-
-#bd = BaseDeDonneeTicket()
-#bd.createTable()
+tck5 = "ID*idTel1*DATE*12/12/2015 12:20:55*MONTANT*45*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*3"
+##bd = BaseDeDonneeTicket()
+##bd.createTable()
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
 ##bd.insertToTable(tck4)
+##bd.insertToTable(tck5)
 
 ##bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
 ##bd.getFromTable("idTel2", "12/12/2015 12:12:44")

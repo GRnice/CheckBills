@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -40,6 +41,8 @@ public class CommunicationServer extends Thread implements Runnable
     boolean run;
     boolean isDeconnect; // si à false alors ne pas emettre un FAILSOCKET,
                         // car le socket a été interrompu intentionnellement
+    AtomicBoolean atom_ic_write = new AtomicBoolean(false);
+
 
     public CommunicationServer()
     {
@@ -132,27 +135,45 @@ public class CommunicationServer extends Thread implements Runnable
 
     public synchronized void sendMessage(byte[] bytearray)
     {
-        try
+        if (atom_ic_write.compareAndSet(false,true))
         {
-            outputByte.write(bytearray);
+            try
+            {
+                outputByte.write(bytearray);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            atom_ic_write.set(false);
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
     }
 
 
-    public synchronized void sendMessage(String message)
+    public synchronized boolean sendMessage(String message)
     {
-        this.outputString.println(message);
+        if (atom_ic_write.compareAndSet(false,true) && this.run)
+        {
+            Log.e("SS","KKKKKKKKKKKKKKK");
+            this.outputString.println(message);
+            atom_ic_write.set(false);
+            return true;
+        }
+
+        return false;
     }
 
     private synchronized void deconnect()
     {
         try {
             this.isDeconnect = true;
-            this.m_sock.close();
+            if (this.m_sock != null)
+            {
+                this.m_sock.close();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -161,6 +182,16 @@ public class CommunicationServer extends Thread implements Runnable
     public void interrupt()
     {
         // liberer la ressource
+        int i = 5;
+        while (atom_ic_write.get() && i > 0)
+        {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            i--;
+        }
         this.run = false;
         this.deconnect();
         super.interrupt();

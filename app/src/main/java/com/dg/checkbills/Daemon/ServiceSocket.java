@@ -185,35 +185,40 @@ public class ServiceSocket extends Service implements TimerListener
         comm.start();
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        startTimer("SEND_BILL_TIMER",10);
+        //startTimer("SEND_BILL_TIMER",100);
         // ID*idxxxx*DATE*string*MONTANT*40*IDBOUTIQUE*f8e9*TITRE*xxtitrexx*TYPEBILL*x
-        comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
+        boolean res = comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
                 + "*IDBOUTIQUE*" + myBill.getBoutique().getId()+"*TITRE*"+myBill.getNom()+"*TYPEBILL*"+myBill.getType());
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
+        if (!res)
+        {
+            //stopTimer();
+            comm.interrupt();
+            billSending.setIsOnCloud(true); // il a bien été émis
+            billsArray.add(billSending);
+            comm = null;
+            return true;
+        }
+        Log.e("QQQ","dd");
         comm.sendMessage(myBill.getImage());
-
+        Log.e("HHH","sjj");
         try {
-            Thread.sleep(500);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         comm.sendMessage("IMAGECHECK");
-        stopTimer();
+        //stopTimer();
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        Log.e("STOP","STOPSOCKETBILL");
         comm.interrupt();
         billSending.setIsOnCloud(true); // il a bien été émis
         billsArray.add(billSending);
