@@ -156,7 +156,6 @@ public class CommunicationServer extends Thread implements Runnable
     {
         if (atom_ic_write.compareAndSet(false,true) && this.run)
         {
-            Log.e("SS","KKKKKKKKKKKKKKK");
             this.outputString.println(message);
             atom_ic_write.set(false);
             return true;
