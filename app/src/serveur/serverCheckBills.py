@@ -11,6 +11,7 @@ class ClientRequest:
     def __init__(self):
         self.state = 0  ## 0, 1, 2
         self.ticketInfo = None  ## ID*6146b8a7edfd942a*DATE*23/12/2016 12:34 PM*MO ...
+        self.checksum = 0
 
 ##    def setwaitingfor(self,state):
 ##        self.state = state
@@ -46,7 +47,6 @@ class Server(Thread):
         
         print("Server started on port " + str(self.PORT) + " [ok]")
         print("=============SERVEUR ONLINE=============")
-        checksum = 0
         while self.serverOnline:
         # Get the list sockets which are ready to be read through select
 
@@ -87,8 +87,8 @@ class Server(Thread):
                                     
 
                             except Exception as e:
-                                checksum = checksum + len(data)  
-                                print(checksum)
+                                clientrequest.checksum = clientrequest.checksum + len(data)  
+                                print(clientrequest.checksum)
                                 if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[9] + ".png"):  ## change the pic Name, on peut mettre (idTel + date) comme nom sinon  
                                     file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'wb')
                                     file.close()
@@ -98,9 +98,10 @@ class Server(Thread):
                                 if(clientrequest.ticketInfo != None):
                                     self.writeImgInText(clientrequest.ticketInfo.split("*")[9], data) ## [9] --> nomDuTicket
                                     print("IMAGEBYTES", clientrequest.ticketInfo.split("*")[13])
+                                    print("checksum client", clientrequest.checksum)
                                 file.close()
                                 print("FIN close IMAGE")
-                                if(checksum == clientrequest.ticketInfo.split("*")[13]):
+                                if(clientrequest.checksum == int(clientrequest.ticketInfo.split("*")[13])):
                                     clientrequest.state += 1
                                     print("client State ", clientrequest.state)
 
@@ -110,6 +111,7 @@ class Server(Thread):
                                         self.bddTicket.insertToTable(clientrequest.ticketInfo)
                                         self.bddTicket.readTable()  
                                         clientrequest.state = 0  ## reset state
+                                        clientrequest.checksum = 0
                                             
 
 
