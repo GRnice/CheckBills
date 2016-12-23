@@ -71,10 +71,6 @@ class Server(Thread):
                                 message = data.decode('utf-8')
                                 print(message)
                                 if ("ID" in message[0:2]):
-                                    #tabdata = message.split('*')
-                                    #idtel = tabdata[1]
-                                    #date = tabdata[3]
-                                    #montant = tabdata[5]
                                     clientrequest.ticketInfo = message
                                     clientrequest.state+=1
                                     print("client State ", clientrequest.state)
@@ -87,27 +83,12 @@ class Server(Thread):
 
                                 elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
                                      self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
-                                    
-                                elif("IMAGECHECK" in message[0:10]):  ## passe pas ICI sur mac ..
-                                    clientrequest.state += 1
-                                    print("client State ", clientrequest.state)
-
-
-                                    # ID*6146b8a7edfd942a*DATE*23/12/2016 12:34 PM*MONTANT*32*IDBOUTIQUE*idxxx*TITRE*unTicket*TYPEBILL*3
-                                    if(clientrequest.state == 2):
-                                        print("insertion")
-                                        self.bddTicket.insertToTable(clientrequest.ticketInfo)
-                                        self.bddTicket.readTable()  ## pr test
-                                        clientrequest.state = 0  ## reset state
                                         
-                                    
-
-                              
                                     
 
                             except Exception as e:
                                 checksum = checksum + len(data)  
-                                print(checksum)  
+                                print(checksum)
                                 if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[9] + ".png"):  ## change the pic Name, on peut mettre (idTel + date) comme nom sinon  
                                     file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'wb')
                                     file.close()
@@ -116,8 +97,20 @@ class Server(Thread):
                                 file.write(data)
                                 if(clientrequest.ticketInfo != None):
                                     self.writeImgInText(clientrequest.ticketInfo.split("*")[9], data) ## [9] --> nomDuTicket
+                                    print("IMAGEBYTES", clientrequest.ticketInfo.split("*")[13])
                                 file.close()
                                 print("FIN close IMAGE")
+                                if(checksum == clientrequest.ticketInfo.split("*")[13]):
+                                    clientrequest.state += 1
+                                    print("client State ", clientrequest.state)
+
+                                    if(clientrequest.state == 2):
+                                        sock.send("IMAGECHECK\r\n".encode('utf-8'))
+                                        print("insertion")
+                                        self.bddTicket.insertToTable(clientrequest.ticketInfo)
+                                        self.bddTicket.readTable()  
+                                        clientrequest.state = 0  ## reset state
+                                            
 
 
                         else:
