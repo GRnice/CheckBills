@@ -89,19 +89,19 @@ class Server(Thread):
                             except Exception as e:
                                 clientrequest.checksum = clientrequest.checksum + len(data)  
                                 print(clientrequest.checksum)
-                                if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[9] + ".png"):  ## change the pic Name, on peut mettre (idTel + date) comme nom sinon  
-                                    file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'wb')
+                                if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[15] + ".png"):  ## [15] imageName
+                                    file = open("./" + clientrequest.ticketInfo.split("*")[15] + ".png",'wb')
                                     file.close()
                                     
-                                file = open("./" + clientrequest.ticketInfo.split("*")[9] + ".png",'ab')
+                                file = open("./" + clientrequest.ticketInfo.split("*")[15] + ".png",'ab')
                                 file.write(data)
                                 if(clientrequest.ticketInfo != None):
-                                    self.writeImgInText(clientrequest.ticketInfo.split("*")[9], data) ## [9] --> nomDuTicket
-                                    print("IMAGEBYTES", clientrequest.ticketInfo.split("*")[13])
-                                    print("checksum client", clientrequest.checksum)
+                                    self.writeImgInText(clientrequest.ticketInfo.split("*")[15], data) ## [9] --> nomDuTicket
+                                    #print("IMAGEBYTES", clientrequest.ticketInfo.split("*")[13])
+                                    #print("checksum client", clientrequest.checksum)
                                 file.close()
                                 print("FIN close IMAGE")
-                                if(clientrequest.checksum == int(clientrequest.ticketInfo.split("*")[13])):
+                                if(clientrequest.checksum == int(clientrequest.ticketInfo.split("*")[13])):  ## [13] sizeImage
                                     clientrequest.state += 1
                                     print("client State ", clientrequest.state)
 

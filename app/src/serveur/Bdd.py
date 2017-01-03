@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sqlite3 as lite
+import csv
 
 class BaseDeDonneeBoutique:
     def __init__(self):
@@ -51,11 +52,40 @@ class BaseDeDonneeBoutique:
         return strSendToClient.strip("_")
 
 
-    def readTable(self):   
+    def readTable(self):
         self.cur.execute("SELECT * FROM Boutiques")
         rows = self.cur.fetchall()
-        for row in rows:
+        for row in rows: 
             print(row)
+
+    def getAllLongLat(self):
+        listRes = []  ## [long1, lat1, long2, lat2 ..]
+        self.cur.execute("SELECT longitude, latitude FROM Boutiques")
+        rows = self.cur.fetchall()
+        for row in rows: 
+            listRes.append(row[0])
+            listRes.append(row[1])
+        return listRes
+        
+        
+    def longLatToCsv(self):  
+        with open('Data.csv', 'w', newline='', encoding = "utf-8-sig") as fp:
+            writer = csv.writer(fp,delimiter =';')
+            entete = ["Long", "Lat"]
+            writer.writerow(entete)
+
+            listLongLat = self.getAllLongLat()
+            depart = 0
+            fin = 2
+            for i in range(len(listLongLat)):
+                writer.writerow(listLongLat[depart:fin])
+                depart += 2
+                fin += 2
+                
+        fp.close()
+
+            
+        
         
 
 class BaseDeDonneeTicket:
@@ -77,10 +107,10 @@ class BaseDeDonneeTicket:
             return 1
 
     def insertToTable(self, ticketInfo):
-        info = ticketInfo.split("*")  # ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1
+        info = ticketInfo.split("*")  # ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
         try:
             self.cur.execute("INSERT INTO Tickets(idTel, date, montant, idBoutique, title, typeBill, imageFile) VALUES (?,?,?,?,?,?,?)",
-                            (info[1], info[3], info[5], int(info[7]), info[9], info[11], info[9]+".txt"))  
+                            (info[1], info[3], info[5], int(info[7]), info[9], info[11], info[15]+".txt"))  
             self.conn.commit()
             print("insertGood")
             return 0
@@ -112,10 +142,7 @@ class BaseDeDonneeTicket:
     def readTable(self):   
         self.cur.execute("SELECT * FROM Tickets")
         rows = self.cur.fetchall()
-        print("YOLO")
-        print(rows)
         for row in rows:
-            print("1")
             print(row)
                 
                 
@@ -125,15 +152,15 @@ tck1 = "ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre
 tck2 = "ID*idTel1*DATE*12/12/2015 12:15:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre2*TYPEBILL*0"
 tck3 = "ID*idTel2*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre3*TYPEBILL*2"
 tck4 = "ID*idTel2*DATE*12/12/2015 12:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3"
-tck5 = "ID*idTel1*DATE*12/12/2015 12:20:55*MONTANT*45*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*3"
-##bd = BaseDeDonneeTicket()
-##bd.createTable()
+tck5 = "ID*6146b8a7edfd942a*DATE*23/12/2016 08:51 PM*MONTANT*45*IDBOUTIQUE*1*TITRE*unTicket*TYPEBILL*3"
+
+bd = BaseDeDonneeTicket()
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
 ##bd.insertToTable(tck4)
-##bd.insertToTable(tck5)
-
+#bd.insertToTable(tck5)
+#bd.readTable()
 ##bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
 ##bd.getFromTable("idTel2", "12/12/2015 12:12:44")
 
@@ -141,13 +168,15 @@ tck5 = "ID*idTel1*DATE*12/12/2015 12:20:55*MONTANT*45*IDBOUTIQUE*1*TITRE*xxtitre
 
 
 ###### BOUTIQUES test
-#bdBoutique = BaseDeDonneeBoutique()
-#bdBoutique.createTable()
+bdBoutique = BaseDeDonneeBoutique()
 
 b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
 b4 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
 ##bdBoutique.insertToTable(b3)
 ##bdBoutique.insertToTable(b4)
+##listRes = bdBoutique.getAllLongLat()
+##print(listRes)
+##bdBoutique.longLatToCsv()
 ##print(bdBoutique.getListBoutique())  ## send au tel
 
 ## http://stackoverflow.com/questions/6951052/differences-between-key-superkey-minimal-superkey-candidate-key-and-primary-k 
