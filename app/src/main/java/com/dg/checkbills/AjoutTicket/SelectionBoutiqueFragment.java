@@ -3,6 +3,7 @@ package com.dg.checkbills.AjoutTicket;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -63,7 +64,17 @@ public class SelectionBoutiqueFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_selection_boutique, container, false);
+        View v = inflater.inflate(R.layout.fragment_selection_boutique_fab, container, false);
+
+        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fabnwboutique);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ProcedureTicket) getActivity()).showNewBoutique();
+            }
+        });
+
         aListViewBoutiques = (ListView) v.findViewById(R.id.listViewBoutiques);
 
         aListViewBoutiques.setOnItemClickListener(new AdapterView.OnItemClickListener() {

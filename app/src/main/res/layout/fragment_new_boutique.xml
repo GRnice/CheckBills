@@ -1,0 +1,54 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dg.checkbills.AjoutTicket.NewBoutiqueFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true">
+
+    </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:text="Nom: "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="29dp"
+        android:id="@+id/textView"
+        android:textSize="24sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="12dp"
+        android:layout_below="@+id/textInputLayout2"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Nom"
+        android:ems="10"
+        android:id="@+id/nomNouvelleBoutique"
+        android:textColor="?android:attr/colorControlNormal"
+        android:textAlignment="viewStart"
+        android:layout_marginStart="32dp"
+        android:layout_alignBaseline="@+id/textView"
+        android:layout_alignBottom="@+id/textView"
+        android:layout_toEndOf="@+id/textView" />
+
+    <Button
+        android:text="Ajouter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="23dp"
+        android:id="@+id/buttonaddboutique"
+        android:background="@android:color/holo_green_light"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

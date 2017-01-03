@@ -1,11 +1,19 @@
 package com.dg.checkbills.Daemon;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.dg.checkbills.Communication.CommunicationServer;
@@ -23,8 +31,7 @@ import java.util.ArrayList;
  * Created by Remy on 11/12/2016.
  */
 
-public class ServiceSocket extends Service implements TimerListener
-{
+public class ServiceSocket extends Service implements TimerListener, LocationListener {
 
     private CommunicationServer comm; // permet de dialoguer avec le serveur
     private ActivityReceiver activityReceiver; // ecoute les messages émis par les differentes activity
@@ -37,16 +44,16 @@ public class ServiceSocket extends Service implements TimerListener
     private StringBuilder boutiqueStringReceived; // contient toutes les boutiques transmisent sous forme de string
     private Bill billSending;
     private Timer aTimer;
+
+    private Location lastPosition;
     // par le serveur, ce tableau sera traité quand toutes les boutiques auront été recues.
 
-    public ServiceSocket()
-    {
+    public ServiceSocket() {
     }
 
     @Override
-    public int onStartCommand(Intent intent,int flags,int startId)
-    {
-        super.onStartCommand(intent,flags,startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 
         activityReceiver = new ActivityReceiver();
         serverReceiver = new ServerReceiver();
@@ -55,17 +62,26 @@ public class ServiceSocket extends Service implements TimerListener
         billsArray = BillsManager.load(getBaseContext());
         boutiqueArray = BoutiqueManager.load(getBaseContext());
 
-        Log.e("PK TANT DE HAINE","YOLO");
+        Log.e("PK TANT DE HAINE", "YOLO");
+
+
+        LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
+            }
+        }
+
 
         // ECOUTE DES MESSAGES PROVENANTS DU SERVEUR
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-        registerReceiver(serverReceiver,intentFilter);
+        registerReceiver(serverReceiver, intentFilter);
 
         // ECOUTE DES MESSAGES PROVENANTS DE L'ACTIVITE
         intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
-        registerReceiver(activityReceiver,intentFilter);
+        registerReceiver(activityReceiver, intentFilter);
 
         // ECOUTE DU CHANGEMENT DE L'ETAT DU RESEAU
         intentFilter = new IntentFilter();
@@ -77,10 +93,14 @@ public class ServiceSocket extends Service implements TimerListener
     }
 
     @Override
-    public void onDestroy()
-    {
-        Log.e("DEAD","DEAD");
+    public void onDestroy() {
+        Log.e("DEAD", "DEAD");
         comm.interrupt();
+        LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            lm.removeUpdates(this);
+        }
+
         unregisterReceiver(activityReceiver);
         unregisterReceiver(serverReceiver);
         unregisterReceiver(networkChangeReceiver);
@@ -88,67 +108,61 @@ public class ServiceSocket extends Service implements TimerListener
     }
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
     /**
      * Cette methode demande au serveur de transmettre les boutiques à l'application
      */
-    private void requestBoutique()
-    {
+    private void requestBoutique() {
         boutiqueStringReceived = new StringBuilder();
-        Log.e("PKDEUXFOIS","dd");
-        comm = new CommunicationServer(this,"REQUESTBOUTIQUE",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
+        Log.e("PKDEUXFOIS", "dd");
+        comm = new CommunicationServer(this, "REQUESTBOUTIQUE", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.start();
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        startTimer("REQUEST_BOUTIQUE_TIMER",10); // si au bout de 10 secondes tout n'a pas été transféré on
-                                                    // arrete la communication
+        startTimer("REQUEST_BOUTIQUE_TIMER", 10); // si au bout de 10 secondes tout n'a pas été transféré on
+        // arrete la communication
         comm.sendMessage("REQUEST_ALL_BOUTIQUES");
     }
 
     /**
      * Traite les boutiques transmisent par le serveur
      */
-    private void treatRequestBoutique()
-    {
+    private void treatRequestBoutique() {
         stopTimer();
         comm.interrupt(); // arret du socket dédié au REQUEST_ALL_BOUTIQUES
         comm = null;
-        Log.e("ALL_BOUTIQUE_RECEIVED",boutiqueStringReceived.toString());
+        Log.e("ALL_BOUTIQUE_RECEIVED", boutiqueStringReceived.toString());
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
         boutiqueArray = new ArrayList<>();
-        for (String aBoutique : allBoutiques)
-        {
+        for (String aBoutique : allBoutiques) {
 
             String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
-            Boutique nwBoutique = new Boutique(aBoutiqueSplit[1],aBoutiqueSplit[3]);
-            BoutiqueManager.store(getBaseContext(),nwBoutique);
+            Boutique nwBoutique = new Boutique(aBoutiqueSplit[1], aBoutiqueSplit[3]);
+            BoutiqueManager.store(getBaseContext(), nwBoutique);
             this.boutiqueArray.add(nwBoutique);
         }
 
-        Log.e("IZELOS",String.valueOf(boutiqueArray.size()));
+        Log.e("IZELOS", String.valueOf(boutiqueArray.size()));
     }
 
     /**
      * Traite les erreurs de connexion
      */
-    public void treatFailSocket()
-    {
-        if (aTimer != null) {stopTimer();}
-        if (comm.getTag().equals("REQUESTBOUTIQUE"))
-        {
+    public void treatFailSocket() {
+        if (aTimer != null) {
+            stopTimer();
+        }
+        if (comm.getTag().equals("REQUESTBOUTIQUE")) {
             boutiqueStringReceived = new StringBuilder();
             comm.interrupt();
             comm = null;
-        }
-        else if(comm.getTag().equals("SENDBILL"))
-        {
+        } else if (comm.getTag().equals("SENDBILL")) {
             comm.interrupt();
             billSending.setIsOnCloud(false); // pas émis
             billsArray.add(billSending); // mais quand meme ajouté
@@ -157,19 +171,18 @@ public class ServiceSocket extends Service implements TimerListener
         }
     }
 
-    private void startTimer(String tag,int secondes)
-    {
+    private void startTimer(String tag, int secondes) {
         aTimer = new Timer();
-        aTimer.setTag(tag); aTimer.setTimer(secondes);aTimer.setTimerListener(this);
+        aTimer.setTag(tag);
+        aTimer.setTimer(secondes);
+        aTimer.setTimerListener(this);
         aTimer.execute();
     }
 
-    private void stopTimer()
-    {
+    private void stopTimer() {
         aTimer.cancel(true);
         aTimer = null;
     }
-
 
 
     /**
@@ -178,10 +191,9 @@ public class ServiceSocket extends Service implements TimerListener
      * @param myBill
      * @return
      */
-    private boolean sendBill(String idTel,Bill myBill)
-    {
-        BillsManager.store(getBaseContext(),myBill);
-        comm = new CommunicationServer(this,"SENDBILL",BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
+    private boolean sendBill(String idTel, Bill myBill) {
+        BillsManager.store(getBaseContext(), myBill);
+        comm = new CommunicationServer(this, "SENDBILL", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
         comm.start();
 
         try {
@@ -189,11 +201,11 @@ public class ServiceSocket extends Service implements TimerListener
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        boolean res = comm.sendMessage("ID*" + idTel+"*DATE*" + myBill.getDate()+"*MONTANT*"+String.valueOf(myBill.getMontant())
-                + "*IDBOUTIQUE*" + myBill.getBoutique().getId()+"*TITRE*"+myBill.getNom()+"*TYPEBILL*"+myBill.getType()+"*SIZEIMAGE*"+myBill.getImage().length);
+        boolean res = comm.sendMessage("ID*" + idTel + "*DATE*" + myBill.getDate() + "*MONTANT*" + String.valueOf(myBill.getMontant())
+                + "*IDBOUTIQUE*" + myBill.getBoutique().getId() + "*TITRE*" + myBill.getNom() +
+                "*TYPEBILL*" + myBill.getType() + "*SIZEIMAGE*" + myBill.getImage().length + "*IMAGENAME*SzPdslWmd");
 
-        if (!res)
-        {
+        if (!res) {
             comm.interrupt();
             billSending.setIsOnCloud(false); // il n'a pas été transmis
             billsArray.add(billSending);
@@ -212,21 +224,60 @@ public class ServiceSocket extends Service implements TimerListener
      * @param tag
      */
     @Override
-    public void timeout(String tag)
-    {
-        if (comm != null)
-        {
-            Log.e("TIMEOUT!!","STOPSOCKET");
+    public void timeout(String tag) {
+        if (comm != null) {
+            Log.e("TIMEOUT!!", "STOPSOCKET");
             treatFailSocket();
         }
     }
 
+    private void checkPositionAndSendNewBoutiqueToServer(String nomBoutique)
+    {
+        this.comm = new CommunicationServer(this, "SENDNEWBOUTIQUE", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
+
+        comm.start();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        this.comm.sendMessage("NEWBOUTIQUE*"+nomBoutique+"*LONG*"
+                +lastPosition.getLongitude()+"*LAT*"+lastPosition.getLatitude());
+        /**
+         * ICI RECUPERER POSITION GPS ET TRANSMETTRE AU SERVEUR
+         */
+
+    }
+
+    @Override
+    public void onLocationChanged(Location locationp)
+    {
+        Log.e("QUANDTUVEUX","OUAIS");
+        this.lastPosition = locationp;
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
     /**
      * ClientReceiver , envoie des messages au serveur
-     * STARTSUIVI
-     * CONTINUE
-     * STOPSUIVI
-     *
+     * NEWBILL
+     * GETBILLS
+     * GETBOUTIQUES
+     * NEWBOUTIQUE
      * MessageReceiver, recoit les messages venants d'une activité
      */
     private class ActivityReceiver extends BroadcastReceiver
@@ -235,8 +286,6 @@ public class ServiceSocket extends Service implements TimerListener
         public void onReceive(Context arg0, Intent arg1)
         {
             // ICI on recoit les messages provenants d'une activité
-            Log.e("XXB","");
-            Log.e("LOOL","");
             if (arg1.hasExtra("NEWBILL"))
             {
                 String idTel = arg1.getStringExtra("IDTEL");
@@ -244,10 +293,9 @@ public class ServiceSocket extends Service implements TimerListener
                 billSending = nwBill;
                 sendBill(idTel,nwBill);
             }
-            Log.e("CHIER","");
+
             if (arg1.hasExtra("GETBILLS"))
             {
-                Log.e("GETBILLSrequest","");
                 Intent intentBills = new Intent();
                 intentBills.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBills.putExtra("BILLS",billsArray);
@@ -260,6 +308,12 @@ public class ServiceSocket extends Service implements TimerListener
                 intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBoutique.putExtra("BOUTIQUES",boutiqueArray);
                 sendBroadcast(intentBoutique);
+            }
+
+            if (arg1.hasExtra("NEWBOUTIQUE"))
+            {
+                String nomwBoutique = arg1.getStringExtra("NEWBOUTIQUE");
+                checkPositionAndSendNewBoutiqueToServer(nomwBoutique);
             }
         }
     }
@@ -283,6 +337,16 @@ public class ServiceSocket extends Service implements TimerListener
             {
                 String message = arg1.getStringExtra("MESSAGE");
                 if (message.equals("IMAGECHECK"))
+                {
+                    comm.interrupt();
+                    comm = null;
+                }
+            }
+
+            if (comm != null && comm.getTag().equals("SENDNEWBOUTIQUE"))
+            {
+                String message = arg1.getStringExtra("MESSAGE");
+                if (message.equals("NEWBOUTIQUECHECK"))
                 {
                     comm.interrupt();
                     comm = null;

@@ -28,6 +28,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <fragment
+        android:name="com.dg.checkbills.AjoutTicket.NewBoutiqueFragment"
+        android:id="@+id/nwboutique"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 </RelativeLayout>

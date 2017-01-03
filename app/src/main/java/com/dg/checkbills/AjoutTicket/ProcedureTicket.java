@@ -24,6 +24,7 @@ import com.dg.checkbills.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
 
 
 public class ProcedureTicket extends FragmentActivity
@@ -32,6 +33,7 @@ public class ProcedureTicket extends FragmentActivity
     private PhotoFragment photoFragment = null;
     private TicketInformation ticketInfoFragment = null;
     private SelectionBoutiqueFragment selectionBoutiqueFragment = null;
+    private NewBoutiqueFragment newBoutiqueFragment = null;
     private Calendar cal;
     private String strDate;
     private String androidId;
@@ -59,9 +61,13 @@ public class ProcedureTicket extends FragmentActivity
         photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.scanFragment);
         ticketInfoFragment = (TicketInformation) getSupportFragmentManager().findFragmentById(R.id.ticketInfoFragment);
         ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
-        selectionBoutiqueFragment = (SelectionBoutiqueFragment) getSupportFragmentManager().findFragmentById(R.id.listingBoutique);
 
+        selectionBoutiqueFragment = (SelectionBoutiqueFragment) getSupportFragmentManager().findFragmentById(R.id.listingBoutique);
         selectionBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+
+        newBoutiqueFragment = (NewBoutiqueFragment) getSupportFragmentManager().findFragmentById(R.id.nwboutique);
+        newBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+
         androidId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         dispatchTakePictureIntent();
 
@@ -70,7 +76,19 @@ public class ProcedureTicket extends FragmentActivity
     @Override
     public void onBackPressed()
     {
-        backToHome();
+        if (selectionBoutiqueFragment.getView().getVisibility() == View.VISIBLE)
+        {
+            showListingBoutiques();
+        }
+        else if (selectionBoutiqueFragment.getView().getVisibility() == View.VISIBLE)
+        {
+            showTicketInfo(null);
+        }
+        else
+        {
+            backToHome();
+        }
+
     }
 
     @Override
@@ -134,6 +152,7 @@ public class ProcedureTicket extends FragmentActivity
     {
         photoFragment.getView().setVisibility(View.INVISIBLE);
         ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
+        newBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
         selectionBoutiqueFragment.getView().setVisibility(View.VISIBLE);
     }
 
@@ -146,6 +165,15 @@ public class ProcedureTicket extends FragmentActivity
         photoFragment.getView().setVisibility(View.INVISIBLE);
         ticketInfoFragment.getView().setVisibility(View.VISIBLE);
         selectionBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+        newBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+    }
+
+    public void showNewBoutique()
+    {
+        photoFragment.getView().setVisibility(View.INVISIBLE);
+        ticketInfoFragment.getView().setVisibility(View.INVISIBLE);
+        selectionBoutiqueFragment.getView().setVisibility(View.INVISIBLE);
+        newBoutiqueFragment.getView().setVisibility(View.VISIBLE);
     }
 
     /**
