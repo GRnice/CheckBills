@@ -69,6 +69,7 @@ class Server(Thread):
                         if len(data) > 0:
                             try:
                                 message = data.decode('utf-8')
+                                message = message.rstrip()
                                 print(message)
                                 if ("ID" in message[0:2]):
                                     clientrequest.ticketInfo = message
@@ -82,7 +83,10 @@ class Server(Thread):
                                     sock.send("BOUTIQUECHECK\r\n".encode('utf-8'))
 
                                 elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
-                                     self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
+                                    print(message)
+                                    sock.send("NEWBOUTIQUECHECK\r\n".encode('utf-8'))
+                                    self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
+                                    self.bddBoutique.readTable()
                                         
                                     
 
