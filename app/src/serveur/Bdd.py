@@ -71,8 +71,8 @@ class BaseDeDonneeBoutique:
     def longLatToCsv(self):  
         with open('Data.csv', 'w', newline='', encoding = "utf-8-sig") as fp:
             writer = csv.writer(fp,delimiter =';')
-            entete = ["Long", "Lat"]
-            writer.writerow(entete)
+            #entete = ["Long", "Lat"]
+            #writer.writerow(entete)
 
             listLongLat = self.getAllLongLat()
             depart = 0
@@ -82,7 +82,7 @@ class BaseDeDonneeBoutique:
                 depart += 2
                 fin += 2
                 
-        fp.close()
+   
 
             
         
@@ -171,9 +171,18 @@ bd = BaseDeDonneeTicket()
 bdBoutique = BaseDeDonneeBoutique()
 
 b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
-b4 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
-##bdBoutique.insertToTable(b3)
-##bdBoutique.insertToTable(b4)
+b4 = "NOM*St philippe*LONGITUDE*19.2*LATITUDE*20.1212"
+
+b5 = "NEWBOUTIQUE*nomDeLaBoutique*LONG*1212.1*LAT*333.2"
+b7 = "NEWBOUTIQUE*FLUNCH*LONG*1212.11*LAT*333.2"
+b77 = "NEWBOUTIQUE*nomDeLaBoutique222*LONG*1212.12121*LAT*333.1212122"
+b88 = "NEWBOUTIQUE*FLUNCH1212*LONG*1212.11*LAT*333.21111"
+bdBoutique.insertToTable(b3)
+bdBoutique.insertToTable(b4)
+bdBoutique.insertToTable(b5)
+bdBoutique.insertToTable(b77)
+bdBoutique.insertToTable(b88)
+bdBoutique.readTable()
 ##listRes = bdBoutique.getAllLongLat()
 ##print(listRes)
 ##bdBoutique.longLatToCsv()
