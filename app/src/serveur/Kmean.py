@@ -33,16 +33,29 @@ data = Data()
 data.readCsv()
 #print(data.npList)
 
+## Nb centroid changera en fct du nb de donnée en entrée
 centroids, label = kmeans2(data.npList, 2, 5)  ## 2 centroids, 5 iteration
 print(centroids)
 print(label)
 
+poids1 = 0
+poids2 = 0
 
 for i in range(len(data.npList)):
-    print("coordinates ", data.npList[i], "Label ", label[i])
+    #print("coordinates ", data.npList[i], "Label ", label[i])
+
+    if(label[i] == 0):
+        poids1 += 1
+    elif(label[i] == 1):
+        poids2 += 1
+        
     plt.plot(data.npList[i][0], data.npList[i][1], "ro")
 
-plt.scatter(centroids[:,0], centroids[:,1], c="blue", s=100)
+print("poids1 ", poids1, "poids2 ", poids2)
+
+plt.scatter(centroids[0][0], centroids[0][1], c="blue", s = poids1 * 10)
+plt.scatter(centroids[1][0], centroids[1][1], c="blue", s = poids2 * 10)
+#plt.scatter(centroids[:,0], centroids[:,1], c="blue", s=100)
 plt.show()
 
 
@@ -56,7 +69,6 @@ plt.show()
 ##plt.show()
 
 
-
 ##LAT1 = 43.61206
 ##LONG1 =  7.078978
 ##
@@ -65,7 +77,6 @@ plt.show()
 ##
 ##LAT3 = 43.59404
 ##LONG3 = 7.126531
-##
 ##for i in range(1000):
 ##    x = rd.uniform(LAT1, LAT2)
 ##    y = rd.uniform(LONG1, LONG2)
