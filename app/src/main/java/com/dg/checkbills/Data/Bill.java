@@ -17,7 +17,7 @@ public class Bill extends Data
     private  static  final  long serialVersionUID =  1350792821376720032L;
 
     private TYPE_CONTENT_BILL typeDeTicket;
-    private byte[] imageDuTicket; // L'image n'est pas serializable
+    private byte[] imageDuTicket;
     private int montant;
     private Boutique boutique;
     private String date;
@@ -83,6 +83,11 @@ public class Bill extends Data
 
     public String getType() {
         return typeDeTicket.toString();
+    }
+
+    public boolean isOnCloud()
+    {
+        return isOnCloud;
     }
 
     public void setIsOnCloud(boolean isOnCloud)

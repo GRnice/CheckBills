@@ -6,11 +6,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.util.Log;
 
-import com.dg.checkbills.Constantes.BroadcastAddr;
-import com.dg.checkbills.Daemon.ServiceSocket;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -28,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "172.20.10.3";
+    public static final String SOCKET_ADDR = "192.168.2.22";
 
     public static final int PORT = 3200;
     private Socket m_sock;
@@ -133,26 +129,18 @@ public class CommunicationServer extends Thread implements Runnable
 
     }
 
-    public synchronized void sendMessage(byte[] bytearray)
+    public synchronized void sendMessage(byte[] bytearray) throws IOException
     {
         if (atom_ic_write.compareAndSet(false,true))
         {
-            try
-            {
-                outputByte.write(bytearray);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-
+            outputByte.write(bytearray);
             atom_ic_write.set(false);
         }
 
     }
 
 
-    public synchronized boolean sendMessage(String message)
+    public synchronized boolean sendMessage(String message) throws IOException
     {
         if (atom_ic_write.compareAndSet(false,true) && this.run)
         {
