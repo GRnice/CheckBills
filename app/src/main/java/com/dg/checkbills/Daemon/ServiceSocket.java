@@ -6,12 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -19,7 +17,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.dg.checkbills.Communication.CommunicationServer;
 import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
@@ -27,11 +24,8 @@ import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Storage.BillsManager;
 import com.dg.checkbills.Storage.BoutiqueManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+
 
 /**
  * Created by Remy on 11/12/2016.
@@ -216,6 +210,7 @@ public class ServiceSocket extends Service implements LocationListener
 
     public void endTask(SenderBill senderBill,Bill billSent, boolean success)
     {
+        arrayOfSender.remove(senderBill);
         billSent.setIsOnCloud(success); // il a bien été émis
         billsArray.add(billSent);
         if (! success)
