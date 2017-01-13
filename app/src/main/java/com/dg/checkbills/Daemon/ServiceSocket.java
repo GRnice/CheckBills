@@ -11,9 +11,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -35,22 +37,19 @@ import java.util.Set;
  * Created by Remy on 11/12/2016.
  */
 
-public class ServiceSocket extends Service implements TimerListener, LocationListener
+public class ServiceSocket extends Service implements LocationListener
 {
 
-    private CommunicationServer comm; // permet de dialoguer avec le serveur
     private ActivityReceiver activityReceiver; // ecoute les messages émis par les differentes activity
-    private ServerReceiver serverReceiver; // ecoute les messages émis par le serveur
     private NetworkChangeReceiver networkChangeReceiver;
 
     private ArrayList<Bill> billsArray; // tableau de tickets
     private ArrayList<Boutique> boutiqueArray; // tableau de boutiques
+    private ArrayList<Sender> arrayOfSender; // tableau de sender en cours d'execution
+    private ArrayList<Bill> billsOffline; // tableau de bills offline
 
     private boolean isConnected;
 
-    private StringBuilder boutiqueStringReceived; // contient toutes les boutiques transmisent sous forme de string
-    private Bill billSending;
-    private Timer aTimer;
     private String idTel;
 
     private Location lastPosition;
@@ -63,13 +62,23 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
         super.onStartCommand(intent, flags, startId);
 
         activityReceiver = new ActivityReceiver();
-        serverReceiver = new ServerReceiver();
         networkChangeReceiver = new NetworkChangeReceiver();
 
         idTel =  Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
         billsArray = BillsManager.load(getBaseContext());
         boutiqueArray = BoutiqueManager.load(getBaseContext());
+        billsOffline = new ArrayList<>();
+        arrayOfSender = new ArrayList<>();
+
+        for (Bill bill : billsArray)
+        {
+            if (!bill.isOnCloud())
+            {
+                billsOffline.add(bill);
+            }
+        }
+
 
         LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
@@ -79,13 +88,8 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
         }
 
 
-        // ECOUTE DES MESSAGES PROVENANTS DU SERVEUR
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-        registerReceiver(serverReceiver, intentFilter);
-
         // ECOUTE DES MESSAGES PROVENANTS DE L'ACTIVITE
-        intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
         registerReceiver(activityReceiver, intentFilter);
 
@@ -102,14 +106,13 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
     @Override
     public void onDestroy() {
         Log.e("DEAD", "DEAD");
-        comm.interrupt();
+
         LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             lm.removeUpdates(this);
         }
 
         unregisterReceiver(activityReceiver);
-        unregisterReceiver(serverReceiver);
         unregisterReceiver(networkChangeReceiver);
         super.onDestroy();
     }
@@ -122,38 +125,18 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
     /**
      * Cette methode demande au serveur de transmettre les boutiques à l'application
      */
-    private void requestBoutique() {
-        boutiqueStringReceived = new StringBuilder();
-
-        comm = new CommunicationServer(this, "REQUESTBOUTIQUE", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-        comm.start();
-        try
-        {
-            Thread.sleep(3000);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        startTimer("REQUEST_BOUTIQUE_TIMER", 10); // si au bout de 10 secondes tout n'a pas été transféré on
-        // arrete la communication
-        try
-        {
-            comm.sendMessage("REQUEST_ALL_BOUTIQUES");
-        } catch (IOException e)
-        {
-            stopTimer();
-            comm = null;
-        }
+    private void requestBoutique()
+    {
+        SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_BOUTIQUES");
+        senderRequest.process();
+        arrayOfSender.add(senderRequest);
     }
 
     /**
      * Traite les boutiques transmisent par le serveur
      */
-    private void treatRequestBoutique() {
-        stopTimer();
-        comm.interrupt(); // arret du socket dédié au REQUEST_ALL_BOUTIQUES
-        comm = null;
+    private void treatRequestBoutique(String boutiqueStringReceived)
+    {
         Log.e("ALL_BOUTIQUE_RECEIVED", boutiqueStringReceived.toString());
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
         boutiqueArray = new ArrayList<>();
@@ -169,210 +152,34 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
     }
 
     /**
-     * Traite les erreurs de connexion
-     */
-    public void treatFailSocket() {
-        if (aTimer != null) {
-            stopTimer();
-        }
-        if (comm.getTag().equals("REQUESTBOUTIQUE")) {
-            boutiqueStringReceived = new StringBuilder();
-            comm.interrupt();
-            comm = null;
-        } else if (comm.getTag().equals("SENDBILL")) {
-            comm.interrupt();
-            billSending.setIsOnCloud(false); // pas émis
-            billsArray.add(billSending); // mais quand meme ajouté
-            billSending = null;
-            comm = null;
-        }
-    }
-
-    private void startTimer(String tag, int secondes) {
-        aTimer = new Timer();
-        aTimer.setTag(tag);
-        aTimer.setTimer(secondes);
-        aTimer.setTimerListener(this);
-        aTimer.execute();
-    }
-
-    private void stopTimer() {
-        aTimer.cancel(true);
-        aTimer = null;
-    }
-
-
-    /**
      * Envoie un ticket crée par l'utilisateur au serveur
      * @param idTel
      * @param myBill
      * @return
      */
-    private boolean sendBill(String idTel, Bill myBill)
+    private void sendBill(String idTel, Bill myBill)
     {
-        BillsManager.store(getBaseContext(), myBill);
-        if (!isConnected)
-        {
-            billSending.setIsOnCloud(false); // il n'a pas été transmis
-            billsArray.add(billSending);
-
-            SharedPreferences sharedPreferences = getSharedPreferences("users",Context.MODE_PRIVATE);
-            SharedPreferences.Editor edit = sharedPreferences.edit();
-            if (! sharedPreferences.contains("ticketNotOnCloud"))
-            {
-                edit.putStringSet("ticketNotOnCloud",new HashSet<String>());
-                edit.commit();
-            }
-
-            Set<String> ticketsNotOnCloud = sharedPreferences.getStringSet("ticketNotOnCloud",null);
-            ticketsNotOnCloud.add(myBill.getId());
-            edit.putStringSet("ticketNotOnCloud",ticketsNotOnCloud);
-            edit.commit();
-
-            return false;
-        }
-        else
-        {
-            CommunicationServer comm = new CommunicationServer(this, "SENDBILL", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-            comm.start();
-
-            try
-            {
-                Thread.sleep(3000);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-                billSending.setIsOnCloud(false); // il a bien été émis
-                billsArray.add(billSending);
-                comm.interrupt();
-                comm = null;
-                return false;
-            }
-
-            boolean res = false;
-            try {
-                res = comm.sendMessage("ID*" + idTel + "*DATE*" + myBill.getDate() + "*MONTANT*" + String.valueOf(myBill.getMontant())
-                        + "*IDBOUTIQUE*" + myBill.getBoutique().getId() + "*TITRE*" + myBill.getNom() +
-                        "*TYPEBILL*" + myBill.getType() + "*SIZEIMAGE*" + myBill.getImage().length + "*IMAGENAME*SzPdslWmd");
-            } catch (IOException e) {
-                billSending.setIsOnCloud(false); // il a bien été émis
-                billsArray.add(billSending);
-                comm.interrupt();
-                comm = null;
-            }
-
-            if (!res)
-            {
-                billSending.setIsOnCloud(false); // il a bien été émis
-                billsArray.add(billSending);
-                comm.interrupt();
-                comm = null;
-                return false;
-            }
-
-            try
-            {
-                comm.sendMessage(myBill.getImage());
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                billSending.setIsOnCloud(false); // il a bien été émis
-                billsArray.add(billSending);
-                comm.interrupt();
-                comm = null;
-                return false;
-            }
-
-            billSending.setIsOnCloud(true); // il a bien été émis
-            billsArray.add(billSending);
-            return true;
-        }
-
-
-
+        SenderBill senderBill = new SenderBill(this,myBill,idTel);
+        this.idTel = idTel;
+        senderBill.process();
+        arrayOfSender.add(senderBill);
     }
 
-    /**
-     * Methode appellée par un asynctask qui a compté n secondes
-     * @param tag
-     */
-    @Override
-    public void timeout(String tag) {
-        if (comm != null) {
-            Log.e("TIMEOUT!!", "STOPSOCKET");
-            treatFailSocket();
-        }
-    }
 
     private void checkPositionAndSendNewBoutiqueToServer(String nomBoutique)
     {
-        /**
-         * ICI RECUPERER POSITION GPS ET TRANSMETTRE AU SERVEUR
-         */
-
-        this.comm = new CommunicationServer(this, "SENDNEWBOUTIQUE", BroadcastAddr.ACTION_TO_SERVICE_FROM_SERVER.getAddr());
-
-        comm.start();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        try {
-            this.comm.sendMessage("NEWBOUTIQUE*"+nomBoutique+"*LONG*"
-                    +lastPosition.getLongitude()+"*LAT*"+lastPosition.getLatitude());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        SenderBoutique senderBoutique = new SenderBoutique(this,nomBoutique,lastPosition);
+        senderBoutique.process();
     }
 
     private void sendBillsNotOnCloud()
     {
-        SharedPreferences sharedPreferences = getSharedPreferences("users",Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        if (! sharedPreferences.contains("ticketNotOnCloud"))
+        if (billsOffline.size() > 0)
         {
-            edit.putStringSet("ticketNotOnCloud",new HashSet<String>());
-            edit.commit();
-        }
-
-        Set<String> ticketsNotOnCloud = sharedPreferences.getStringSet("ticketNotOnCloud",null);
-        Iterator<String> tickStringIterator = ticketsNotOnCloud.iterator();
-        while(tickStringIterator.hasNext())
-        {
-            String idBillOffline = tickStringIterator.next();
-            Bill billOffline = null;
-
-            for (int j = 0 ; j < billsArray.size() ; j++)
-            {
-                if (billsArray.get(j).getId().equals(idBillOffline))
-                {
-                    billOffline = billsArray.get(j);
-
-                }
-            }
-            if (isConnected)
-            {
-                if (sendBill(idTel,billOffline))
-                {
-                    tickStringIterator.remove();
-                    billOffline.setIsOnCloud(true);
-                    BillsManager.flush(this,billOffline);
-                    BillsManager.store(this,billOffline);
-                    Log.e("newsend",idTel);
-                }
-            }
-            else
-            {
-                edit.putStringSet("ticketNotOnCloud",ticketsNotOnCloud);
-                edit.commit();
-                break;
-            }
+            Log.e("SENDBILLNOTONCLOUD","DANSLEIF");
+            sendBill(idTel,billsOffline.get(0));
         }
     }
-
 
     @Override
     public void onLocationChanged(Location locationp)
@@ -396,6 +203,46 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
 
     }
 
+    public void endTask(SenderBoutique senderBoutique,boolean success)
+    {
+        arrayOfSender.remove(senderBoutique);
+    }
+
+    public void endTask(SenderRequest senderRequest,boolean success,@Nullable String response)
+    {
+        arrayOfSender.remove(senderRequest);
+        treatRequestBoutique(response);
+    }
+
+    public void endTask(SenderBill senderBill,Bill billSent, boolean success)
+    {
+        billSent.setIsOnCloud(success); // il a bien été émis
+        billsArray.add(billSent);
+        if (! success)
+        {
+            billsOffline.add(billSent);
+        }
+        if (billsOffline.contains(billSent)) // si il est contenu dans la liste des tickets offline
+        {
+            billsOffline.remove(billSent); // on le retire de la liste
+            BillsManager.flush(this, billSent);
+            BillsManager.store(this, billSent); // on le store
+            if (billsOffline.size() > 0 && isConnected) // si il y a d'autres tickets offline on essaye de les transmettre.
+            {
+                sendBill(idTel,billsOffline.get(0));
+            }
+        }
+        else
+        {
+            BillsManager.store(this, billSent);
+        }
+    }
+
+    public boolean networkAvailable()
+    {
+        return isConnected;
+    }
+
     /**
      * ClientReceiver , envoie des messages au serveur
      * NEWBILL
@@ -414,7 +261,6 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
             {
                 String idTel = arg1.getStringExtra("IDTEL");
                 Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
-                billSending = nwBill;
                 sendBill(idTel,nwBill);
             }
 
@@ -440,60 +286,6 @@ public class ServiceSocket extends Service implements TimerListener, LocationLis
                 checkPositionAndSendNewBoutiqueToServer(nomwBoutique);
             }
         }
-    }
-
-    /**
-     * ServerReceiver , recoit les messages venants du serveur
-     *
-     * ACTION_RECEIVE_FROM_SERVER
-     */
-    private class ServerReceiver extends BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context arg0, Intent arg1)
-        {
-            if (comm != null && arg1.hasExtra("FAILSOCKET"))
-            {
-                treatFailSocket();
-            }
-
-            if (comm != null && comm.getTag().equals("SENDBILL"))
-            {
-                String message = arg1.getStringExtra("MESSAGE");
-                if (message.equals("IMAGECHECK"))
-                {
-                    comm.interrupt();
-                    comm = null;
-                }
-            }
-
-            if (comm != null && comm.getTag().equals("SENDNEWBOUTIQUE"))
-            {
-                String message = arg1.getStringExtra("MESSAGE");
-                if (message.equals("NEWBOUTIQUECHECK"))
-                {
-                    comm.interrupt();
-                    comm = null;
-                }
-            }
-
-            if (comm != null && comm.getTag().equals("REQUESTBOUTIQUE"))
-            {
-                String message = arg1.getStringExtra("MESSAGE");
-                Log.e("MESSAGEREQUEST",message);
-
-                if (message.equals("BOUTIQUECHECK"))
-                {
-                    treatRequestBoutique();
-
-                }
-                else
-                {
-                    boutiqueStringReceived.append(message);
-                }
-            }
-        }
-
     }
 
     /**

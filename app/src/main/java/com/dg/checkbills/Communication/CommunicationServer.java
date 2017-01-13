@@ -4,7 +4,10 @@ package com.dg.checkbills.Communication;
 import android.app.Service;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
+
+import com.dg.checkbills.Daemon.CommListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "192.168.2.22";
+    public static final String SOCKET_ADDR = "192.168.43.5";
 
     public static final int PORT = 3200;
     private Socket m_sock;
@@ -34,6 +37,7 @@ public class CommunicationServer extends Thread implements Runnable
     private String actionIntent;
     private Service service;
     private String tag;
+    private CommListener task;
     boolean run;
     boolean isDeconnect; // si à false alors ne pas emettre un FAILSOCKET,
                         // car le socket a été interrompu intentionnellement
@@ -45,10 +49,10 @@ public class CommunicationServer extends Thread implements Runnable
         super();
     }
 
-    public CommunicationServer(Service service,String tag,String actionIntent)
+    public CommunicationServer(Service service,String tag,CommListener task)
     {
         super();
-        this.actionIntent = actionIntent;
+        this.task = task;
         this.tag = tag;
         this.service = service;
     }
@@ -58,14 +62,14 @@ public class CommunicationServer extends Thread implements Runnable
         return tag;
     }
 
-    private void sendMessageToService(String key,String message)
+    private void sendMessageToListener(String key,String message)
     {
         Intent intent = new Intent();
         intent.setAction(actionIntent);
         intent.putExtra(key, message);
-        synchronized (this.service)
+        synchronized (this.task)
         {
-            this.service.sendBroadcast(intent);
+            this.task.onReceive(key,message);
         }
     }
 
@@ -83,7 +87,7 @@ public class CommunicationServer extends Thread implements Runnable
         {
             if (!isDeconnect)
             {
-                sendMessageToService("FAILSOCKET","");
+                sendMessageToListener("FAILSOCKET","");
             }
             e.printStackTrace();
             return;
@@ -98,7 +102,7 @@ public class CommunicationServer extends Thread implements Runnable
         {
             if (!isDeconnect)
             {
-                sendMessageToService("FAILSOCKET","");
+                sendMessageToListener("FAILSOCKET","");
             }
             e.printStackTrace();
         }
@@ -112,7 +116,7 @@ public class CommunicationServer extends Thread implements Runnable
 
                 if (line != null)
                 {
-                    sendMessageToService("MESSAGE",line);
+                    sendMessageToListener("MESSAGE",line);
                     Log.e("RECEIVE THIS -> ",line);
                 }
 
@@ -120,7 +124,7 @@ public class CommunicationServer extends Thread implements Runnable
             {
                 if (!isDeconnect)
                 {
-                    sendMessageToService("FAILSOCKET","");
+                    sendMessageToListener("FAILSOCKET","");
                 }
                 e.printStackTrace();
                 break;
@@ -169,16 +173,6 @@ public class CommunicationServer extends Thread implements Runnable
     public void interrupt()
     {
         // liberer la ressource
-        int i = 5;
-        while (atom_ic_write.get() && i > 0)
-        {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            i--;
-        }
         this.run = false;
         this.deconnect();
         super.interrupt();

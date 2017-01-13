@@ -50,6 +50,7 @@ class Server(Thread):
         while self.serverOnline:
         # Get the list sockets which are ready to be read through select
 
+            print('waiting')
             read_sockets,write_sockets,error_sockets = select.select(self.CONNECTION_LIST,[],[])
             
             for sock in read_sockets:
