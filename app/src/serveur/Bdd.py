@@ -3,6 +3,11 @@
 
 import sqlite3 as lite
 import csv
+import time
+import os
+
+    ## y c'est longitude  (2... 7)
+    ## x ces latitude (48. ...)
 
 class BaseDeDonneeBoutique:
     def __init__(self):
@@ -52,6 +57,30 @@ class BaseDeDonneeBoutique:
         return strSendToClient.strip("_")
 
 
+    def getBoutiqueForSelectedTickets(self, identifiant):
+        try:
+            self.cur.execute("SELECT * FROM Boutiques WHERE idBoutique = ?",(identifiant, ))
+            boutique = self.cur.fetchone()
+            print(boutique)
+            return 0
+        except:
+            return 1
+
+    def getLatLongForId(self, listId):
+        listRes = []
+        for elt in listId:
+            try:
+                self.cur.execute("SELECT latitude, longitude FROM Boutiques WHERE idBoutique = ?",(elt, ))
+                boutique = self.cur.fetchone()
+                listRes.append(boutique[0])
+                listRes.append(boutique[1])
+                
+            except:
+                print("getLongLat Not good")
+        return listRes
+        
+            
+        
     def readTable(self):
         self.cur.execute("SELECT * FROM Boutiques")
         rows = self.cur.fetchall()
@@ -68,25 +97,27 @@ class BaseDeDonneeBoutique:
         return listRes
         
         
-    def longLatToCsv(self):  
-        with open('Data.csv', 'w', newline='', encoding = "utf-8-sig") as fp:
-            writer = csv.writer(fp,delimiter =';')
-            #entete = ["Long", "Lat"]
-            #writer.writerow(entete)
-
-            listLongLat = self.getAllLongLat()
+    def longLatToCsv(self, listIdBoutiques):  
+        with open('Data.csv', 'w', encoding = "utf-8-sig") as fp:
+            
+ #          writer = csv.writer(fp,delimiter =';')
+  #               writer.writerow(listLongLat[depart:fin])
+            listLongLat = self.getLatLongForId(listIdBoutiques)  
             depart = 0
             fin = 2
-            for i in range(len(listLongLat)):
-                writer.writerow(listLongLat[depart:fin])
-                depart += 2
-                fin += 2
-                
-   
 
-            
-        
-        
+            for i in range(len(listLongLat)):
+
+                print(listLongLat[depart:fin])
+                if(fin == len(listLongLat)):
+                    fp.write(str(listLongLat[depart]) + ";" + str(listLongLat[fin-1]))
+                    break
+
+                else :
+                    fp.write(str(listLongLat[depart]) + ";" + str(listLongLat[fin-1]) + "\n")
+                    depart += 2
+                    fin += 2
+   
 
 class BaseDeDonneeTicket:
 
@@ -98,7 +129,7 @@ class BaseDeDonneeTicket:
     def createTable(self):
         try:
             self.cur.execute(
-            "CREATE TABLE Tickets(idTel TEXT, date TEXT, montant TEXT, idBoutique TEXT, title TEXT, typeBill TEXT,imageFile TEXT, PRIMARY KEY(idTel, date) FOREIGN KEY(idBoutique) REFERENCES Boutiques(idBoutique))")
+                "CREATE TABLE Tickets(idTel TEXT, date INTEGER, montant TEXT, idBoutique INTEGER, title TEXT, typeBill TEXT, sizeImage TEXT, imageFile TEXT, PRIMARY KEY(idTel, date) FOREIGN KEY(idBoutique) REFERENCES Boutiques(idBoutique))")
             self.conn.commit()
             print("Table Tickets created")
             return 0
@@ -107,15 +138,41 @@ class BaseDeDonneeTicket:
             return 1
 
     def insertToTable(self, ticketInfo):
+
         info = ticketInfo.split("*")  # ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (info[3],))
+        temps = tempsCur.fetchone()
+        #print(type(temps[0]))
+        
         try:
-            self.cur.execute("INSERT INTO Tickets(idTel, date, montant, idBoutique, title, typeBill, imageFile) VALUES (?,?,?,?,?,?,?)",
-                            (info[1], info[3], info[5], int(info[7]), info[9], info[11], info[15]+".txt"))  
+            self.cur.execute("INSERT INTO Tickets(idTel, date, montant, idBoutique, title, typeBill, sizeImage, imageFile) VALUES (?,?,?,?,?,?,?,?)",
+                            (info[1], int(temps[0]), info[5], int(info[7]), info[9], info[11], info[13], info[15]+".txt"))  
             self.conn.commit()
             print("insertGood")
             return 0
         except:
             print("insertNotGood")
+            return 1
+
+
+    def getFromTableAsTime(self, time1, time2): ## donne les les tickets entre 2 temps
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (time1,))
+        temps = tempsCur.fetchone()
+        timeDepart = int(temps[0])
+
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (time2,))
+        temps = tempsCur.fetchone()
+        timeFin = int(temps[0])
+        print("TIME ", timeDepart, timeFin)
+        
+        try:
+            self.cur.execute("SELECT * FROM Tickets WHERE Tickets.date >= ? AND Tickets.date <= ?", (timeDepart, timeFin))
+            tickets = self.cur.fetchall()  ## then get Long Lat from boutiques Table
+            for ticket in tickets:
+                print(ticket)
+            return 0
+        except:
+            print("get with time not good")
             return 1
 
     def deleteFromTable(self, idTel, date): 
@@ -130,7 +187,7 @@ class BaseDeDonneeTicket:
 
     def getFromTable(self, idTel, date): 
         try:
-            self.cur.execute("SELECT idTel, date, montant, idBoutique, title, typeBill, imageFile FROM Tickets WHERE idTel = ? AND date = ?",(idTel,date))
+            self.cur.execute("SELECT idTel, date, montant, idBoutique, title, typeBill, imageFile FROM Tickets WHERE idTel = ? AND dates = ?",(idTel,date))
             tck1 = self.cur.fetchone()
             print(tck1)
             return 0
@@ -139,53 +196,77 @@ class BaseDeDonneeTicket:
             print("invalid telId OR date")
             return 1
 
-    def readTable(self):   
+    def readTable(self):
         self.cur.execute("SELECT * FROM Tickets")
         rows = self.cur.fetchall()
-        for row in rows:
+        for row in rows: 
             print(row)
-                
-                
+
+    def formatStrToDate(self, dateInSec):
+        print(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dateInSec)))
+
+    def listingBoutiqueId(self):  ## retourne la liste des idBoutiques
+        listId = []
+        self.cur.execute("SELECT idBoutique FROM TICKETS")
+        rows = self.cur.fetchall()
+        for row in rows:
+            listId.append(row[0])
+        return listId
+        
 
 #### TICKETS test
-tck1 = "ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1"
-tck2 = "ID*idTel1*DATE*12/12/2015 12:15:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre2*TYPEBILL*0"
-tck3 = "ID*idTel2*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre3*TYPEBILL*2"
-tck4 = "ID*idTel2*DATE*12/12/2015 12:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3"
-tck5 = "ID*6146b8a7edfd942a*DATE*23/12/2016 08:51 PM*MONTANT*45*IDBOUTIQUE*1*TITRE*unTicket*TYPEBILL*3"
 
-bd = BaseDeDonneeTicket()
+# ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
+
+
+## change time to format :  YYYY-MM-DD hh:mm:ss
+
+tck1 = "ID*idTel1*DATE*2016-12-12 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier1"
+tck2 = "ID*idTel1*DATE*2016-12-12 13:15:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre2*TYPEBILL*0*SIZEIMAGE*1544*IMAGENAME*nomFichier2"
+tck3 = "ID*idTel2*DATE*2016-12-12 13:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre3*TYPEBILL*2*SIZEIMAGE*9588*IMAGENAME*nomFichier3"
+tck4 = "ID*idTel2*DATE*2016-12-12 17:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3*SIZEIMAGE*1215*IMAGENAME*nomFichier4"
+tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TITRE*unTicket*TYPEBILL*3*SIZEIMAGE*6855*IMAGENAME*nomFichier12"
+
+##bd = BaseDeDonneeTicket()
+##bdBoutique = BaseDeDonneeBoutique()
+##
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
 ##bd.insertToTable(tck4)
-#bd.insertToTable(tck5)
-#bd.readTable()
-##bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
-##bd.getFromTable("idTel2", "12/12/2015 12:12:44")
-
+##bd.insertToTable(tck5)
 ##bd.readTable()
+##print("-----------------")
+##bdBoutique.readTable()
+##print("-----------------")
+##print(bdBoutique.getLatLongForId(bd.listingBoutiqueId()))  ## for writing input for Kmean
+#bd.formatStrToDate(1481544764)
 
+#bd.getFromTableAsTime("2016-12-12 13:00:00", "2016-12-12 18:00:00")
+#bdBoutique.getBoutiqueForSelectedTickets(1)
 
-###### BOUTIQUES test
-bdBoutique = BaseDeDonneeBoutique()
+#bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
+#bd.getFromTable("idTel2", "12/12/2015 12:12:44")
+#bdBoutique.readTable()
 
-b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
-b4 = "NOM*St philippe*LONGITUDE*19.2*LATITUDE*20.1212"
-
-b5 = "NEWBOUTIQUE*nomDeLaBoutique*LONG*1212.1*LAT*333.2"
-b7 = "NEWBOUTIQUE*FLUNCH*LONG*1212.11*LAT*333.2"
-b77 = "NEWBOUTIQUE*nomDeLaBoutique222*LONG*1212.12121*LAT*333.1212122"
-b88 = "NEWBOUTIQUE*FLUNCH1212*LONG*1212.11*LAT*333.21111"
-bdBoutique.insertToTable(b3)
-bdBoutique.insertToTable(b4)
-bdBoutique.insertToTable(b5)
-bdBoutique.insertToTable(b77)
-bdBoutique.insertToTable(b88)
-bdBoutique.readTable()
+######## BOUTIQUES test
+##b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
+##b4 = "NOM*St philippe*LONGITUDE*19.2*LATITUDE*20.1212"
+##
+##b5 = "NEWBOUTIQUE*nomDeLaBoutique*LONG*1212.1*LAT*333.2"
+##b7 = "NEWBOUTIQUE*FLUNCH*LONG*1212.11*LAT*333.2"
+##b77 = "NEWBOUTIQUE*nomDeLaBoutique222*LONG*1212.12121*LAT*333.1212122"
+##b88 = "NEWBOUTIQUE*FLUNCH1212*LONG*1212.11*LAT*333.21111"
+##bdBoutique.insertToTable(b3)
+##bdBoutique.insertToTable(b4)
+##bdBoutique.insertToTable(b5)
+##bdBoutique.insertToTable(b77)
+##bdBoutique.insertToTable(b88)
+###bdBoutique.readTable()
 ##listRes = bdBoutique.getAllLongLat()
 ##print(listRes)
-##bdBoutique.longLatToCsv()
+#bdBoutique.longLatToCsv(bd.listingBoutiqueId())
+
 ##print(bdBoutique.getListBoutique())  ## send au tel
 
 ## http://stackoverflow.com/questions/6951052/differences-between-key-superkey-minimal-superkey-candidate-key-and-primary-k 

@@ -1,88 +1,94 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+## y c'est longitude  (2... 7)
+## x ces latitude (48. ...)
+
 import numpy as np
-from scipy.cluster.vq import vq, kmeans, whiten, kmeans2
 import matplotlib.pyplot as plt
 import csv
 import random as rd
+from scipy.cluster.vq import kmeans2
+from pyclustering.cluster import xmeans
+from pyclustering.cluster import optics
+import warnings
 
-class Data:
+class Centroid:
+    def __init__(self, level, idx, lat, longi):
+        self.poids = level   ## RECHECK
+        self.longitude = longi  ## Y
+        self.latitude = lat  ## X
+        self.index = idx
+        self.listCluster = []
+
+class Data: 
     def __init__(self):
-        self.npList = [] ## Apres ca sera un np.adarray
+        self.npList = [] 
+        self.list = []
+        self.listCentroid = []    ## list d'obj centroid, dont chque centroides a une list de cluster (list de tickets)
     
-    
+    ## attribuer le poid a chque centroide
+
     def readCsv(self):
-        with open('Data.csv', 'r', newline='', encoding = "utf-8-sig") as fp:
+        with open('Datarealist.csv', 'r') as fp:
             reader = csv.reader(fp, delimiter = ';')
             
             for row in reader:
                 if row :
-                    self.npList.append([float(row[0]),float(row[1])])
+                    self.list.append([float(row[0]), float(row[1])])  
 
-        #print(self.npList)
-        self.npList = np.array(self.npList).astype(np.float)
+        self.npList = np.array(self.list).astype(np.float)
         fp.close()
+
+
+    def getClusters(self):
+        opticinstance = optics.optics(self.list, 0.1, 5)  ## REVOIR PARAM
+        opticinstance.process()
+        print(len(opticinstance.get_clusters())) ## nombre de centroides
+        return opticinstance.get_clusters()
+
+
+    def applyKmean(self, listClusters):
+        if(len(listClusters) != 0):
+            for idx in range(len(listClusters)):
+                self.listCentroid.append(Centroid(0, idx, 0.0, 0.0))  ## init du centroid
+
+                for i in range(len(listClusters[idx])):  ## opticinstance.get_clusters[idx][i]  --> represente l'indice des coordo.
+                    self.listCentroid[idx].listCluster.append(self.list[listClusters[idx][i]])    ## affectation des clusters aux centroids
+
+                centroid, label = kmeans2(np.array(self.listCentroid[idx].listCluster).astype(np.float), 1, 1)
+                print("centroid generer par kmeans2", centroid)
+                self.listCentroid[idx].latitude = float(centroid[0][0])  ## affectation du reste : lat, long et poids du centroid
+                self.listCentroid[idx].longitude = float(centroid[0][1])
+                self.listCentroid[idx].poids = len(listClusters[idx])
                 
-        
+                ## reaffectation du centroids + test sur 4 boucles
+            self.toString()
 
-##coordinates = np.array([
-##           [1.0, 5.5],  ## lat, long
-##           [10.00, 11.1],
-##           [19.1, 25.5]
-##           ])
+        else:
+            centroids, label = ("no centroids", "no labels")
 
-data = Data()
-data.readCsv()
-#print(data.npList)
-
-## Nb centroid changera en fct du nb de donnée en entrée
-centroids, label = kmeans2(data.npList, 2, 5)  ## 2 centroids, 5 iteration
-print(centroids)
-print(label)
-
-poids1 = 0
-poids2 = 0
-
-for i in range(len(data.npList)):
-    #print("coordinates ", data.npList[i], "Label ", label[i])
-
-    if(label[i] == 0):
-        poids1 += 1
-    elif(label[i] == 1):
-        poids2 += 1
-        
-    plt.plot(data.npList[i][0], data.npList[i][1], "ro")
-
-print("poids1 ", poids1, "poids2 ", poids2)
-
-plt.scatter(centroids[0][0], centroids[0][1], c="blue", s = poids1 * 10)
-plt.scatter(centroids[1][0], centroids[1][1], c="blue", s = poids2 * 10)
-#plt.scatter(centroids[:,0], centroids[:,1], c="blue", s=100)
-plt.show()
+    def toString(self):
+        for i in range(len(self.listCentroid)):
+            elt = self.listCentroid[i]
+            
+            if(len(elt.listCluster) != 0):
+                print("le centre ",i ," ayant pour long: ", elt.longitude, "et pour lat: "  , elt.latitude)
+                print("ses clusters sont ", elt.listCluster)
+                print("et son poids est de ", len(elt.listCluster), "poids par FCT ", elt.poids, "\n")
+            print(">>>>>>>>>>>>>>  fin centroid")
 
 
-#plt.scatter(x[:,0], x[:,1], c='r', s = 100);
-##x, y = kmeans2(whiten(Kmeans.npList), 3, iter = 20)
-#whitened = whiten(Kmeans.npList)
-#book = array((whitened[0],whitened[2]))
-#x, y = kmeans(whiten(Kmeans.npList), 3)
-##print("x ", x[:,0])
-##plt.scatter(x[:,0], x[:,1], c='r', s = 100);
-##plt.show()
 
+## reading all lat,long from the file
+##data = Data()
+##data.readCsv()
+##print("data list ", len(data.list))
+##print("data type ", type(data.list[0][0]))
 
-##LAT1 = 43.61206
-##LONG1 =  7.078978
-##
-##LAT2 = 43.58127
-##LONG2 = 7.075789
-##
-##LAT3 = 43.59404
-##LONG3 = 7.126531
-##for i in range(1000):
-##    x = rd.uniform(LAT1, LAT2)
-##    y = rd.uniform(LONG1, LONG2)
-##    print(str(x) + ";" + str(y))
-##
-##for x in range(1000):
-##    x = rd.uniform(LAT2, LAT3)
-##    y = rd.uniform(LONG2, LONG3)
-##    print(str(x) + ";" + str(y))
+#### Optics ####  to specify number of clusters generated for kmean2
+#listCluster = data.getClusters()
+#print("getOptics.getClusters() ", listCluster)
+
+#Kmean
+#data.applyKmean(listCluster)
