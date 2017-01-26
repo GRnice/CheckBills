@@ -4,6 +4,7 @@ import math
 import os
 import Bdd
 import signal
+import Kmean
 
 hashmapClientSock = dict()
 
@@ -30,6 +31,8 @@ class Server(Thread):
         self.serverOnline = False
         self.bddTicket = Bdd.BaseDeDonneeTicket()
         self.bddBoutique = Bdd.BaseDeDonneeBoutique()
+        self.data = Kmean.Data()
+        
 
     def receive_signal(signum):
         self.serverOnline = False
@@ -88,6 +91,13 @@ class Server(Thread):
                                     sock.send("NEWBOUTIQUECHECK\r\n".encode('utf-8'))
                                     self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
                                     self.bddBoutique.readTable()
+
+                                elif("ApplyKmean" in message[0:10]):  ## A test
+                                    print(message)
+                                    data.readCsv()   ## avant le read, BDD.py doit ecrire dans un new fichier les bon coord. a un interval de temps !!!
+                                    listCluster = data.getClusters()
+                                    #print("getOptics.getClusters() ", listCluster)
+                                    data.applyKmean(listCluster)
                                         
                                     
 
