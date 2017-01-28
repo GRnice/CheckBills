@@ -15,7 +15,7 @@ import warnings
 
 class Centroid:
     def __init__(self, level, idx, lat, longi):
-        self.poids = level   ## RECHECK
+        self.poids = level   
         self.longitude = longi  ## Y
         self.latitude = lat  ## X
         self.index = idx
@@ -30,7 +30,7 @@ class Data:
     ## attribuer le poid a chque centroide
 
     def readCsv(self):
-        with open('Datarealist.csv', 'r') as fp:
+        with open('Datarealist2.csv', 'r') as fp:
             reader = csv.reader(fp, delimiter = ';')
             
             for row in reader:
@@ -42,7 +42,7 @@ class Data:
 
 
     def getClusters(self):
-        opticinstance = optics.optics(self.list, 0.1, 5)  ## REVOIR PARAM
+        opticinstance = optics.optics(self.list, 0.1, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
         opticinstance.process()
         print(len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -80,15 +80,15 @@ class Data:
 
 
 
-## reading all lat,long from the file
+#### Reading all lat,long from the file
 ##data = Data()
 ##data.readCsv()
 ##print("data list ", len(data.list))
 ##print("data type ", type(data.list[0][0]))
-
+##
 #### Optics ####  to specify number of clusters generated for kmean2
-#listCluster = data.getClusters()
-#print("getOptics.getClusters() ", listCluster)
-
-#Kmean
-#data.applyKmean(listCluster)
+##listCluster = data.getClusters()
+##print("getOptics.getClusters() ", listCluster)
+##
+#### Kmean
+##data.applyKmean(listCluster)

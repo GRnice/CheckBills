@@ -84,7 +84,9 @@ class BaseDeDonneeBoutique:
     def readTable(self):
         self.cur.execute("SELECT * FROM Boutiques")
         rows = self.cur.fetchall()
+        #print("ROWS TYPE ", type(rows))
         for row in rows: 
+            #print("row TYPE ", type(row))
             print(row)
 
     def getAllLongLat(self):
@@ -99,9 +101,7 @@ class BaseDeDonneeBoutique:
         
     def longLatToCsv(self, listIdBoutiques):  
         with open('Data.csv', 'w', encoding = "utf-8-sig") as fp:
-            
- #          writer = csv.writer(fp,delimiter =';')
-  #               writer.writerow(listLongLat[depart:fin])
+
             listLongLat = self.getLatLongForId(listIdBoutiques)  
             depart = 0
             fin = 2
@@ -175,20 +175,11 @@ class BaseDeDonneeTicket:
             print("get with time not good")
             return 1
 
-    def deleteFromTable(self, idTel, date): 
-        try:
-            self.cur.execute("DELETE FROM Tickets WHERE idTel = ? AND date = ?", (idTel,date) )
-            self.conn.commit()
-            print("deleteIsGood")
-            return 0
-        except:
-            print("deleteNotGood")
-            return 1
 
     def getFromTable(self, idTel, date): 
         try:
-            self.cur.execute("SELECT idTel, date, montant, idBoutique, title, typeBill, imageFile FROM Tickets WHERE idTel = ? AND dates = ?",(idTel,date))
-            tck1 = self.cur.fetchone()
+            self.cur.execute("SELECT idTel, date, montant, idBoutique, title, typeBill, imageFile FROM Tickets WHERE idTel = ? AND date = ?",(idTel,date))
+            tck1 = self.cur.fetchone()    ## faire fetchall avun appelle de readTable
             print(tck1)
             return 0
 
@@ -197,14 +188,29 @@ class BaseDeDonneeTicket:
             return 1
 
     def readTable(self):
+        res = "idTel date montant idBoutique title typeBill sizeImage imageFile\n"
         self.cur.execute("SELECT * FROM Tickets")
         rows = self.cur.fetchall()
-        for row in rows: 
-            print(row)
+        for row in rows:
+
+            #print("TEMPS en heures ", self.formatStrToDate(row[1]))  ## row est un tuple .. immutable
+            resTmp = ""
+            for i in range(len(row)):
+                if i == 1: ## column of the date of the ticket in seconds
+                    resTmp += str(self.formatStrToDate(row[i])) + " "
+                    
+                elif i == len(row) - 1:
+                    resTmp += str(row[i]) + "\n"
+                    
+                else :
+                    resTmp += str(row[i]) + " "
+            res = res + resTmp
+            
+        print(res)
 
     def formatStrToDate(self, dateInSec):
-        print(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dateInSec)))
-
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dateInSec))
+    
     def listingBoutiqueId(self):  ## retourne la liste des idBoutiques
         listId = []
         self.cur.execute("SELECT idBoutique FROM TICKETS")
@@ -212,13 +218,12 @@ class BaseDeDonneeTicket:
         for row in rows:
             listId.append(row[0])
         return listId
-        
+
+
+## BDD stock toutes les donnees sauf les fichier contenant les hexa des photos, il lit des tables SQL et ecrit des fichiers .csv "lat long" pr appliquer le Kmeans dessus
 
 #### TICKETS test
-
 # ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
-
-
 ## change time to format :  YYYY-MM-DD hh:mm:ss
 
 tck1 = "ID*idTel1*DATE*2016-12-12 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier1"
@@ -239,10 +244,10 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 ##print("-----------------")
 ##bdBoutique.readTable()
 ##print("-----------------")
-##print(bdBoutique.getLatLongForId(bd.listingBoutiqueId()))  ## for writing input for Kmean
-#bd.formatStrToDate(1481544764)
-
-#bd.getFromTableAsTime("2016-12-12 13:00:00", "2016-12-12 18:00:00")
+###print(bdBoutique.getLatLongForId(bd.listingBoutiqueId()))  ## for writing input for Kmean
+###bd.formatStrToDate(1481544764)
+##
+##bd.getFromTableAsTime("2016-12-12 13:00:00", "2016-12-12 18:00:00")
 #bdBoutique.getBoutiqueForSelectedTickets(1)
 
 #bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
@@ -265,8 +270,8 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 ###bdBoutique.readTable()
 ##listRes = bdBoutique.getAllLongLat()
 ##print(listRes)
+
+
 #bdBoutique.longLatToCsv(bd.listingBoutiqueId())
-
 ##print(bdBoutique.getListBoutique())  ## send au tel
-
 ## http://stackoverflow.com/questions/6951052/differences-between-key-superkey-minimal-superkey-candidate-key-and-primary-k 
