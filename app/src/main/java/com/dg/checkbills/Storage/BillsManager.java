@@ -99,7 +99,7 @@ public class BillsManager
             {
                 // path[path.length - 1] est le nom du fichier
                 String nameFile = path[path.length - 1];
-                if (! nameFile.substring(0,8).equals("BOUTIQUE"))
+                if ((nameFile.length() > 8) && (! nameFile.substring(0,8).equals("BOUTIQUE")))
                 {
                     fis = context.openFileInput(nameFile);
                     is = new ObjectInputStream(fis);

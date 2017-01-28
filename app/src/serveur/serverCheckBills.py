@@ -11,7 +11,7 @@ hashmapClientSock = dict()
 class ClientRequest:
     def __init__(self):
         self.state = 0  ## 0, 1, 2
-        self.ticketInfo = None  ## ID*6146b8a7edfd942a*DATE*23/12/2016 12:34 PM*MO ...
+        self.ticketInfo = None  ## ID*6146b8a7edfd942a*DATE*23-12-2016 12:34 PM*MO ...
         self.checksum = 0
 
 ##    def setwaitingfor(self,state):
@@ -92,12 +92,20 @@ class Server(Thread):
                                     self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
                                     self.bddBoutique.readTable()
 
-                                elif("ApplyKmean" in message[0:10]):  ## A test
+                                elif("REQUEST_ALL_ZONES_INFLUENCES" in message):  ## A test
                                     print(message)
-                                    data.readCsv()   ## avant le read, BDD.py doit ecrire dans un new fichier les bon coord. a un interval de temps !!!
-                                    listCluster = data.getClusters()
+                                    self.data.readCsv()   ## avant le read, BDD.py doit ecrire dans un new fichier les bon coord. a un interval de temps !!!
+                                    listCluster = self.data.getClusters()
                                     #print("getOptics.getClusters() ", listCluster)
-                                    data.applyKmean(listCluster)
+                                    listCentroid = self.data.applyKmean(listCluster)
+                                    if (len(listCentroid) == 0):
+                                        print("0 centroids trouvés !!")
+                                        centroidStringify = "0.0,0.0,1"
+                                    else:
+                                        centroidStringify = self.data.stringifyListCentroid(listCentroid)
+                                    sock.send((centroidStringify+"\r\n").encode('utf-8'))
+                                    sock.send("ZONES_INFLUENCES_CHECK\r\n".encode('utf-8'))
+                                    self.data.reset()
                                         
                                     
 

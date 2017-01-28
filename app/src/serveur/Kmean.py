@@ -41,8 +41,14 @@ class Data:
         fp.close()
 
 
+    def reset(self):
+        pass
+        #self.npList = []
+        #self.listCentroid = []
+        #self.list = []
+        
     def getClusters(self):
-        opticinstance = optics.optics(self.list, 0.1, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
+        opticinstance = optics.optics(self.list, 0.1, 15)  ##### REVOIR PARAM en fct des donnees ds self.list
         opticinstance.process()
         print(len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -63,7 +69,8 @@ class Data:
                 self.listCentroid[idx].poids = len(listClusters[idx])
                 
                 ## reaffectation du centroids + test sur 4 boucles
-            self.toString()
+            ##self.toString()
+            return self.listCentroid
 
         else:
             centroids, label = ("no centroids", "no labels")
@@ -77,6 +84,17 @@ class Data:
                 print("ses clusters sont ", elt.listCluster)
                 print("et son poids est de ", len(elt.listCluster), "poids par FCT ", elt.poids, "\n")
             print(">>>>>>>>>>>>>>  fin centroid")
+
+
+    def stringifyListCentroid(self,listCentroid):
+        allCentroids = ""
+        print("TTT")
+        print(listCentroid)
+        for centre in listCentroid:
+            print(centre)
+            allCentroids += str(centre.longitude)+","+str(centre.latitude)+","+str(centre.poids)+"*"
+
+        return allCentroids[0:-1] ## retire l'étoile en trop
 
 
 

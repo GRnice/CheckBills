@@ -6,3 +6,6 @@
 .DS_Store
 /build
 /captures
+app/src/serveur/__pycache__/Kmean.cpython-35.pyc
+app/src/serveur/__pycache__/Bdd.cpython-35.pyc
+projectFilesBackup/.idea/workspace.xml

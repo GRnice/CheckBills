@@ -21,11 +21,13 @@ import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
+import com.dg.checkbills.Data.ZoneInfluence;
 import com.dg.checkbills.Storage.BillsManager;
 import com.dg.checkbills.Storage.BoutiqueManager;
 import com.dg.checkbills.Storage.StatManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -40,6 +42,7 @@ public class ServiceSocket extends Service implements LocationListener
 
     private ArrayList<Bill> billsArray; // tableau de tickets
     private ArrayList<Boutique> boutiqueArray; // tableau de boutiques
+    private ArrayList<ZoneInfluence> arrayOfCentres; // tableau de centres
     private ArrayList<Sender> arrayOfSender; // tableau de sender en cours d'execution
     private ArrayList<Bill> billsOffline; // tableau de bills offline
 
@@ -63,6 +66,7 @@ public class ServiceSocket extends Service implements LocationListener
 
         billsArray = BillsManager.load(getBaseContext());
         boutiqueArray = BoutiqueManager.load(getBaseContext());
+        arrayOfCentres = new ArrayList<>();
         billsOffline = new ArrayList<>();
         arrayOfSender = new ArrayList<>();
 
@@ -91,7 +95,8 @@ public class ServiceSocket extends Service implements LocationListener
         intentFilter.addAction(NetworkChangeReceiver.CONNECTIVITY_CHANGED);
         registerReceiver(networkChangeReceiver, intentFilter);
 
-        requestBoutique(); // demande de charger les dernieres boutiques
+        //requestBoutique(); // demande de charger les dernieres boutiques
+        requestZonesInfluences(); // demande de charger les dernieres zones d'influences
         return START_NOT_STICKY;
     }
 
@@ -124,6 +129,34 @@ public class ServiceSocket extends Service implements LocationListener
         SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_BOUTIQUES","TAG_REQUEST-ALL-BOUTIQUES");
         senderRequest.process();
         arrayOfSender.add(senderRequest);
+    }
+
+    private void requestZonesInfluences()
+    {
+        SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_ZONES_INFLUENCES","TAG_REQUEST-ZONES-INFLUENCES");
+        senderRequest.process();
+        arrayOfSender.add(senderRequest);
+    }
+
+    /**
+     * Traite les centres transmis par le serveur
+     */
+    public void treatRequestZonesInfluences(String allCentres)
+    {
+        // syntaxe longitude,latitude,poids*...*longitude,latitude,poids
+        allCentres = allCentres.trim();
+        String[] tabCentres = allCentres.split("\\*");
+        Log.e("treatRequestZones","778");
+        Log.e("SIZEtabCentres",String.valueOf(tabCentres.length));
+        arrayOfCentres = new ArrayList<>();
+        for (String aCentre : tabCentres)
+        {
+            String[] args = aCentre.split("\\,");
+            Log.e("treatReques len",String.valueOf(args.length));
+            ZoneInfluence zone = new ZoneInfluence(Double.valueOf(args[0]),Double.valueOf(args[1]),Integer.valueOf(args[2]));
+            arrayOfCentres.add(zone);
+
+        }
     }
 
     /**
@@ -211,7 +244,7 @@ public class ServiceSocket extends Service implements LocationListener
         }
         else if (success && senderRequest.getTag().equals("TAG_REQUEST-ZONES-INFLUENCES"))
         {
-
+            treatRequestZonesInfluences(response);
         }
 
     }
@@ -276,6 +309,15 @@ public class ServiceSocket extends Service implements LocationListener
                 intentBills.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBills.putExtra("BILLS",billsArray);
                 sendBroadcast(intentBills);
+            }
+
+            if (arg1.hasExtra("GET_ZONES_INFLUENCES"))
+            {
+                Log.e("EPISODE-01","zones");
+                Intent intentBoutique = new Intent();
+                intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
+                intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
+                sendBroadcast(intentBoutique);
             }
 
             if (arg1.hasExtra("GETBOUTIQUES"))

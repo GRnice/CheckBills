@@ -23,6 +23,7 @@ import com.dg.checkbills.Consommation.ConsoActivity;
 import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Daemon.ServiceStorage;
 import com.dg.checkbills.Historique.HistoriqueActivity;
+import com.dg.checkbills.ZoneInfluence.InfluenceActivity;
 
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -146,7 +147,9 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         }
         else if (id == R.id.nav_share)
         {
-
+            Intent intentInfluence = new Intent(Home.this, InfluenceActivity.class);
+            startActivity(intentInfluence);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
