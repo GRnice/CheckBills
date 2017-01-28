@@ -29,8 +29,8 @@ class Data:
     
     ## attribuer le poid a chque centroide
 
-    def readCsv(self):
-        with open('Datarealist2.csv', 'r') as fp:
+    def readCsv(self, fileName):
+        with open(fileName + '.csv', 'r') as fp:
             reader = csv.reader(fp, delimiter = ';')
             
             for row in reader:
@@ -100,7 +100,7 @@ class Data:
 
 #### Reading all lat,long from the file
 ##data = Data()
-##data.readCsv()
+##data.readCsv("Datarealist2")
 ##print("data list ", len(data.list))
 ##print("data type ", type(data.list[0][0]))
 ##

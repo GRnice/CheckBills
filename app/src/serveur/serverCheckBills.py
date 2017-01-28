@@ -92,9 +92,11 @@ class Server(Thread):
                                     self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
                                     self.bddBoutique.readTable()
 
-                                elif("REQUEST_ALL_ZONES_INFLUENCES" in message):  ## A test
+                                elif("REQUEST_ALL_ZONES_INFLUENCES" in message):  ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
                                     print(message)
-                                    self.data.readCsv()   ## avant le read, BDD.py doit ecrire dans un new fichier les bon coord. a un interval de temps !!!
+                                    self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
+                                    self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
+                                    self.data.readCsv("DataForKmean")   ## tu peux tjr mettre Datarealist pr précédent fichier
                                     listCluster = self.data.getClusters()
                                     #print("getOptics.getClusters() ", listCluster)
                                     listCentroid = self.data.applyKmean(listCluster)
@@ -106,6 +108,7 @@ class Server(Thread):
                                     sock.send((centroidStringify+"\r\n").encode('utf-8'))
                                     sock.send("ZONES_INFLUENCES_CHECK\r\n".encode('utf-8'))
                                     self.data.reset()
+                                    
                                         
                                     
 

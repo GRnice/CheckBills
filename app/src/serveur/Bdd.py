@@ -99,8 +99,8 @@ class BaseDeDonneeBoutique:
         return listRes
         
         
-    def longLatToCsv(self, listIdBoutiques):  
-        with open('Data.csv', 'w', encoding = "utf-8-sig") as fp:
+    def latLongToCsv(self, listIdBoutiques):  
+        with open('DataForKmean.csv', 'w', encoding = "utf-8-sig") as fp:
 
             listLongLat = self.getLatLongForId(listIdBoutiques)  
             depart = 0
@@ -108,7 +108,7 @@ class BaseDeDonneeBoutique:
 
             for i in range(len(listLongLat)):
 
-                print(listLongLat[depart:fin])
+                ##print(listLongLat[depart:fin])
                 if(fin == len(listLongLat)):
                     fp.write(str(listLongLat[depart]) + ";" + str(listLongLat[fin-1]))
                     break
@@ -125,6 +125,7 @@ class BaseDeDonneeTicket:
         self.conn = lite.connect("tickets.db",check_same_thread=False)
         self.cur = self.conn.cursor()
         self.createTable()
+        self.listBoutiquesId = []
 
     def createTable(self):
         try:
@@ -155,21 +156,24 @@ class BaseDeDonneeTicket:
             return 1
 
 
-    def getFromTableAsTime(self, time1, time2): ## donne les les tickets entre 2 temps
-        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (time1,))
+    def getIdFromTableAsTime(self, strDateDebutFin): ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
+        myList = strDateDebutFin.split("*")
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (myList[1],))
         temps = tempsCur.fetchone()
         timeDepart = int(temps[0])
 
-        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (time2,))
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (myList[2],))
         temps = tempsCur.fetchone()
         timeFin = int(temps[0])
         print("TIME ", timeDepart, timeFin)
+        self.listBoutiquesId = []
         
         try:
             self.cur.execute("SELECT * FROM Tickets WHERE Tickets.date >= ? AND Tickets.date <= ?", (timeDepart, timeFin))
             tickets = self.cur.fetchall()  ## then get Long Lat from boutiques Table
             for ticket in tickets:
                 print(ticket)
+                self.listBoutiquesId.append(ticket[3])
             return 0
         except:
             print("get with time not good")
@@ -211,13 +215,13 @@ class BaseDeDonneeTicket:
     def formatStrToDate(self, dateInSec):
         return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(dateInSec))
     
-    def listingBoutiqueId(self):  ## retourne la liste des idBoutiques
-        listId = []
+    def listingAllBoutiquesId(self):  ## retourne la liste des idBoutiques
+        self.listBoutiquesId = []
         self.cur.execute("SELECT idBoutique FROM TICKETS")
         rows = self.cur.fetchall()
         for row in rows:
-            listId.append(row[0])
-        return listId
+            self.listBoutiquesId.append(row[0])
+        return slef.listBoutiquesId
 
 
 ## BDD stock toutes les donnees sauf les fichier contenant les hexa des photos, il lit des tables SQL et ecrit des fichiers .csv "lat long" pr appliquer le Kmeans dessus
@@ -242,12 +246,13 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 ##bd.insertToTable(tck5)
 ##bd.readTable()
 ##print("-----------------")
-##bdBoutique.readTable()
+#bdBoutique.readTable()
 ##print("-----------------")
 ###print(bdBoutique.getLatLongForId(bd.listingBoutiqueId()))  ## for writing input for Kmean
 ###bd.formatStrToDate(1481544764)
 ##
-##bd.getFromTableAsTime("2016-12-12 13:00:00", "2016-12-12 18:00:00")
+#bd.getIdFromTableAsTime("REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00")
+#bdBoutique.latLongToCsv(bd.listBoutiquesId)
 #bdBoutique.getBoutiqueForSelectedTickets(1)
 
 #bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
@@ -255,23 +260,28 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 #bdBoutique.readTable()
 
 ######## BOUTIQUES test
-##b3 = "NOM*Intermarché*LONGITUDE*19.5*LATITUDE*20.1212"
-##b4 = "NOM*St philippe*LONGITUDE*19.2*LATITUDE*20.1212"
-##
-##b5 = "NEWBOUTIQUE*nomDeLaBoutique*LONG*1212.1*LAT*333.2"
-##b7 = "NEWBOUTIQUE*FLUNCH*LONG*1212.11*LAT*333.2"
-##b77 = "NEWBOUTIQUE*nomDeLaBoutique222*LONG*1212.12121*LAT*333.1212122"
-##b88 = "NEWBOUTIQUE*FLUNCH1212*LONG*1212.11*LAT*333.21111"
-##bdBoutique.insertToTable(b3)
-##bdBoutique.insertToTable(b4)
+
+##b5 = "NEWBOUTIQUE*nomDeLaBoutique*LONG*7.5165168*LAT*43.9681"
+##b7 = "NEWBOUTIQUE*FLUNCH*LONG*7.959594*LAT*42.221095"
+####b77 = "NEWBOUTIQUE*nomDeLaBoutique222*LONG*1212.12121*LAT*333.1212122"
+####bdBoutique.insertToTable(b3)
+####bdBoutique.insertToTable(b4)
 ##bdBoutique.insertToTable(b5)
-##bdBoutique.insertToTable(b77)
-##bdBoutique.insertToTable(b88)
-###bdBoutique.readTable()
+##bdBoutique.insertToTable(b7)
+##bdBoutique.readTable()
+
+##tck6 = "ID*idTel22222*DATE*2016-12-25 13:12:44*MONTANT*50*IDBOUTIQUE*4*TITRE*xxtitre3*TYPEBILL*2*SIZEIMAGE*9588*IMAGENAME*nomFichier3"
+##tck7 = "ID*idTel245888*DATE*2016-12-25 17:19:44*MONTANT*50*IDBOUTIQUE*5*TITRE*xxtitre1*TYPEBILL*3*SIZEIMAGE*1215*IMAGENAME*nomFichier4"
+##bd.insertToTable(tck6)
+##bd.insertToTable(tck7)
+##bd.getIdFromTableAsTime("REQUEST_ALL_ZONES_INFLUENCES*2016-12-25 12:20:00*2016-12-25 18:00:00")
+##bdBoutique.latLongToCsv(bd.listBoutiquesId)
+
+
 ##listRes = bdBoutique.getAllLongLat()
 ##print(listRes)
 
 
-#bdBoutique.longLatToCsv(bd.listingBoutiqueId())
+#bdBoutique.latLongToCsv(bd.listingAllBoutiqueId())
 ##print(bdBoutique.getListBoutique())  ## send au tel
 ## http://stackoverflow.com/questions/6951052/differences-between-key-superkey-minimal-superkey-candidate-key-and-primary-k 
