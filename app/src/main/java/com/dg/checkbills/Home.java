@@ -19,13 +19,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.dg.checkbills.AjoutTicket.ProcedureTicket;
+import com.dg.checkbills.Consommation.ConsoActivity;
 import com.dg.checkbills.Daemon.ServiceSocket;
+import com.dg.checkbills.Daemon.ServiceStorage;
 import com.dg.checkbills.Historique.HistoriqueActivity;
 
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -39,6 +40,14 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             Log.e("GEN NEW SERVICE","GEN AT ONCREATE");
             WakefulBroadcastReceiver wakeful = new WakefulReceiver();
             Intent intent = new Intent(Home.this,ServiceSocket.class);
+            wakeful.startWakefulService(this,intent);
+        }
+
+        if (! isMyServiceRunning(ServiceStorage.class,this))
+        {
+            Log.e("GEN NEW SERVICE","GEN AT ONCREATE");
+            WakefulBroadcastReceiver wakeful = new WakefulReceiver();
+            Intent intent = new Intent(Home.this,ServiceStorage.class);
             wakeful.startWakefulService(this,intent);
         }
 
@@ -128,9 +137,14 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             Intent intentHistorique = new Intent(Home.this,HistoriqueActivity.class);
             startActivity(intentHistorique);
             finish();
-        } else if (id == R.id.nav_parametres) {
-
-        } else if (id == R.id.nav_share)
+        }
+        else if (id == R.id.nav_parametres)
+        {
+            Intent intentConso = new Intent(Home.this, ConsoActivity.class);
+            startActivity(intentConso);
+            finish();
+        }
+        else if (id == R.id.nav_share)
         {
 
         }

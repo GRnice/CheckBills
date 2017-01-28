@@ -19,9 +19,11 @@ public class SenderRequest extends Sender implements CommListener
     private CommunicationServer comm;
     private AsyncTask task;
     private StringBuilder boutiqueStringReceived;
+    private String tag;
 
-    public SenderRequest(ServiceSocket serv,String request)
+    public SenderRequest(ServiceSocket serv,String request,String tag)
     {
+        this.tag = tag;
         this.request = request;
         service = serv;
         boutiqueStringReceived = new StringBuilder();
@@ -55,6 +57,11 @@ public class SenderRequest extends Sender implements CommListener
                 break;
             }
         }
+    }
+
+    public String getTag()
+    {
+        return tag;
     }
 
     public void process()

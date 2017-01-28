@@ -81,7 +81,6 @@ public class BillsManager
     public static ArrayList<Bill> load(Context context)
     {
         ArrayList<Bill> listOfBills = new ArrayList<>();
-
         FileInputStream fis = null;
         ObjectInputStream is= null;
 

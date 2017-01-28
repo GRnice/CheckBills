@@ -1,0 +1,105 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dg.checkbills.Consommation.StatFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1">
+
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="0.20">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/spinner"
+                    android:spinnerMode="dialog" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="0.25">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/background_light">
+
+                <TextView
+                    android:text="Total :"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="39dp"
+                    android:layout_marginTop="26dp"
+                    android:id="@+id/textView5"
+                    android:textSize="24sp"
+                    android:textColor="@android:color/holo_blue_light" />
+
+                <TextView
+                    android:text="Nombre de tickets :"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textView5"
+                    android:layout_alignStart="@+id/textView5"
+                    android:layout_marginTop="25dp"
+                    android:id="@+id/textView6"
+                    android:textSize="24sp"
+                    android:textColor="@color/colorPrimary" />
+
+                <TextView
+                    android:text="0€"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tetxViewDepenseTotal"
+                    android:textSize="24sp"
+                    android:layout_above="@+id/textView6"
+                    android:layout_toEndOf="@+id/textView5"
+                    android:layout_marginStart="33dp" />
+
+                <TextView
+                    android:text="0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewNombreTickets"
+                    android:textSize="24sp"
+                    android:layout_alignBaseline="@+id/textView6"
+                    android:layout_alignBottom="@+id/textView6"
+                    android:layout_toEndOf="@+id/textView6"
+                    android:layout_marginStart="17dp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <com.dg.checkbills.Consommation.DrawerStats
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/drawerStat"
+            android:layout_weight="0.50">
+
+        </com.dg.checkbills.Consommation.DrawerStats>
+    </LinearLayout>
+</FrameLayout>

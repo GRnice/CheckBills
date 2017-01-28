@@ -108,7 +108,7 @@ public class ProcedureTicket extends FragmentActivity
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
 
             cal = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
             strDate = sdf.format(cal.getTime());
             Log.d("DATE", strDate);
             ticketInfoFragment.setTicketDate(strDate);

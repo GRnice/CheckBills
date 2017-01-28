@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "192.168.43.5";
+    public static final String SOCKET_ADDR = "10.212.118.187";
 
     public static final int PORT = 3200;
     private Socket m_sock;
@@ -35,7 +35,6 @@ public class CommunicationServer extends Thread implements Runnable
     private PrintWriter outputString;
     private OutputStream outputByte;
     private String actionIntent;
-    private Service service;
     private String tag;
     private CommListener task;
     boolean run;
@@ -54,7 +53,6 @@ public class CommunicationServer extends Thread implements Runnable
         super();
         this.task = task;
         this.tag = tag;
-        this.service = service;
     }
 
     public String getTag()

@@ -16,10 +16,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.dg.checkbills.Consommation.ConsoActivity;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.R;
+import com.dg.checkbills.Storage.StatManager;
 
 import java.io.ByteArrayOutputStream;
 

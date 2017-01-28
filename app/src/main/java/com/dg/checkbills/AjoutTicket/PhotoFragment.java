@@ -19,7 +19,8 @@ public class PhotoFragment extends Fragment {
     private Button scanButton;
 
     // Required empty public constructor
-    public PhotoFragment() {
+    public PhotoFragment()
+    {
 
     }
 

@@ -23,6 +23,7 @@ import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Storage.BillsManager;
 import com.dg.checkbills.Storage.BoutiqueManager;
+import com.dg.checkbills.Storage.StatManager;
 
 import java.util.ArrayList;
 
@@ -73,14 +74,12 @@ public class ServiceSocket extends Service implements LocationListener
             }
         }
 
-
         LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
         if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
             }
         }
-
 
         // ECOUTE DES MESSAGES PROVENANTS DE L'ACTIVITE
         IntentFilter intentFilter = new IntentFilter();
@@ -98,7 +97,8 @@ public class ServiceSocket extends Service implements LocationListener
 
 
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         Log.e("DEAD", "DEAD");
 
         LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
@@ -121,7 +121,7 @@ public class ServiceSocket extends Service implements LocationListener
      */
     private void requestBoutique()
     {
-        SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_BOUTIQUES");
+        SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_BOUTIQUES","TAG_REQUEST-ALL-BOUTIQUES");
         senderRequest.process();
         arrayOfSender.add(senderRequest);
     }
@@ -134,8 +134,8 @@ public class ServiceSocket extends Service implements LocationListener
         Log.e("ALL_BOUTIQUE_RECEIVED", boutiqueStringReceived.toString());
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
         boutiqueArray = new ArrayList<>();
-        for (String aBoutique : allBoutiques) {
-
+        for (String aBoutique : allBoutiques)
+        {
             String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
             Boutique nwBoutique = new Boutique(aBoutiqueSplit[1], aBoutiqueSplit[3]);
             BoutiqueManager.store(getBaseContext(), nwBoutique);
@@ -205,19 +205,29 @@ public class ServiceSocket extends Service implements LocationListener
     public void endTask(SenderRequest senderRequest,boolean success,@Nullable String response)
     {
         arrayOfSender.remove(senderRequest);
-        treatRequestBoutique(response);
+        if (success && senderRequest.getTag() == "TAG_REQUEST-ALL-BOUTIQUES")
+        {
+            treatRequestBoutique(response);
+        }
+        else if (success && senderRequest.getTag().equals("TAG_REQUEST-ZONES-INFLUENCES"))
+        {
+
+        }
+
     }
 
     public void endTask(SenderBill senderBill,Bill billSent, boolean success)
     {
         arrayOfSender.remove(senderBill);
-        billSent.setIsOnCloud(success); // il a bien été émis
+        billSent.setIsOnCloud(success); // il a bien été émis ou non
         billsArray.add(billSent);
-        if (! success)
+        if (success == false && ! billsOffline.contains(billSent)) // si echec et le ticket n'est pas deja dans la liste des tickets offlines
         {
             billsOffline.add(billSent);
+            BillsManager.flush(this, billSent);
+            BillsManager.store(this, billSent); // on le store
         }
-        if (billsOffline.contains(billSent)) // si il est contenu dans la liste des tickets offline
+        else if (success && billsOffline.contains(billSent)) // si success et si billsent est contenu dans la liste des tickets offline
         {
             billsOffline.remove(billSent); // on le retire de la liste
             BillsManager.flush(this, billSent);
@@ -229,7 +239,8 @@ public class ServiceSocket extends Service implements LocationListener
         }
         else
         {
-            BillsManager.store(this, billSent);
+            BillsManager.flush(this, billSent);
+            BillsManager.store(this, billSent); // on le store
         }
     }
 
@@ -296,25 +307,24 @@ public class ServiceSocket extends Service implements LocationListener
             if (CONNECTIVITY_CHANGED.equals(intent.getAction()))
             {
                 Log.e("CHANGED","WDD");
-                if (status==NetworkUtil.NETWORK_STATUS_NOT_CONNECTED)
+                Log.e("statenet",""+status);
+                if (status == 0)
                 {
-                    Log.e("DISCONNECT","");
+                    Log.e("DISCO","youuuuu");
                     isConnected = false;
                 }
                 else if(status==NetworkUtil.NETWORK_STATUS_MOBILE || status== NetworkUtil.NETWORK_STATUS_WIFI)
                 {
+                    Log.e("darkk","vad");
                     if(!isConnected)
                     {
                         Log.e("connected !","dd");
-                        isConnected = true;
                         sendBillsNotOnCloud();
                     }
+
+                    isConnected = true;
                 }
             }
         }
     }
-
-
-
 }
-
