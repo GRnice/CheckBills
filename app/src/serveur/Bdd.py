@@ -100,7 +100,7 @@ class BaseDeDonneeBoutique:
         
         
     def latLongToCsv(self, listIdBoutiques):  
-        with open('DataForKmean.csv', 'w', encoding = "utf-8-sig") as fp:
+        with open('DataForKmean.csv', 'w', encoding = "utf-8") as fp:
 
             listLongLat = self.getLatLongForId(listIdBoutiques)  
             depart = 0

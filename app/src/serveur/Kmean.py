@@ -34,6 +34,7 @@ class Data:
             reader = csv.reader(fp, delimiter = ';')
             
             for row in reader:
+                #print("ROW read for Kmean ", row)
                 if row :
                     self.list.append([float(row[0]), float(row[1])])  
 
@@ -48,9 +49,9 @@ class Data:
         #self.list = []
         
     def getClusters(self):
-        opticinstance = optics.optics(self.list, 0.1, 15)  ##### REVOIR PARAM en fct des donnees ds self.list
+        opticinstance = optics.optics(self.list, 0.1, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
         opticinstance.process()
-        print(len(opticinstance.get_clusters())) ## nombre de centroides
+        print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
 
 
@@ -73,7 +74,8 @@ class Data:
             return self.listCentroid
 
         else:
-            centroids, label = ("no centroids", "no labels")
+            ##centroids, label = ("no centroids", "no labels")
+            return self.listCentroid ##  []
 
     def toString(self):
         for i in range(len(self.listCentroid)):
@@ -100,13 +102,14 @@ class Data:
 
 #### Reading all lat,long from the file
 ##data = Data()
-##data.readCsv("Datarealist2")
+##data.readCsv("Datarealist")
 ##print("data list ", len(data.list))
 ##print("data type ", type(data.list[0][0]))
 ##
-#### Optics ####  to specify number of clusters generated for kmean2
+##
+###Optics ####  to specify number of clusters generated for kmean2
 ##listCluster = data.getClusters()
 ##print("getOptics.getClusters() ", listCluster)
 ##
-#### Kmean
+###Kmean
 ##data.applyKmean(listCluster)

@@ -25,10 +25,11 @@ public class SenderBill extends Sender implements CommListener
     private String idTel;
     private AsyncTask task;
 
-    public SenderBill(ServiceSocket serviceSocket, Bill billToSend, String idTel)
+    public SenderBill(ServiceSocket serviceSocket, Bill billToSend, String idPortable)
     {
         service = serviceSocket;
         billaSend = billToSend;
+        idTel = idPortable;
     }
 
 

@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.dg.checkbills.Communication.NetworkUtil;
@@ -26,8 +27,11 @@ import com.dg.checkbills.Storage.BillsManager;
 import com.dg.checkbills.Storage.BoutiqueManager;
 import com.dg.checkbills.Storage.StatManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -96,7 +100,7 @@ public class ServiceSocket extends Service implements LocationListener
         registerReceiver(networkChangeReceiver, intentFilter);
 
         //requestBoutique(); // demande de charger les dernieres boutiques
-        requestZonesInfluences(); // demande de charger les dernieres zones d'influences
+        //requestZonesInfluences(); // demande de charger les dernieres zones d'influences
         return START_NOT_STICKY;
     }
 
@@ -131,11 +135,36 @@ public class ServiceSocket extends Service implements LocationListener
         arrayOfSender.add(senderRequest);
     }
 
-    private void requestZonesInfluences()
+    private void requestZonesInfluences(Date temps)
     {
-        SenderRequest senderRequest = new SenderRequest(this,"REQUEST_ALL_ZONES_INFLUENCES","TAG_REQUEST-ZONES-INFLUENCES");
-        senderRequest.process();
-        arrayOfSender.add(senderRequest);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateJour = sdf.format(temps).split(" ")[0];
+        String heure = sdf.format(temps).split(" ")[1].split("\\:")[0];
+        int hour = Integer.valueOf(heure);
+        String heureDepart = "";
+        String heureFin = "";
+
+        if(hour >= 8 && hour <= 12){
+            heureDepart = dateJour + " " + "08:00:00";
+            heureFin = dateJour + " " + "12:00:00";
+        }
+        else if(hour > 12 && hour <= 18) {
+            heureDepart = dateJour + " " + "12:00:01";
+            heureFin = dateJour + " " + "18:00:00";
+
+        }
+        else if(hour > 18 && hour < 24) {
+            heureDepart = dateJour + " " + "18:00:01";
+            heureFin = dateJour + " " + "23:59:59";
+        }
+
+        if(heureDepart.length() != 0 && heureFin.length() != 0) {
+            String sendToServer = "GET_ZONES_INFLUENCES*" + heureDepart + "*" + heureFin;
+            SenderRequest senderRequest = new SenderRequest(this, sendToServer, "TAG_REQUEST-ZONES-INFLUENCES");
+            senderRequest.process();
+            arrayOfSender.add(senderRequest);
+        }
+
     }
 
     /**
@@ -153,9 +182,9 @@ public class ServiceSocket extends Service implements LocationListener
         {
             String[] args = aCentre.split("\\,");
             Log.e("treatReques len",String.valueOf(args.length));
+            Log.e("POIDS ", String.valueOf(args[2]));
             ZoneInfluence zone = new ZoneInfluence(Double.valueOf(args[0]),Double.valueOf(args[1]),Integer.valueOf(args[2]));
             arrayOfCentres.add(zone);
-
         }
     }
 
@@ -245,6 +274,11 @@ public class ServiceSocket extends Service implements LocationListener
         else if (success && senderRequest.getTag().equals("TAG_REQUEST-ZONES-INFLUENCES"))
         {
             treatRequestZonesInfluences(response);
+
+            Intent intentBoutique = new Intent();
+            intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
+            intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
+            sendBroadcast(intentBoutique);
         }
 
     }
@@ -314,10 +348,13 @@ public class ServiceSocket extends Service implements LocationListener
             if (arg1.hasExtra("GET_ZONES_INFLUENCES"))
             {
                 Log.e("EPISODE-01","zones");
-                Intent intentBoutique = new Intent();
+                Date d = Calendar.getInstance().getTime();
+                requestZonesInfluences(d);
+
+               /* Intent intentBoutique = new Intent();
                 intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
-                sendBroadcast(intentBoutique);
+                sendBroadcast(intentBoutique);*/
             }
 
             if (arg1.hasExtra("GETBOUTIQUES"))
