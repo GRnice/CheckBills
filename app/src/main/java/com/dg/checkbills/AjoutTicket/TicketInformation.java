@@ -34,6 +34,7 @@ public class TicketInformation extends Fragment
     private Spinner typeAchatSpinner;
     private TextView date;
     private EditText editTextMontant;
+    private EditText editTextNomBillet;
     private Bitmap imgTicket;
     private String ticketDate;
 
@@ -48,7 +49,6 @@ public class TicketInformation extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -76,6 +76,7 @@ public class TicketInformation extends Fragment
         typeAchatSpinner.setAdapter(adapterAchat);
 
         editTextMontant = ((EditText) v.findViewById(R.id.editTextMontant));
+        editTextNomBillet = ((EditText) v.findViewById(R.id.editTextNomTicket));
 
         buttonValidation = (Button) v.findViewById(R.id.buttonValiderTicket);
         buttonValidation.setOnClickListener(new View.OnClickListener() {
@@ -91,10 +92,11 @@ public class TicketInformation extends Fragment
                 imgTicket.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
                 String montant = editTextMontant.getText().toString().trim();
+                String nomTicket = editTextNomBillet.getText().toString().trim();
                 Log.e("M%ONTNY",montant);
                 Log.e("SIZE",String.valueOf(montant.length()));
                 Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
-                        ,"unTicket"
+                        ,nomTicket
                         ,Integer.parseInt(montant)
                         ,new Boutique("1",selectionBoutique.getText().toString())
                         ,ticketDate

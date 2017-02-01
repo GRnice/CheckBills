@@ -99,8 +99,8 @@ public class ServiceSocket extends Service implements LocationListener
         intentFilter.addAction(NetworkChangeReceiver.CONNECTIVITY_CHANGED);
         registerReceiver(networkChangeReceiver, intentFilter);
 
-        //requestBoutique(); // demande de charger les dernieres boutiques
-        //requestZonesInfluences(); // demande de charger les dernieres zones d'influences
+        requestBoutique(); // demande de charger les dernieres boutiques
+
         return START_NOT_STICKY;
     }
 

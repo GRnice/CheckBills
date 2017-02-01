@@ -18,6 +18,8 @@ import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Storage.StatManager;
 
+import java.util.ArrayList;
+
 public class ServiceStorage extends Service
 {
     private StatManager statManager;

@@ -25,11 +25,11 @@ public class SenderBill extends Sender implements CommListener
     private String idTel;
     private AsyncTask task;
 
-    public SenderBill(ServiceSocket serviceSocket, Bill billToSend, String idPortable)
+    public SenderBill(ServiceSocket serviceSocket, Bill billToSend, String idTel)
     {
         service = serviceSocket;
         billaSend = billToSend;
-        idTel = idPortable;
+        this.idTel = idTel;
     }
 
 
@@ -97,9 +97,9 @@ public class SenderBill extends Sender implements CommListener
                 try {
                     res = comm.sendMessage("ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
                             + "*IDBOUTIQUE*" + billaSend.getBoutique().getId() + "*TITRE*" + billaSend.getNom() +
-                            "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*SzPdslWmd");
+                            "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage());
                 } catch (IOException e) {
-                    comm.interrupt();;
+                    comm.interrupt();
 
                     service.endTask(SenderBill.this,billaSend,false);
                     return null;
