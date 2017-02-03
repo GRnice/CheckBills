@@ -5,6 +5,8 @@ import sqlite3 as lite
 import csv
 import time
 import os
+import datetime
+from random import randint 
 
     ## y c'est longitude  (2... 7)
     ## x ces latitude (48. ...)
@@ -21,9 +23,10 @@ class BaseDeDonneeBoutique:
             "CREATE TABLE Boutiques(idBoutique INTEGER PRIMARY KEY AUTOINCREMENT, nomBoutique TEXT, longitude TEXT, latitude TEXT, CONSTRAINT superkey UNIQUE (longitude, latitude))")
 
             #### les boutiques de base
-            b1 = "NOM*Carrefour*LONGITUDE*12.1212*LATITUDE*7.1212"
-            b2 = "NOM*Casino*LONGITUDE*14.1212*LATITUDE*7.2212"
-            b3 = "NOM*Auchan*LONGITUDE*15.5*LATITUDE*19.01"
+            b1 = "NOM*Carrefour Nice TNL*LONGITUDE*7.287063*LATITUDE*43.706891"
+            b2 = "NOM*Fnac Nice*LONGITUDE*43.703172*LATITUDE*7.266561"
+            b3 = "NOM*Auchan Nice La trinité*LONGITUDE*43.743102*LATITUDE*7.318041"
+            
 
             self.insertToTable(b1) 
             self.insertToTable(b2)
@@ -110,14 +113,35 @@ class BaseDeDonneeBoutique:
 
                 ##print(listLongLat[depart:fin])
                 if(fin == len(listLongLat)):
-                    fp.write(str(listLongLat[depart]) + ";" + str(listLongLat[fin-1]))
+                    fp.write(str(listLongLat[fin - 1]) + ";" + str(listLongLat[depart]))
                     break
 
                 else :
-                    fp.write(str(listLongLat[depart]) + ";" + str(listLongLat[fin-1]) + "\n")
+                    fp.write(str(listLongLat[fin - 1]) + ";" + str(listLongLat[depart]) + "\n")
                     depart += 2
                     fin += 2
-   
+
+
+    def insertJeanMedecinBoutiques(self):
+        #### les boutiques pour les test
+        b1 = "NOM*Monoprix Nice Jean Medecin*LONGITUDE*43.702563*LATITUDE*7.266982"
+        b2 = "NOM*Armand Thierry Nice Jean Medecin*LONGITUDE*43.703090*LATITUDE*7.266239"
+        b3 = "NOM*Etam Thierry Nice Jean Medecin*LONGITUDE*43.702755*LATITUDE*7.266821"
+        b4 = "NOM*Ciné Pathé Nice Jean Medecin*LONGITUDE*43.701904*LATITUDE*7.267004"
+        b5 = "NOM*Pimkie Nice Jean Medecin*LONGITUDE*43.700495*LATITUDE*7.268275"
+        b6 = "NOM*Promod Nice Jean Medecin*LONGITUDE*43.700299*LATITUDE*7.268373"
+        b7 = "NOM*Macdo Nice Jean Medecin*LONGITUDE*43.700158*LATITUDE*7.268469"
+        b8 = "NOM*Zara Nice Jean Medecin*LONGITUDE*43.699455*LATITUDE*7.268940"
+
+        self.insertToTable(b1)
+        self.insertToTable(b2)
+        self.insertToTable(b3)
+        self.insertToTable(b4)
+        self.insertToTable(b5)
+        self.insertToTable(b6)
+        self.insertToTable(b7)
+        self.insertToTable(b8)
+        
 
 class BaseDeDonneeTicket:
 
@@ -172,7 +196,7 @@ class BaseDeDonneeTicket:
             self.cur.execute("SELECT * FROM Tickets WHERE Tickets.date >= ? AND Tickets.date <= ?", (timeDepart, timeFin))
             tickets = self.cur.fetchall()  ## then get Long Lat from boutiques Table
             for ticket in tickets:
-                print(ticket)
+                #print(ticket)
                 self.listBoutiquesId.append(ticket[3])
             return 0
         except:
@@ -223,6 +247,57 @@ class BaseDeDonneeTicket:
             self.listBoutiquesId.append(row[0])
         return slef.listBoutiquesId
 
+    def generateTestTicketsJM(self):
+        #ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
+        tempsActuelle = datetime.datetime.now()
+        tempsActuelle = tempsActuelle.strftime('%Y-%m-%d %H:%M:%S')
+        time = tempsActuelle.split(" ")[1]
+        heure = time.split(":")[0]
+        minute = time.split(":")[1]
+        cpt = 0 ## pr le titre du ticket
+        title = "Ticket"
+        
+
+        for i in range(1000):
+            minutGen = randint(0, 59)
+            secGen = randint(0, 59)
+
+            if(minutGen < 10) :
+                minutGen = "0" + str(minutGen)
+            if(secGen < 10) :
+                secGen = "0" + str(secGen)
+            
+            titre = title + str(cpt)
+            typeBill = randint(0,3)
+            imageSize = randint(1000, 2500)
+            imageName = "IMG-" + titre
+            montant = randint(0,100)
+            idTel = "idTel" + str(randint(1,10))
+            idBoutique = randint(4,11)
+
+            if(int(heure) >= 8 and int(heure) <= 11):
+                hourGen = randint(8, 11)
+                if(hourGen < 10):
+                    hourGen = "0" + str(hourGen)
+
+            elif(int(heure) >= 12 and int(heure) <= 17):
+                hourGen = randint(12, 17)
+
+            elif(int(heure) >= 18 and int(heure) <= 23):
+                hourGen = randint(18, 23)
+
+            cpt += 1
+            dateGenerated = tempsActuelle.split(" ")[0] + " " + str(hourGen) + ":" + str(minutGen) + ":" + str(secGen)
+    
+            ticketToInsert = "ID*"+ idTel + "*DATE*" + dateGenerated + "*MONTANT*" + str(montant) + "." + str(randint(0,9)) +  "*IDBOUTIQUE*" + str(idBoutique) + "*TITRE*" + str(titre) + "*TYPEBILL*" + str(typeBill) + "*SIZEIMAGE*" + str(imageSize) + "*IMAGENAME*" + imageName
+            #print(ticketToInsert)
+            self.insertToTable(ticketToInsert)
+            #print(ticketToInsert)
+
+        
+        
+        
+
 
 ## BDD stock toutes les donnees sauf les fichier contenant les hexa des photos, il lit des tables SQL et ecrit des fichiers .csv "lat long" pr appliquer le Kmeans dessus
 
@@ -238,13 +313,16 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 
 ##bd = BaseDeDonneeTicket()
 ##bdBoutique = BaseDeDonneeBoutique()
+##bdBoutique.insertJeanMedecinBoutiques()
 ##
+##bd.generateTestTicketsJM()
+
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
 ##bd.insertToTable(tck4)
 ##bd.insertToTable(tck5)
-##bd.readTable()
+#bd.readTable()
 ##print("-----------------")
 #bdBoutique.readTable()
 ##print("-----------------")

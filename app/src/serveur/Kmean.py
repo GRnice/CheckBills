@@ -49,7 +49,7 @@ class Data:
         #self.list = []
         
     def getClusters(self):
-        opticinstance = optics.optics(self.list, 0.1, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
+        opticinstance = optics.optics(self.list, 0.001, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
         opticinstance.process()
         print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -102,14 +102,14 @@ class Data:
 
 #### Reading all lat,long from the file
 ##data = Data()
-##data.readCsv("Datarealist")
-##print("data list ", len(data.list))
-##print("data type ", type(data.list[0][0]))
-##
-##
-###Optics ####  to specify number of clusters generated for kmean2
+##data.readCsv("DataForKmean")
+####print("data list ", len(data.list))
+####print("data type ", type(data.list[0][0]))
+####
+####
+#####Optics ####  to specify number of clusters generated for kmean2
 ##listCluster = data.getClusters()
 ##print("getOptics.getClusters() ", listCluster)
-##
-###Kmean
+####
+#####Kmean
 ##data.applyKmean(listCluster)

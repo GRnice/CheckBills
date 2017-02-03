@@ -144,17 +144,17 @@ public class ServiceSocket extends Service implements LocationListener
         String heureDepart = "";
         String heureFin = "";
 
-        if(hour >= 8 && hour <= 12){
+        if(hour >= 8 && hour < 12){
             heureDepart = dateJour + " " + "08:00:00";
-            heureFin = dateJour + " " + "12:00:00";
+            heureFin = dateJour + " " + "11:59:59";
         }
-        else if(hour > 12 && hour <= 18) {
-            heureDepart = dateJour + " " + "12:00:01";
-            heureFin = dateJour + " " + "18:00:00";
+        else if(hour > 12 && hour < 18) {
+            heureDepart = dateJour + " " + "12:00:00";
+            heureFin = dateJour + " " + "17:59:59";
 
         }
         else if(hour > 18 && hour < 24) {
-            heureDepart = dateJour + " " + "18:00:01";
+            heureDepart = dateJour + " " + "18:00:00";
             heureFin = dateJour + " " + "23:59:59";
         }
 
@@ -351,10 +351,10 @@ public class ServiceSocket extends Service implements LocationListener
                 Date d = Calendar.getInstance().getTime();
                 requestZonesInfluences(d);
 
-               /* Intent intentBoutique = new Intent();
+         /*       Intent intentBoutique = new Intent();
                 intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
-                sendBroadcast(intentBoutique);*/
+                sendBroadcast(intentBoutique); */
             }
 
             if (arg1.hasExtra("GETBOUTIQUES"))
