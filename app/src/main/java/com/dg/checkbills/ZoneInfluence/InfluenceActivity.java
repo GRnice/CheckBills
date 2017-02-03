@@ -41,7 +41,7 @@ public class InfluenceActivity extends AppCompatActivity
             Log.e("draw zone influente",String.valueOf(zone.getLatLng().latitude)+","+String.valueOf(zone.getLatLng().longitude));
             googleMap.addCircle(new CircleOptions()
                     .center(zone.getLatLng())
-                    .radius(Math.log(zone.getPoids())*15)
+                    .radius(Math.log(zone.getPoids())*10)
                     .strokeColor(Color.BLUE)
                     .fillColor(Color.argb(50, 250, 0, 0))
             );

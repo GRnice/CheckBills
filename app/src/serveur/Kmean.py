@@ -49,7 +49,7 @@ class Data:
         #self.list = []
         
     def getClusters(self):
-        opticinstance = optics.optics(self.list, 0.001, 5)  ##### REVOIR PARAM en fct des donnees ds self.list
+        opticinstance = optics.optics(self.list, 0.0001, 10)  ##### REVOIR PARAM en fct des donnees ds self.list
         opticinstance.process()
         print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -61,8 +61,14 @@ class Data:
                 self.listCentroid.append(Centroid(0, idx, 0.0, 0.0))  ## init du centroid
 
                 for i in range(len(listClusters[idx])):  ## opticinstance.get_clusters[idx][i]  --> represente l'indice des coordo.
+                    if(i == (len(listClusters[idx]) - 1)):
+                        #print("Len listClusters ", len(listClusters[idx]))
+                        self.list[listClusters[idx][i]] = self.list[listClusters[idx][i]] + np.array([.000001, 0.000001])  ## je modifie le dernier
+                        #print("i ", i , "listClusters ", self.list[listClusters[idx][i]] + np.array([.000001, 0.000001]))
+
                     self.listCentroid[idx].listCluster.append(self.list[listClusters[idx][i]])    ## affectation des clusters aux centroids
 
+                #print("list FOR KMEAN2 ", self.listCentroid[idx].listCluster, "de taille =", len(self.listCentroid[idx].listCluster))
                 centroid, label = kmeans2(np.array(self.listCentroid[idx].listCluster).astype(np.float), 1, 1)
                 print("centroid generer par kmeans2", centroid)
                 self.listCentroid[idx].latitude = float(centroid[0][0])  ## affectation du reste : lat, long et poids du centroid
@@ -101,15 +107,15 @@ class Data:
 
 
 #### Reading all lat,long from the file
-##data = Data()
-##data.readCsv("DataForKmean")
+#data = Data()
+#data.readCsv("DataForKmean")
 ####print("data list ", len(data.list))
 ####print("data type ", type(data.list[0][0]))
 ####
 ####
 #####Optics ####  to specify number of clusters generated for kmean2
-##listCluster = data.getClusters()
-##print("getOptics.getClusters() ", listCluster)
+#listCluster = data.getClusters()
+#print("getOptics.getClusters() ", listCluster)
 ####
 #####Kmean
-##data.applyKmean(listCluster)
+#data.applyKmean(listCluster)
