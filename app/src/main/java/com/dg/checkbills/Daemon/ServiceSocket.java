@@ -148,12 +148,12 @@ public class ServiceSocket extends Service implements LocationListener
             heureDepart = dateJour + " " + "08:00:00";
             heureFin = dateJour + " " + "11:59:59";
         }
-        else if(hour > 12 && hour < 18) {
+        else if(hour >= 12 && hour < 18) {
             heureDepart = dateJour + " " + "12:00:00";
             heureFin = dateJour + " " + "17:59:59";
 
         }
-        else if(hour > 18 && hour < 24) {
+        else if(hour >= 18 && hour < 24) {
             heureDepart = dateJour + " " + "18:00:00";
             heureFin = dateJour + " " + "23:59:59";
         }

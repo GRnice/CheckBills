@@ -44,6 +44,8 @@ public class InfluenceActivity extends AppCompatActivity
                     .radius(Math.log(zone.getPoids())*10)
                     .strokeColor(Color.BLUE)
                     .fillColor(Color.argb(50, 250, 0, 0))
+                    .strokeWidth(5)
+
             );
         }
 
