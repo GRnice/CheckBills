@@ -100,7 +100,7 @@ class Server(Thread):
                                     #self.bddTicket.generateTestTicketsJM()
                                     self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
                                     self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
-                                    self.data.readCsv("Datarealist2")   ## tu peux tjr mettre Datarealist pr précédent fichier
+                                    self.data.readCsv("DataForKmean")   ## tu peux tjr mettre Datarealist pr précédent fichier
                                     listCluster = self.data.getClusters()
                                     print("getOptics.getClusters() ", listCluster)
                                     listCentroid = self.data.applyKmean(listCluster)
