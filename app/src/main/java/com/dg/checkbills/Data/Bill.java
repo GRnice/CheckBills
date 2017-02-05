@@ -18,7 +18,7 @@ public class Bill extends Data
 
     private TYPE_CONTENT_BILL typeDeTicket;
     private byte[] imageDuTicket;
-    private int montant;
+    private double montant;
     private Boutique boutique;
     private String date;
     private String nomImageTicket;
@@ -29,7 +29,7 @@ public class Bill extends Data
 
     }
 
-    public Bill(TYPE_CONTENT_BILL type,String nom, int montant, Boutique boutique, String date,byte[] img)
+    public Bill(TYPE_CONTENT_BILL type,String nom, double montant, Boutique boutique, String date,byte[] img)
     {
         this.nom = nom;
         this.typeDeTicket = type;
@@ -42,7 +42,7 @@ public class Bill extends Data
         this.nomImageTicket = "IMG-"+this.nom+this.id;
     }
 
-    public Bill(String type,String nom, int montant, Boutique boutique, String date,byte[] img)
+    public Bill(String type,String nom, double montant, Boutique boutique, String date,byte[] img)
     {
         this.nom = nom;
 
@@ -79,7 +79,7 @@ public class Bill extends Data
         return this.imageDuTicket;
     }
 
-    public int getMontant()
+    public double getMontant()
     {
         return this.montant;
     }

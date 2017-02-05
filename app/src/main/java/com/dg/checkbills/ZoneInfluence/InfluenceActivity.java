@@ -41,9 +41,11 @@ public class InfluenceActivity extends AppCompatActivity
             Log.e("draw zone influente",String.valueOf(zone.getLatLng().latitude)+","+String.valueOf(zone.getLatLng().longitude));
             googleMap.addCircle(new CircleOptions()
                     .center(zone.getLatLng())
-                    .radius(Math.log(zone.getPoids())*100)
-                    .strokeColor(Color.RED)
-                    .fillColor(Color.RED)
+                    .radius(Math.log(zone.getPoids())*10)
+                    .strokeColor(Color.BLUE)
+                    .fillColor(Color.argb(50, 250, 0, 0))
+                    .strokeWidth(5)
+
             );
         }
 
@@ -109,12 +111,13 @@ public class InfluenceActivity extends AppCompatActivity
         {
             Log.e("GGII","??");
             Log.e("EPISODE-02","zones");
+
             if (arg1.hasExtra("ZONES-INFLUENTES"))
             {
                 zonesInfluentes = (ArrayList<ZoneInfluence>) arg1.getSerializableExtra("ZONES-INFLUENTES");
 
                 Log.e("EPISODE-03","zones");
-                Log.e("BIENRECUSTAT",String.valueOf(zonesInfluentes.size()));
+                Log.e("EPISODE-03",String.valueOf(zonesInfluentes.size()));
                 drawZonesInfluentes();
             }
         }

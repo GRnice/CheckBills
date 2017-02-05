@@ -97,7 +97,7 @@ public class TicketInformation extends Fragment
                 Log.e("SIZE",String.valueOf(montant.length()));
                 Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
                         ,nomTicket
-                        ,Integer.parseInt(montant)
+                        ,Double.parseDouble(montant)
                         ,new Boutique("1",selectionBoutique.getText().toString())
                         ,ticketDate
                         ,byteArray);

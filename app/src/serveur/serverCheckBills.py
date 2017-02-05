@@ -32,6 +32,7 @@ class Server(Thread):
         self.serverOnline = False
         self.bddTicket = Bdd.BaseDeDonneeTicket()
         self.bddBoutique = Bdd.BaseDeDonneeBoutique()
+        self.bddBoutique.insertJeanMedecinBoutiques()
         self.data = Kmean.Data()
         
 
@@ -96,6 +97,7 @@ class Server(Thread):
 
                                 elif(len(message) >= 20 and "GET_ZONES_INFLUENCES" in message[0:20]):  ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
                                     print("MESSAGE ", message)
+                                    #self.bddTicket.generateTestTicketsJM()
                                     self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
                                     self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
                                     self.data.readCsv("Datarealist2")   ## tu peux tjr mettre Datarealist pr précédent fichier
