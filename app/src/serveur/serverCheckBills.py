@@ -5,6 +5,7 @@ import os
 import Bdd
 import signal
 import Kmean
+import time
 
 hashmapClientSock = dict()
 
@@ -78,6 +79,7 @@ class Server(Thread):
                                 if ("ID" in message[0:2]):
                                     clientrequest.ticketInfo = message
                                     clientrequest.state+=1
+                                    sock.send("IDCHECK\r\n".encode('utf-8'))
                                     print("client State ", clientrequest.state)
 
                                 elif("REQUEST_ALL_BOUTIQUES" in message[0:21]):
@@ -96,7 +98,7 @@ class Server(Thread):
                                     print("MESSAGE ", message)
                                     self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
                                     self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
-                                    self.data.readCsv("DataForKmean")   ## tu peux tjr mettre Datarealist pr précédent fichier
+                                    self.data.readCsv("Datarealist2")   ## tu peux tjr mettre Datarealist pr précédent fichier
                                     listCluster = self.data.getClusters()
                                     print("getOptics.getClusters() ", listCluster)
                                     listCentroid = self.data.applyKmean(listCluster)
@@ -110,13 +112,35 @@ class Server(Thread):
                                     sock.send((centroidStringify+"\r\n").encode('utf-8'))
                                     sock.send("ZONES_INFLUENCES_CHECK\r\n".encode('utf-8'))
                                     self.data.reset()
+
+                                elif (len(message) > 12 and "REQUEST-IMG*" in message[0:12]):
+                                    print(message)
+                                    message = message.split('*')
+                                    nomImage = message[1]
+                                    file = open(nomImage+".txt","rb")
                                     
-                                        
+                                    contenu = file.read()
+                                    print(type(contenu))
+                                    print(contenu[-8:-1])
+                                    file.close()
+                                    sock.send(contenu)
+                                    time.sleep(5)
+                                    sock.send("x".encode("utf-8"))
+                                    
                                     
 
+
                             except Exception as e:
+                                print("FAIL?")
+                                if (clientrequest.ticketInfo == None):
+                                    print(e.args)
+                                    print(e)
+                                    server_socket.close()
+                                    return
+                                
                                 clientrequest.checksum = clientrequest.checksum + len(data)  
                                 print(clientrequest.checksum)
+                                print(clientrequest.ticketInfo)
                                 if not os.path.exists("./" + clientrequest.ticketInfo.split("*")[15] + ".png"):  ## [15] imageName
                                     file = open("./" + clientrequest.ticketInfo.split("*")[15] + ".png",'wb')
                                     file.close()

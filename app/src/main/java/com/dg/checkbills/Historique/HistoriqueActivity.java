@@ -95,6 +95,10 @@ public class HistoriqueActivity extends AppCompatActivity
     }
     public void ticketSelected(Bill billselected)
     {
+        Intent demandeImage = new Intent();
+        demandeImage.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+        demandeImage.putExtra("REQUEST-IMG",billselected.getNomImage());
+        sendBroadcast(demandeImage);
         HistoriqueDetailFragment fh = new HistoriqueDetailFragment();
         fh.setCheckedBill(billselected);
         setFragment(fh);
@@ -118,6 +122,17 @@ public class HistoriqueActivity extends AppCompatActivity
                 HistoriqueListingFragment fragListing = new HistoriqueListingFragment();
                 fragListing.setArrayBills(arrayBill);
                 setFragment(fragListing);
+            }
+
+            if (arg1.hasExtra("IMG"))
+            {
+                Log.e("Episode 4","requestImage");
+                if (fragmentCourant instanceof HistoriqueDetailFragment)
+                {
+                    HistoriqueDetailFragment frag = (HistoriqueDetailFragment) fragmentCourant;
+
+                    frag.setImage((ArrayList<Byte>)  ((Bundle) arg1.getParcelableExtra("IMG")).getSerializable("BUNDLE-IMAGE"));
+                }
             }
         }
     }

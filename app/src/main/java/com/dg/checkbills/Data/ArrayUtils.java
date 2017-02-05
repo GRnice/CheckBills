@@ -17,4 +17,14 @@ public class ArrayUtils
         }
         return arrayByte;
     }
+
+    public static ArrayList<Byte> toArray(byte[] array)
+    {
+        ArrayList<Byte> arrayByte = new ArrayList<>();
+        for (int i = 0 ; i < array.length ; i++)
+        {
+            arrayByte.add(array[i]);
+        }
+        return arrayByte;
+    }
 }

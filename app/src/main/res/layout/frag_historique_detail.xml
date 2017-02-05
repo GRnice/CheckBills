@@ -62,13 +62,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/dateDetailHistorique"
-        android:layout_below="@+id/imageButton"
+        android:layout_below="@+id/imageTicketDetail"
         android:layout_alignStart="@+id/titleDetailHistorique"
         android:layout_marginTop="12dp" />
 
     <ImageButton
         app:srcCompat="@android:color/darker_gray"
-        android:id="@+id/imageButton"
+        android:id="@+id/imageTicketDetail"
         android:layout_width="200px"
         android:layout_height="200px"
         android:layout_marginStart="24dp"

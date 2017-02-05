@@ -9,7 +9,9 @@ import android.util.Log;
 
 import com.dg.checkbills.Daemon.CommListener;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -24,19 +26,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Connect to SOCKET_ADDR, set receivers and emit events
  *
  */
+
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "10.212.102.221";
+    public static final String SOCKET_ADDR = "10.212.118.187";
 
     public static final int PORT = 3200;
     private Socket m_sock;
     private BufferedReader input;
+    private DataInputStream in;
     private PrintWriter outputString;
     private OutputStream outputByte;
     private String actionIntent;
     private String tag;
     private CommListener task;
+    private boolean modeLecture = false; // true -> byte , false -> string
     boolean run;
     boolean isDeconnect; // si à false alors ne pas emettre un FAILSOCKET,
                         // car le socket a été interrompu intentionnellement
@@ -71,11 +76,27 @@ public class CommunicationServer extends Thread implements Runnable
         }
     }
 
+    private void sendMessageToListener(String key,byte[] message,int nbBytes)
+    {
+        Intent intent = new Intent();
+        intent.setAction(actionIntent);
+        intent.putExtra(key, message);
+        synchronized (this.task)
+        {
+            this.task.onReceive(key,message,nbBytes);
+        }
+    }
+
+    public void readByteMode(boolean etat)
+    {
+        modeLecture = etat;
+    }
+
 
     @Override
     public void run()
     {
-        String line;
+        String line = null;
         isDeconnect = false;
         try
         {
@@ -94,6 +115,8 @@ public class CommunicationServer extends Thread implements Runnable
         try
         {
             input = new BufferedReader(new InputStreamReader(m_sock.getInputStream()));
+            in = new DataInputStream(new BufferedInputStream(m_sock.getInputStream()));
+
             outputString = new PrintWriter(m_sock.getOutputStream(),true);
             outputByte = m_sock.getOutputStream();
         } catch (IOException e)
@@ -105,7 +128,35 @@ public class CommunicationServer extends Thread implements Runnable
             e.printStackTrace();
         }
         this.run = true;
-        while(this.run)
+        if (modeLecture == true) // lecture de bytes
+        {
+            byte[] buffer = new byte[4096];
+            while(this.run)
+            {
+
+                try
+                {
+                    int nbBytes = in.read(buffer);
+                    Log.e("nbBytes",""+nbBytes);
+                    sendMessageToListener("MESSAGE",buffer,nbBytes);
+
+
+
+                }
+                catch (IOException e)
+                {
+                    if (!isDeconnect)
+                    {
+                        sendMessageToListener("FAILSOCKET","");
+                    }
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+
+
+        while(this.run)// lecture de strings
         {
 
             try
@@ -118,7 +169,8 @@ public class CommunicationServer extends Thread implements Runnable
                     Log.e("RECEIVE THIS -> ",line);
                 }
 
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 if (!isDeconnect)
                 {
@@ -130,6 +182,7 @@ public class CommunicationServer extends Thread implements Runnable
         }
 
     }
+
 
     public synchronized void sendMessage(byte[] bytearray) throws IOException
     {

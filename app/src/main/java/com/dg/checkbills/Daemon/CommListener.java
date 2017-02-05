@@ -7,4 +7,5 @@ package com.dg.checkbills.Daemon;
 public interface CommListener
 {
     public void onReceive(String key,String message);
+    public void onReceive(String key,byte[] message,int nbBytes);
 }

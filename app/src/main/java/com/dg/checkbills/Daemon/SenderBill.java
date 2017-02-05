@@ -46,24 +46,45 @@ public class SenderBill extends Sender implements CommListener
         {
             case "FAILSOCKET":
             {
+                comm.interrupt();
                 task.cancel(true);
                 service.endTask(this,billaSend,false);
-                comm.interrupt();
                 break;
             }
 
             case "MESSAGE":
             {
+                if (message.equals("IDCHECK"))
+                {
+                    try
+                    {
+                        comm.sendMessage(billaSend.getImage());
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                        task.cancel(true);
+                        comm.interrupt();
+                        service.endTask(SenderBill.this,billaSend,false);
+                    }
+                }
                 if (message.equals("IMAGECHECK"))
                 {
                     task.cancel(true);
-                    service.endTask(SenderBill.this,billaSend,true);
                     comm.interrupt();
+                    service.endTask(SenderBill.this,billaSend,true);
                     break;
                 }
             }
         }
     }
+
+    @Override
+    public void onReceive(String key, byte[] message, int nbBytes) {
+
+    }
+
+
     public class TaskSendBill extends AsyncTask<Object,Void,Void>
     {
 
@@ -88,41 +109,21 @@ public class SenderBill extends Sender implements CommListener
                 {
                     e.printStackTrace();
                     comm.interrupt();
-
-                    service.endTask(SenderBill.this,billaSend,false);
-                    return null;
-                }
-
-                boolean res = false;
-                try {
-                    res = comm.sendMessage("ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
-                            + "*IDBOUTIQUE*" + billaSend.getBoutique().getId() + "*TITRE*" + billaSend.getNom() +
-                            "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage());
-                } catch (IOException e) {
-                    comm.interrupt();
-
-                    service.endTask(SenderBill.this,billaSend,false);
-                    return null;
-                }
-
-                if (!res) // si le message n'est pas passé
-                {
-
-                    comm.interrupt();
-
+                    task.cancel(true);
                     service.endTask(SenderBill.this,billaSend,false);
                     return null;
                 }
 
                 try
                 {
-                    comm.sendMessage(billaSend.getImage());
+                    comm.sendMessage("ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
+                            + "*IDBOUTIQUE*" + billaSend.getBoutique().getId() + "*TITRE*" + billaSend.getNom() +
+                            "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage());
                 }
                 catch (IOException e)
                 {
-                    e.printStackTrace();
                     comm.interrupt();
-
+                    this.cancel(true);
                     service.endTask(SenderBill.this,billaSend,false);
                     return null;
                 }

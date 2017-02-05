@@ -1,13 +1,20 @@
 package com.dg.checkbills.Historique;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dg.checkbills.Data.ArrayUtils;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.R;
+
+import java.util.ArrayList;
 
 /**
  * Created by Remy on 03/11/2016.
@@ -42,5 +49,14 @@ public class HistoriqueDetailFragment extends FragmentHistorique
         date.setText(this.bill.getDate());
         montant.setText("Montant : "+String.valueOf(this.bill.getMontant())+"€");
         return view;
+    }
+
+    public void setImage(ArrayList<Byte> arrayimage)
+    {
+        Log.e("Episode 5","requestImage");
+        ImageView imgview = (ImageView) getView().findViewById(R.id.imageTicketDetail);
+        byte[] array = ArrayUtils.toPrimitive(arrayimage);
+        Bitmap bmp = BitmapFactory.decodeByteArray(array,0,array.length);
+        imgview.setImageBitmap(bmp);
     }
 }

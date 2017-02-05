@@ -20,6 +20,7 @@ import android.view.MenuItem;
 
 import com.dg.checkbills.AjoutTicket.ProcedureTicket;
 import com.dg.checkbills.Consommation.ConsoActivity;
+import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Daemon.ServiceStorage;
 import com.dg.checkbills.Historique.HistoriqueActivity;
@@ -72,6 +73,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         navigationView.setNavigationItemSelectedListener(this);
 
     }
+
 
     @Override
     public void onDestroy()

@@ -59,6 +59,11 @@ public class SenderRequest extends Sender implements CommListener
         }
     }
 
+    @Override
+    public void onReceive(String key, byte[] message,int nbBytes) {
+
+    }
+
     public String getTag()
     {
         return tag;
@@ -80,7 +85,7 @@ public class SenderRequest extends Sender implements CommListener
             comm.start();
             try
             {
-                Thread.sleep(3000);
+                Thread.sleep(2000);
             }
             catch (InterruptedException e)
             {

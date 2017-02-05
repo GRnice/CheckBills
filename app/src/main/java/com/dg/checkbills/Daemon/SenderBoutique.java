@@ -53,7 +53,6 @@ public class SenderBoutique extends Sender implements CommListener
                         +loc.getLongitude()+"*LAT*"+loc.getLatitude());
             } catch (IOException e) {
                 comm.interrupt();
-
                 service.endTask(SenderBoutique.this,false);
                 e.printStackTrace();
             }
@@ -85,5 +84,10 @@ public class SenderBoutique extends Sender implements CommListener
                 break;
             }
         }
+    }
+
+    @Override
+    public void onReceive(String key, byte[] message,int nbBytes) {
+
     }
 }
