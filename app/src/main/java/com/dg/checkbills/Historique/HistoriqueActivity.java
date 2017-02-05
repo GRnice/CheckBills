@@ -18,6 +18,7 @@ import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.Home;
 import com.dg.checkbills.R;
+import com.dg.checkbills.Storage.ImageManager;
 
 import java.util.ArrayList;
 
@@ -130,8 +131,10 @@ public class HistoriqueActivity extends AppCompatActivity
                 if (fragmentCourant instanceof HistoriqueDetailFragment)
                 {
                     HistoriqueDetailFragment frag = (HistoriqueDetailFragment) fragmentCourant;
-
-                    frag.setImage((ArrayList<Byte>)  ((Bundle) arg1.getParcelableExtra("IMG")).getSerializable("BUNDLE-IMAGE"));
+                    String nomImage = arg1.getStringExtra("IMG");
+                    Log.e("Historique Activity",nomImage);
+                    ArrayList<Byte> image = ImageManager.loadImage(getBaseContext(),nomImage);
+                    frag.setImage(image);
                 }
             }
         }

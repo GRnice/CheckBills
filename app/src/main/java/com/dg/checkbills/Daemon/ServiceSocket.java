@@ -57,8 +57,7 @@ public class ServiceSocket extends Service implements LocationListener
     private ArrayList<Sender> arrayOfSender; // tableau de sender en cours d'execution
     private ArrayList<Bill> billsOffline; // tableau de bills offline
 
-    private HashMap<String,ArrayList<Byte>> hashImages;
-    private Deque<String> queueNomImage;
+    private ArrayDeque<String> queueNomImage;
 
     private boolean isConnected;
 
@@ -83,13 +82,7 @@ public class ServiceSocket extends Service implements LocationListener
         arrayOfCentres = new ArrayList<>();
         billsOffline = new ArrayList<>();
         arrayOfSender = new ArrayList<>();
-        hashImages = ImageManager.load(getBaseContext());
-        queueNomImage = new ArrayDeque<>();
-
-        for (String nomImage : hashImages.keySet())
-        {
-            queueNomImage.addFirst(nomImage);
-        }
+        queueNomImage = ImageManager.loadHistorique(getBaseContext());
 
         for (Bill bill : billsArray)
         {
@@ -126,7 +119,6 @@ public class ServiceSocket extends Service implements LocationListener
     {
         Log.e("WOOLLL", "SOPPPPPP");
 
-        ImageManager.store(getBaseContext(),hashImages);
         try
         {
             LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
@@ -266,7 +258,8 @@ public class ServiceSocket extends Service implements LocationListener
         {
             Log.e("SENDBILLNOTONCLOUD","DANSLEIF");
             Bill billToSend = billsOffline.get(0);
-            billToSend.setImage(ArrayUtils.toPrimitive(hashImages.get(billToSend.getNomImage())));
+            ArrayList<Byte> image = ImageManager.loadImage(getBaseContext(),billToSend.getNomImage());
+            billToSend.setImage(ArrayUtils.toPrimitive(image));
             sendBill(idTel,billsOffline.get(0));
         }
     }
@@ -293,6 +286,13 @@ public class ServiceSocket extends Service implements LocationListener
 
     }
 
+    /**
+     * Methode appellée quand une tache dédiée à recuperer une image se termine
+     * @param sender
+     * @param success
+     * @param nomImage
+     * @param image
+     */
     public void endTask(SenderRequestImage sender,boolean success,String nomImage,ArrayList<Byte> image)
     {
         Log.e("Episode 2","requestImage");
@@ -300,23 +300,22 @@ public class ServiceSocket extends Service implements LocationListener
 
         if (success)
         {
-            hashImages.put(nomImage,image);
+            ImageManager.storeImage(getBaseContext(),nomImage,image);
             if (queueNomImage.size() == 5)
             {
                 String last = queueNomImage.removeLast();
-                queueNomImage.addFirst(nomImage);
-                hashImages.remove(last);
+                ImageManager.deleteImage(getBaseContext(),last);
             }
+            queueNomImage.addFirst(nomImage);
+            ImageManager.saveHistorique(getBaseContext(),queueNomImage);
+
             Intent intentForDetailHistoriqueFrag = new Intent();
             intentForDetailHistoriqueFrag.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
 
             Intent intentImage = new Intent();
             intentImage.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
-            Bundle nwBundle = new Bundle();
-
-            nwBundle.putSerializable("BUNDLE-IMAGE",image);
+            intentImage.putExtra("IMG",nomImage);
             Log.e("Episode 3","requestImage");
-            intentImage.putExtra("IMG",nwBundle);
             sendBroadcast(intentImage);
         }
     }
@@ -326,6 +325,12 @@ public class ServiceSocket extends Service implements LocationListener
         arrayOfSender.remove(senderBoutique);
     }
 
+    /**
+     * Requete
+     * @param senderRequest
+     * @param success
+     * @param response
+     */
     public void endTask(SenderRequest senderRequest,boolean success,@Nullable String response)
     {
         arrayOfSender.remove(senderRequest);
@@ -345,13 +350,18 @@ public class ServiceSocket extends Service implements LocationListener
 
     }
 
+    /**
+     * Methode appellée quand une tache dédiée à emettre un billet se termine
+     * @param senderBill
+     * @param billSent
+     * @param success
+     */
     public void endTask(SenderBill senderBill,Bill billSent, boolean success)
     {
-
         arrayOfSender.remove(senderBill);
         billSent.setIsOnCloud(success); // il a bien été émis ou non
         Log.e("ENDTASK SEND BILL","");
-        if (! hashImages.containsKey(billSent.getNomImage()))
+        if (! queueNomImage.contains(billSent.getNomImage()))
         {
             Log.e("ENDTASK SEND BILL","SIZE QUEUE"+queueNomImage.size());
             if (queueNomImage.size() == 5)
@@ -359,13 +369,15 @@ public class ServiceSocket extends Service implements LocationListener
                 Log.e("MAXSIZEQUEUE","");
                 String stringpop = queueNomImage.removeLast();
                 Log.e("REMOVEDIS",stringpop);
-                hashImages.remove(stringpop);
+                ImageManager.deleteImage(getBaseContext(),stringpop);
             }
             queueNomImage.addFirst(billSent.getNomImage());
         }
 
-        hashImages.put(billSent.getNomImage(),ArrayUtils.toArray(billSent.getImage()));
-        ImageManager.store(getBaseContext(),hashImages);
+        Log.e("Billsent-servicesocket",billSent.getNomImage());
+        ImageManager.storeImage(getBaseContext(),billSent.getNomImage(),ArrayUtils.toArray(billSent.getImage()));
+        ImageManager.saveHistorique(getBaseContext(),queueNomImage);
+
         billSent.setImage(null);
 
         if (success == false && ! billsOffline.contains(billSent)) // si echec et le ticket n'est pas deja dans la liste des tickets offlines
@@ -431,16 +443,13 @@ public class ServiceSocket extends Service implements LocationListener
             {
                 String nomImage = arg1.getStringExtra("REQUEST-IMG");
                 Log.e("Episode 1","requestImage");
-                if (hashImages.containsKey(nomImage))
+                if (queueNomImage.contains(nomImage))
                 {
                     Log.e("Episode 1.2","requestImage");
                     Intent intentImage = new Intent();
                     intentImage.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
-                    Bundle nwBundle = new Bundle();
 
-                    nwBundle.putSerializable("BUNDLE-IMAGE",hashImages.get(nomImage));
-                    Log.e("Episode 1.3",""+hashImages.get(nomImage).size());
-                    intentImage.putExtra("IMG",nwBundle);
+                    intentImage.putExtra("IMG",nomImage);
                     sendBroadcast(intentImage);
                 }
                 else
@@ -455,7 +464,6 @@ public class ServiceSocket extends Service implements LocationListener
                 Log.e("EPISODE-01","zones");
                 Date d = Calendar.getInstance().getTime();
                 requestZonesInfluences(d);
-
          /*       Intent intentBoutique = new Intent();
                 intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
