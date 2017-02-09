@@ -83,6 +83,11 @@ class Server(Thread):
                                     sock.send("IDCHECK\r\n".encode('utf-8'))
                                     print("client State ", clientrequest.state)
 
+                                elif ("MODIF" in message[0:5] and len(message) > 5):
+                                    print("MessageModif ", message)
+                                    self.bddTicket.modifyTicket(message)
+                                    sock.send("BILLUPDATECHECK\r\n".encode('utf-8'))
+
                                 elif("REQUEST_ALL_BOUTIQUES" in message[0:21]):
                                     print("requestBoutique du tel")
                                     print(type(self.bddBoutique.getListBoutique()))
@@ -97,7 +102,7 @@ class Server(Thread):
 
                                 elif(len(message) >= 20 and "GET_ZONES_INFLUENCES" in message[0:20]):  ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
                                     print("MESSAGE ", message)
-                                    #self.bddTicket.generateTestTicketsJM()
+                                    self.bddTicket.generateTestTicketsJM()
                                     self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
                                     self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
                                     self.data.readCsv("DataForKmean")   ## tu peux tjr mettre Datarealist pr précédent fichier
@@ -130,8 +135,6 @@ class Server(Thread):
                                     sock.send("x".encode("utf-8"))
                                     
                                     
-
-
                             except Exception as e:
                                 print("FAIL?")
                                 if (clientrequest.ticketInfo == None):
