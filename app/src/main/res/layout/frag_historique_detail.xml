@@ -1,78 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
     <TextView
         android:text="TitreTicket"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="21dp"
-        android:id="@+id/titleDetailHistorique"
-        android:layout_marginStart="19dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.10"
+        android:id="@+id/titleDetailHistoriqueModif"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:fontFamily="sans-serif"
         android:textSize="24sp"
-        android:textStyle="normal|bold" />
+        android:textStyle="normal|bold"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <TextView
+        android:text="Montant : 50€"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.08"
+        android:id="@+id/montantEditDetailHistorique"
+        android:layout_marginTop="36dp"
+        android:textSize="24sp"
+        android:layout_below="@+id/dateDetailHistorique"
+        android:layout_alignEnd="@+id/dateDetailHistorique"
+        android:layout_marginEnd="17dp"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <TextView
+        android:text="Date : 12 Décembre 2016"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.08"
+        android:id="@+id/dateDetailHistorique"
+        android:textSize="24sp"
+        android:layout_below="@+id/titleDetailHistoriqueModif"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="47dp"
+        android:gravity="right" />
+
+
+
+
+
+
+
+    <ImageButton
+        app:srcCompat="@android:color/darker_gray"
+        android:scaleType="centerCrop"
+        android:id="@+id/imageTicketDetailModif"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.5"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
-        android:text="Afficher le lieu d'achat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button2"
-        android:elevation="0dp"
+        android:text="Modifier"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.1"
+        android:id="@+id/buttonmodifhist"
         android:background="@android:color/holo_orange_light"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/dateDetailHistorique" />
+        android:layout_above="@+id/butttonValiderModification"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="11dp" />
 
     <Button
         android:text="Supprimer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/button5"
+        android:layout_height="0px"
+        android:layout_weight="0.1"
+        android:id="@+id/butttonValiderModification"
         android:layout_marginBottom="16dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:background="@android:color/holo_red_light" />
 
-    <Button
-        android:text="Modifier"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/button4"
-        android:background="@android:color/holo_green_light"
-        android:layout_above="@+id/button5"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="11dp" />
-
-    <TextView
-        android:text="Montant : 50€"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/montantDetailHistorique"
-        android:layout_below="@+id/dateDetailHistorique"
-        android:layout_alignStart="@+id/dateDetailHistorique"
-        android:layout_marginTop="45dp" />
-
-    <TextView
-        android:text="Date : 12 Décembre 2016"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/dateDetailHistorique"
-        android:layout_below="@+id/imageTicketDetail"
-        android:layout_alignStart="@+id/titleDetailHistorique"
-        android:layout_marginTop="12dp" />
-
-    <ImageButton
-        app:srcCompat="@android:color/darker_gray"
-        android:id="@+id/imageTicketDetail"
-        android:layout_width="200px"
-        android:layout_height="200px"
-        android:layout_marginStart="24dp"
-        android:layout_alignTop="@+id/titleDetailHistorique"
-        android:layout_toEndOf="@+id/button2" />
-
-</RelativeLayout>
+</LinearLayout>

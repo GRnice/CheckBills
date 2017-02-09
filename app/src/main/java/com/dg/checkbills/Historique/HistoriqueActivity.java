@@ -100,9 +100,25 @@ public class HistoriqueActivity extends AppCompatActivity
         demandeImage.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
         demandeImage.putExtra("REQUEST-IMG",billselected.getNomImage());
         sendBroadcast(demandeImage);
+
         HistoriqueDetailFragment fh = new HistoriqueDetailFragment();
         fh.setCheckedBill(billselected);
         setFragment(fh);
+
+    }
+
+    public void modificationBill(Bill old,Bill nwBill)
+    {
+        arrayBill.remove(old);
+        arrayBill.add(nwBill);
+        nwBill.setImage(null);
+
+        Intent modifTicket = new Intent();
+        modifTicket.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+        modifTicket.putExtra("REQUEST-MODIF",nwBill);
+        sendBroadcast(modifTicket);
+
+        ticketSelected(nwBill);
     }
 
     /**

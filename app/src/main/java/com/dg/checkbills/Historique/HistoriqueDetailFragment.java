@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,9 +43,22 @@ public class HistoriqueDetailFragment extends FragmentHistorique
 
         View view = inflater.inflate(R.layout.frag_historique_detail, container, false);
 
-        TextView title = (TextView) view.findViewById(R.id.titleDetailHistorique);
+        TextView title = (TextView) view.findViewById(R.id.titleDetailHistoriqueModif);
         TextView date = (TextView) view.findViewById(R.id.dateDetailHistorique);
-        TextView montant = (TextView) view.findViewById(R.id.montantDetailHistorique);
+        TextView montant = (TextView) view.findViewById(R.id.montantEditDetailHistorique);
+        Button modification = (Button) view.findViewById(R.id.buttonmodifhist);
+
+        modification.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                HistoriqueModifFragment hmf = HistoriqueModifFragment.newInstance(bill);
+                ((HistoriqueActivity)getActivity()).setFragment(hmf);
+                return;
+            }
+        });
+
         title.setText(this.bill.getNom());
         date.setText(this.bill.getDate());
         montant.setText("Montant : "+String.valueOf(this.bill.getMontant())+"€");
@@ -54,9 +68,11 @@ public class HistoriqueDetailFragment extends FragmentHistorique
     public void setImage(ArrayList<Byte> arrayimage)
     {
         Log.e("Episode 5","requestImage");
-        ImageView imgview = (ImageView) getView().findViewById(R.id.imageTicketDetail);
+        ImageView imgview = (ImageView) getView().findViewById(R.id.imageTicketDetailModif);
         byte[] array = ArrayUtils.toPrimitive(arrayimage);
+
         Bitmap bmp = BitmapFactory.decodeByteArray(array,0,array.length);
-        imgview.setImageBitmap(bmp);
+
+        imgview.setImageBitmap(Bitmap.createScaledBitmap(bmp, 1024, 850, false));
     }
 }

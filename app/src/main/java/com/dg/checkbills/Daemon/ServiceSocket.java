@@ -237,6 +237,24 @@ public class ServiceSocket extends Service implements LocationListener
         arrayOfSender.add(senderBill);
     }
 
+    private void sendUpdateBill(Bill nwBill)
+    {
+        for (int i  = 0 ; i < billsArray.size() ; i++)
+        {
+            Bill aBill = billsArray.get(i);
+            if (aBill.getId().equals(nwBill))
+            {
+                billsArray.set(i,nwBill);
+            }
+        }
+
+        String requete = "MODIF*ID*" + idTel + "*DATE*" + nwBill.getDate() + "*MONTANT*" + String.valueOf(nwBill.getMontant())
+                + "*IDBOUTIQUE*" + nwBill.getBoutique().getId() + "*TITRE*" + nwBill.getNom() +
+                "*TYPEBILL*" + nwBill.getType();
+        SenderRequest senderRequest = new SenderRequest(this,requete,"SENDMODIFBILL");
+        arrayOfSender.add(senderRequest);
+    }
+
 
     private void checkPositionAndSendNewBoutiqueToServer(String nomBoutique)
     {
@@ -457,6 +475,13 @@ public class ServiceSocket extends Service implements LocationListener
                     Log.e("Episode 1.2","requestImagServe");
                     sendRequestImage(nomImage);
                 }
+            }
+
+            if (arg1.hasExtra("REQUEST-MODIF"))
+            {
+                Bill nwBill = (Bill) arg1.getSerializableExtra("REQUEST-MODIF");
+                sendUpdateBill(nwBill);
+
             }
 
             if (arg1.hasExtra("GET_ZONES_INFLUENCES"))

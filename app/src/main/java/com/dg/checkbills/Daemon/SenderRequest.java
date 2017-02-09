@@ -43,7 +43,8 @@ public class SenderRequest extends Sender implements CommListener
             }
             case "MESSAGE":
             {
-                if (message.equals("BOUTIQUECHECK") || message.equals("ZONES_INFLUENCES_CHECK") )
+                if (message.equals("BOUTIQUECHECK") || message.equals("ZONES_INFLUENCES_CHECK") ||
+                        message.equals("BILLUPDATECHECK") )
                 {
                     task.cancel(true);
                     comm.interrupt();

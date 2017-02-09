@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * Created by Remy on 31/10/2016.
  */
-public class Bill extends Data
+public class Bill extends Data implements Cloneable
 {
     /**
      * Un ticket est défini par son type, son montant, l'heure, la date de sa prise, sa photo ainsi que la boutique associée
@@ -69,6 +69,18 @@ public class Bill extends Data
         }
     }
 
+    public Bill clone()
+    {
+        Bill b = null;
+        try {
+            b = (Bill) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return b;
+    }
+
+
     public String getDate()
     {
         return this.date;
@@ -116,5 +128,15 @@ public class Bill extends Data
     public void setImage(byte[] byteArray)
     {
         this.imageDuTicket = byteArray;
+    }
+
+    public void setMontant(Double nwMontant)
+    {
+        montant = nwMontant;
+    }
+
+    public void setTitre(String titre)
+    {
+        this.nom = titre;
     }
 }

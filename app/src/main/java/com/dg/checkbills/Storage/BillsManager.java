@@ -5,6 +5,7 @@ package com.dg.checkbills.Storage;
  */
 
 import android.content.Context;
+import android.util.Log;
 
 
 import com.dg.checkbills.Data.Bill;
@@ -73,6 +74,21 @@ public class BillsManager
 
     }
 
+    public static boolean isBoutique(String nameFile)
+    {
+        return (nameFile.substring(0,8).equals("BOUTIQUE"));
+    }
+
+    public static boolean isImage(String nameFile)
+    {
+        return (nameFile.substring(0,3).equals("IMG"));
+    }
+
+    public static boolean isHistoriqueImg(String nameFile)
+    {
+        return (nameFile.length() == 18 && nameFile.substring(0,18).equals("DEQUEUE-HISTORIQUE"));
+    }
+
     /**
      * Charge tout les tickets puis les retourne
      * @param context
@@ -99,8 +115,9 @@ public class BillsManager
             {
                 // path[path.length - 1] est le nom du fichier
                 String nameFile = path[path.length - 1];
-                if ((nameFile.length() > 8) && (! nameFile.substring(0,8).equals("BOUTIQUE")))
+                if ((nameFile.length() > 8) && !isBoutique(nameFile) && !isImage(nameFile) && !isHistoriqueImg(nameFile))
                 {
+                    Log.e(nameFile,"nomFichierBill");
                     fis = context.openFileInput(nameFile);
                     is = new ObjectInputStream(fis);
                     while (is.available() == 0) // j'itere dessus jusqu'à ce que une exception EOF est levée, le available est shité
@@ -108,9 +125,9 @@ public class BillsManager
                         try
                         {
                             obj = is.readObject();
-
                             listOfBills.add((Bill) obj);
                         }
+
                         catch(ClassNotFoundException c)
                         {
                             c.printStackTrace();
