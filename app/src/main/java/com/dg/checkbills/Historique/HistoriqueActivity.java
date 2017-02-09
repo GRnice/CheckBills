@@ -135,7 +135,6 @@ public class HistoriqueActivity extends AppCompatActivity
             if (arg1.hasExtra("BILLS"))
             {
                 arrayBill = (ArrayList<Bill>) arg1.getSerializableExtra("BILLS");
-                Log.e("BIENRECU","??");
                 HistoriqueListingFragment fragListing = new HistoriqueListingFragment();
                 fragListing.setArrayBills(arrayBill);
                 setFragment(fragListing);

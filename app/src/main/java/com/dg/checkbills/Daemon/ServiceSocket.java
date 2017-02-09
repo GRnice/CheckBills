@@ -252,6 +252,7 @@ public class ServiceSocket extends Service implements LocationListener
                 + "*IDBOUTIQUE*" + nwBill.getBoutique().getId() + "*TITRE*" + nwBill.getNom() +
                 "*TYPEBILL*" + nwBill.getType();
         SenderRequest senderRequest = new SenderRequest(this,requete,"SENDMODIFBILL");
+        senderRequest.process();
         arrayOfSender.add(senderRequest);
     }
 
@@ -364,6 +365,10 @@ public class ServiceSocket extends Service implements LocationListener
             intentBoutique.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
             intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
             sendBroadcast(intentBoutique);
+        }
+        else if (success && senderRequest.getTag().equals("SENDMODIFBILL"))
+        {
+            
         }
 
     }
