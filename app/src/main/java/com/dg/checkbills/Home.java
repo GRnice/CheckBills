@@ -58,8 +58,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(Home.this, ProcedureTicket.class);
-                startActivity(myIntent);
-                finish();
+                startActivityForResult(myIntent,1123);
             }
         });
 
@@ -78,6 +77,8 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     @Override
     public void onDestroy()
     {
+        Intent intent = new Intent(Home.this,ServiceStorage.class);
+        stopService(intent);
         super.onDestroy();
     }
 
@@ -132,26 +133,22 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         if (id == R.id.nav_camera)
         {
             Intent myIntent = new Intent(Home.this, ProcedureTicket.class);
-            startActivity(myIntent);
-            finish();
+            startActivityForResult(myIntent,1123);
         }
         else if (id == R.id.nav_historique)
         {
             Intent intentHistorique = new Intent(Home.this,HistoriqueActivity.class);
-            startActivity(intentHistorique);
-            finish();
+            startActivityForResult(intentHistorique,1124);
         }
         else if (id == R.id.nav_parametres)
         {
             Intent intentConso = new Intent(Home.this, ConsoActivity.class);
-            startActivity(intentConso);
-            finish();
+            startActivityForResult(intentConso,1125);
         }
         else if (id == R.id.nav_share)
         {
             Intent intentInfluence = new Intent(Home.this, InfluenceActivity.class);
-            startActivity(intentInfluence);
-            finish();
+            startActivityForResult(intentInfluence,1126);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

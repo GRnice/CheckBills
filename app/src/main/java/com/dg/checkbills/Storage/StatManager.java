@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.AnyRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.dg.checkbills.Consommation.Statistiques;
 import com.dg.checkbills.Data.Bill;
@@ -53,7 +54,7 @@ public class StatManager
             {
                 date = formatter.parse(data[0]);
                 stat = new Statistiques(date,Integer.decode(data[1]),
-                        Float.parseFloat(data[2]),Integer.decode(data[3]),
+                        Double.parseDouble(data[2]),Integer.decode(data[3]),
                         Integer.decode(data[4]),Integer.decode(data[5]),Integer.decode(data[6]));
                 listOfStats.add(stat);
             }
@@ -93,11 +94,13 @@ public class StatManager
             int month = cal.get(Calendar.MONTH);
             int year = cal.get(Calendar.YEAR);
             sb.append(String.valueOf(month)+"-"+String.valueOf(year)+",");
+            sb.append(stat.getNbTickets()+",");
             sb.append(String.valueOf(stat.getDepenseTotal())+",");
             sb.append(String.valueOf(stat.getConsoLoisir())+",");
             sb.append(String.valueOf(stat.getConsoPro())+",");
             sb.append(String.valueOf(stat.getConsoAlimentaire())+",");
             sb.append(String.valueOf(stat.getConsoVoyage()));
+            Log.e("storedState",sb.toString());
             stored.add(sb.toString());
         }
 

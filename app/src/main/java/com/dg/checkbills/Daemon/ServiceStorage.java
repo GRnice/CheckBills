@@ -51,10 +51,10 @@ public class ServiceStorage extends Service
     @Override
     public void onDestroy()
     {
-        super.onDestroy();
         Log.e("YOLO","CESTLAFIN");
         statManager.saveAll();
         unregisterReceiver(activityReceiver);
+        super.onDestroy();
     }
 
     private class ActivityReceiver extends BroadcastReceiver

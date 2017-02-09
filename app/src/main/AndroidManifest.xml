@@ -41,11 +41,12 @@
             android:name=".Historique.HistoriqueActivity"
             android:label="@string/title_activity_historique"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ZoneInfluence.InfluenceActivity"></activity>
 
         <service android:name=".Daemon.ServiceSocket" />
         <service android:name=".Daemon.ServiceStorage" />
 
-        <activity android:name=".ZoneInfluence.InfluenceActivity"></activity>
+
     </application>
 
 </manifest>

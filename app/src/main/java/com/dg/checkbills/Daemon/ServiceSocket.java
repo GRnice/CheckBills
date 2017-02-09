@@ -27,7 +27,6 @@ import com.dg.checkbills.Data.ZoneInfluence;
 import com.dg.checkbills.Storage.BillsManager;
 import com.dg.checkbills.Storage.BoutiqueManager;
 import com.dg.checkbills.Storage.ImageManager;
-import com.dg.checkbills.Storage.StatManager;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -368,7 +367,7 @@ public class ServiceSocket extends Service implements LocationListener
         }
         else if (success && senderRequest.getTag().equals("SENDMODIFBILL"))
         {
-            
+
         }
 
     }

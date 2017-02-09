@@ -143,8 +143,6 @@ public class ProcedureTicket extends FragmentActivity
 
     public void backToHome()
     {
-        Intent intentHome = new Intent(this,Home.class);
-        startActivity(intentHome);
         finish();
     }
 

@@ -53,7 +53,8 @@
 
     <ImageButton
         app:srcCompat="@android:color/darker_gray"
-        android:scaleType="centerCrop"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
         android:id="@+id/imageTicketDetailModif"
         android:layout_width="match_parent"
         android:layout_height="0px"

@@ -73,7 +73,8 @@ public class PhotoFragment extends Fragment {
         super.onDetach();
     }
 
-    public void putPhoto(Bitmap img) {
+    public void putPhoto(Bitmap img)
+    {
         imgTicket = (ImageView) getView().findViewById(R.id.imageView);
         imgTicket.setImageBitmap(img);
     }

@@ -72,7 +72,6 @@ public class HistoriqueDetailFragment extends FragmentHistorique
         byte[] array = ArrayUtils.toPrimitive(arrayimage);
 
         Bitmap bmp = BitmapFactory.decodeByteArray(array,0,array.length);
-
-        imgview.setImageBitmap(Bitmap.createScaledBitmap(bmp, 1024, 850, false));
+        imgview.setImageBitmap(bmp);
     }
 }

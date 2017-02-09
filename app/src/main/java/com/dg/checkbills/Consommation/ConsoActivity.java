@@ -13,12 +13,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.dg.checkbills.Constantes.BroadcastAddr;
-import com.dg.checkbills.Data.Bill;
-import com.dg.checkbills.Historique.HistoriqueActivity;
-import com.dg.checkbills.Historique.HistoriqueListingFragment;
 import com.dg.checkbills.Home;
 import com.dg.checkbills.R;
-import com.dg.checkbills.Storage.StatManager;
 
 import java.util.ArrayList;
 
@@ -57,8 +53,6 @@ public class ConsoActivity extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
-        Intent goHome = new Intent(this,Home.class);
-        startActivity(goHome);
         finish();
     }
 

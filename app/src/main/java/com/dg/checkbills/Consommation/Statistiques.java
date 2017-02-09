@@ -14,13 +14,13 @@ public class Statistiques implements Comparable<Date>,Serializable
 {
     private Date date;
     private int nbTickets;
-    private float depenseTotal;
+    private double depenseTotal;
     private int consoPro;
     private int consoVoyage;
     private int consoAlimentaire;
     private int consoLoisir;
 
-    public Statistiques(Date date,int nbTickets,float depenseTotal,int nbTicketLoisir,int nbTicketPro,int nbTicketAlimentaire,int nbTicketVoyage)
+    public Statistiques(Date date,int nbTickets,double depenseTotal,int nbTicketLoisir,int nbTicketPro,int nbTicketAlimentaire,int nbTicketVoyage)
     {
         this.date = date;
         this.nbTickets = nbTickets;
@@ -56,7 +56,7 @@ public class Statistiques implements Comparable<Date>,Serializable
         return consoLoisir;
     }
 
-    public float getDepenseTotal()
+    public double getDepenseTotal()
     {
         return depenseTotal;
     }

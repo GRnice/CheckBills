@@ -89,8 +89,6 @@ public class HistoriqueActivity extends AppCompatActivity
         }
         else
         {
-            Intent intent = new Intent(this,Home.class);
-            startActivity(intent);
             finish();
         }
     }
