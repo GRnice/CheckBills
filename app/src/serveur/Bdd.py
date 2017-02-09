@@ -48,7 +48,7 @@ class BaseDeDonneeBoutique:
             print("insertGood")
             return 0
         except:
-            print("insertNotGood")
+            print("insertNotGood, arg =",boutiqueInfo)
             return 1
 
     def getListBoutique(self): ## IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string 
@@ -149,8 +149,11 @@ class BaseDeDonneeTicket:
         self.conn = lite.connect("tickets.db",check_same_thread=False)
         self.cur = self.conn.cursor()
         self.createTable()
-        self.listBoutiquesId = []
-
+        self.listBoutiquesId = []  ## pr kmean
+        self.listGenerationData = [] ## [intGen, DateJour] , intGen = 0,1,2,3  ==> 0 pas de gen, 1 le matin, ... et jour [2016-03-12]  ..
+        self.readUpdateFile()  
+        
+        
     def createTable(self):
         try:
             self.cur.execute(
@@ -161,6 +164,28 @@ class BaseDeDonneeTicket:
         except:
             print("Table Tickets NOT created")
             return 1
+
+
+    def writeUpdateFile(self, listGenerationData):  
+        with open('update.txt', 'w', encoding = "utf-8") as fp:
+            fp.write(str(listGenerationData[0]) + "," + str(listGenerationData[1]))
+
+    def readUpdateFile(self): ## retourne une list [int, jourDate]
+        try:
+            with open('update.txt', 'r') as fp:
+                content = fp.readline()
+                myList = content.split(",")
+                if(len(self.listGenerationData) == 2):
+                    self.listGenerationData[0] = myList[0]
+                    self.listGenerationData[1] = myList[1]
+                elif(len(self.listGenerationData) < 2):
+                    self.listGenerationData.append(myList[0])
+                    self.listGenerationData.append(myList[1])
+                    
+        except IOError as e:
+            print("Unable to open file") #Does not exist OR no read permissions
+            
+
 
     def insertToTable(self, ticketInfo):
 
@@ -173,10 +198,10 @@ class BaseDeDonneeTicket:
             self.cur.execute("INSERT INTO Tickets(idTel, date, montant, idBoutique, title, typeBill, sizeImage, imageFile) VALUES (?,?,?,?,?,?,?,?)",
                             (info[1], int(temps[0]), info[5], int(info[7]), info[9], info[11], info[13], info[15]+".txt"))  
             self.conn.commit()
-            print("insertGood")
+            #print("insertGood")
             return 0
         except:
-            print("insertNotGood")
+            print("insertNotGood, arg =", ticketInfo)
             return 1
 
 
@@ -206,7 +231,7 @@ class BaseDeDonneeTicket:
 
     def getFromTable(self, idTel, date): 
         try:
-            self.cur.execute("SELECT idTel, date, montant, idBoutique, title, typeBill, imageFile FROM Tickets WHERE idTel = ? AND date = ?",(idTel,date))
+            self.cur.execute("SELECT * FROM Tickets WHERE idTel = ? AND date = ?",(idTel,date))
             tck1 = self.cur.fetchone()    ## faire fetchall avun appelle de readTable
             print(tck1)
             return 0
@@ -214,6 +239,35 @@ class BaseDeDonneeTicket:
         except:
             print("invalid telId OR date")
             return 1
+
+
+    def modifyTicket(self, modifiedTicket):
+        infoStr = modifiedTicket[6:]   # MODIF*ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
+        info = infoStr.split("*")  # ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
+        #print("INFO :", info)
+        telID = info[1]
+        dateCreation = info[3]
+        tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (dateCreation,))
+        temps = tempsCur.fetchone()
+        tck1 = ""
+        #print(temps[0])
+        
+        try:
+            self.cur.execute("SELECT sizeImage, imageFile FROM Tickets WHERE idTel = ? AND date = ?", (telID, temps[0]))
+            tck1 = self.cur.fetchone()
+            ##print("ticket infos" , tck1[0], tck1[1])
+            self.cur.execute("DELETE FROM Tickets WHERE idTel = ? AND date = ?", (telID, temps[0]))
+            self.conn.commit()
+            
+
+        except Exception as e:
+            print("modify not good ", e)
+            return 1
+
+        ##print(infoStr + "*SIZEIMAGE*" + str(tck1[0]) + "*IMAGENAME*" + str(tck1[1]))
+        self.insertToTable(infoStr + "*SIZEIMAGE*" + str(tck1[0]) + "*IMAGENAME*" + str(tck1[1]))
+        return 0
+    
 
     def readTable(self):
         res = "idTel date montant idBoutique title typeBill sizeImage imageFile\n"
@@ -247,53 +301,126 @@ class BaseDeDonneeTicket:
             self.listBoutiquesId.append(row[0])
         return slef.listBoutiquesId
 
+    def periodeJournee(self, heure):
+        if(int(heure) >= 8 and int(heure) <= 11):
+            return 1
+        elif(int(heure) >= 12 and int(heure) <= 17):
+            return 2
+        elif(int(heure) >= 18 and int(heure) <= 23):
+            return 3
+        else :
+            return 0
+        
+
     def generateTestTicketsJM(self):
         #ID*idTel1*DATE*12/12/2015 12:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre1*TYPEBILL*1*SIZEIMAGE*1212*IMAGENAME*nomFichier
         tempsActuelle = datetime.datetime.now()
         tempsActuelle = tempsActuelle.strftime('%Y-%m-%d %H:%M:%S')
+        jour = tempsActuelle.split(" ")[0]
         time = tempsActuelle.split(" ")[1]
+        
         heure = time.split(":")[0]
         minute = time.split(":")[1]
         cpt = 0 ## pr le titre du ticket
         title = "Ticket"
+        periodeJournee = self.periodeJournee(heure)
+        self.readUpdateFile()  ## met a jour la list
+
+        if(len(self.listGenerationData) == 0):  ## si vide, je genere
+
+            for i in range(500):
+                minutGen = randint(0, 59)
+                secGen = randint(0, 59)
+
+                if(minutGen < 10) :
+                    minutGen = "0" + str(minutGen)
+                if(secGen < 10) :
+                    secGen = "0" + str(secGen)
+                
+                titre = title + str(cpt)
+                typeBill = randint(0,3)
+                imageSize = randint(1000, 2500)
+                imageName = "IMG-" + titre
+                montant = randint(0,100)
+                idTel = "idTel" + str(randint(1,10))
+                idBoutique = randint(4,11)
+
+                if(int(heure) >= 8 and int(heure) <= 11):
+                    hourGen = randint(8, 11)
+                    periodeJournee = 1
+                    if(hourGen < 10):
+                        hourGen = "0" + str(hourGen)
+
+                elif(int(heure) >= 12 and int(heure) <= 17):
+                    periodeJournee = 2
+                    hourGen = randint(12, 17)
+
+                elif(int(heure) >= 18 and int(heure) <= 23):
+                    periodeJournee = 3
+                    hourGen = randint(18, 23)
+
+                cpt += 1
+                dateGenerated = tempsActuelle.split(" ")[0] + " " + str(hourGen) + ":" + str(minutGen) + ":" + str(secGen)
         
+                ticketToInsert = "ID*"+ idTel + "*DATE*" + dateGenerated + "*MONTANT*" + str(montant) + "." + str(randint(0,9)) +  "*IDBOUTIQUE*" + str(idBoutique) + "*TITRE*" + str(titre) + "*TYPEBILL*" + str(typeBill) + "*SIZEIMAGE*" + str(imageSize) + "*IMAGENAME*" + imageName
+                #print(ticketToInsert)
+                self.insertToTable(ticketToInsert)
 
-        for i in range(1000):
-            minutGen = randint(0, 59)
-            secGen = randint(0, 59)
+            print("AAAAA")
+            self.listGenerationData.append(periodeJournee)
+            self.listGenerationData.append(jour)
+            self.writeUpdateFile(self.listGenerationData)
+                #print(ticketToInsert)
 
-            if(minutGen < 10) :
-                minutGen = "0" + str(minutGen)
-            if(secGen < 10) :
-                secGen = "0" + str(secGen)
+        elif (len(self.listGenerationData) != 0):  ## pas vide
+            print("list ", self.listGenerationData)
+            print("jour ", jour)
+            print("periodeJournee ", periodeJournee)
+
             
-            titre = title + str(cpt)
-            typeBill = randint(0,3)
-            imageSize = randint(1000, 2500)
-            imageName = "IMG-" + titre
-            montant = randint(0,100)
-            idTel = "idTel" + str(randint(1,10))
-            idBoutique = randint(4,11)
+            if(str(self.listGenerationData[1]) == str(jour) and int(self.listGenerationData[0]) != int(periodeJournee) and periodeJournee != 0): ## meme jour mais diff periode
+                print("BBBBB")
+                for i in range(500):
+                    minutGen = randint(0, 59)
+                    secGen = randint(0, 59)
 
-            if(int(heure) >= 8 and int(heure) <= 11):
-                hourGen = randint(8, 11)
-                if(hourGen < 10):
-                    hourGen = "0" + str(hourGen)
+                    if(minutGen < 10) :
+                        minutGen = "0" + str(minutGen)
+                    if(secGen < 10) :
+                        secGen = "0" + str(secGen)
+                    
+                    titre = title + str(cpt)
+                    typeBill = randint(0,3)
+                    imageSize = randint(1000, 2500)
+                    imageName = "IMG-" + titre
+                    montant = randint(0,100)
+                    idTel = "idTel" + str(randint(1,10))
+                    idBoutique = randint(4,11)
 
-            elif(int(heure) >= 12 and int(heure) <= 17):
-                hourGen = randint(12, 17)
+                    if(int(heure) >= 8 and int(heure) <= 11):
+                        hourGen = randint(8, 11)
+                        periodeJournee = 1
+                        if(hourGen < 10):
+                            hourGen = "0" + str(hourGen)
 
-            elif(int(heure) >= 18 and int(heure) <= 23):
-                hourGen = randint(18, 23)
+                    elif(int(heure) >= 12 and int(heure) <= 17):
+                        periodeJournee = 2
+                        hourGen = randint(12, 17)
 
-            cpt += 1
-            dateGenerated = tempsActuelle.split(" ")[0] + " " + str(hourGen) + ":" + str(minutGen) + ":" + str(secGen)
-    
-            ticketToInsert = "ID*"+ idTel + "*DATE*" + dateGenerated + "*MONTANT*" + str(montant) + "." + str(randint(0,9)) +  "*IDBOUTIQUE*" + str(idBoutique) + "*TITRE*" + str(titre) + "*TYPEBILL*" + str(typeBill) + "*SIZEIMAGE*" + str(imageSize) + "*IMAGENAME*" + imageName
-            #print(ticketToInsert)
-            self.insertToTable(ticketToInsert)
-            #print(ticketToInsert)
+                    elif(int(heure) >= 18 and int(heure) <= 23):
+                        periodeJournee = 3
+                        hourGen = randint(18, 23)
 
+                    cpt += 1
+                    dateGenerated = tempsActuelle.split(" ")[0] + " " + str(hourGen) + ":" + str(minutGen) + ":" + str(secGen)
+            
+                    ticketToInsert = "ID*"+ idTel + "*DATE*" + dateGenerated + "*MONTANT*" + str(montant) + "." + str(randint(0,9)) +  "*IDBOUTIQUE*" + str(idBoutique) + "*TITRE*" + str(titre) + "*TYPEBILL*" + str(typeBill) + "*SIZEIMAGE*" + str(imageSize) + "*IMAGENAME*" + imageName
+                    #print(ticketToInsert)
+                    self.insertToTable(ticketToInsert)
+                print("BBBBB")
+                self.listGenerationData[0] = periodeJournee
+                self.listGenerationData[1] = jour
+                #print(ticketToInsert)
         
         
         
@@ -313,17 +440,28 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 
 ##bd = BaseDeDonneeTicket()
 ##bdBoutique = BaseDeDonneeBoutique()
-##bdBoutique.insertJeanMedecinBoutiques()
 ##
-##bd.generateTestTicketsJM()
+#bdBoutique.insertJeanMedecinBoutiques()
+########
 
+#bd.generateTestTicketsJM()
+##
 ##bd.insertToTable(tck1)
 ##bd.insertToTable(tck2)
 ##bd.insertToTable(tck3)
 ##bd.insertToTable(tck4)
 ##bd.insertToTable(tck5)
 #bd.readTable()
+#bd.generateTestTicketsJM()
+#print("-----------------")
+#bd.readTable()
+
+##
+##modifiedTicket = "MODIF*ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*71*IDBOUTIQUE*10*TITRE*unTicket*TYPEBILL*3"
+##bd.modifyTicket(modifiedTicket)
 ##print("-----------------")
+##bd.readTable()
+
 #bdBoutique.readTable()
 ##print("-----------------")
 ###print(bdBoutique.getLatLongForId(bd.listingBoutiqueId()))  ## for writing input for Kmean
@@ -333,7 +471,6 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 #bdBoutique.latLongToCsv(bd.listBoutiquesId)
 #bdBoutique.getBoutiqueForSelectedTickets(1)
 
-#bd.deleteFromTable("idTel1", "12/12/2015 12:12:44")
 #bd.getFromTable("idTel2", "12/12/2015 12:12:44")
 #bdBoutique.readTable()
 
