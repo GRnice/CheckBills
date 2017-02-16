@@ -164,6 +164,8 @@ class BaseDeDonneeBoutique:
         self.insertToTable(b6)
         self.insertToTable(b7)
         self.insertToTable(b8)
+
+        
         
 
 class BaseDeDonneeTicket:
@@ -234,10 +236,6 @@ class BaseDeDonneeTicket:
             print("insertNotGood, arg =", ticketInfo)
             return 1
 
-    ##def deletFromTable(self, idTel, date):
-        
-
-
     def getIdFromTableAsTime(self, strDateDebutFin): ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
         myList = strDateDebutFin.split("*")
         tempsCur = self.cur.execute("SELECT strftime( \"%s\", ?)", (myList[1],))
@@ -287,6 +285,24 @@ class BaseDeDonneeTicket:
         ##print(infoStr + "*SIZEIMAGE*" + str(tck1[0]) + "*IMAGENAME*" + str(tck1[1]))
         self.insertToTable(infoStr + "*SIZEIMAGE*" + str(tck1[0]) + "*IMAGENAME*" + str(tck1[1]))
         return 0
+
+    def deletFromTable(self, idSmartPhone, dateCreation):
+        tempsEnSec = self.cur.execute("SELECT strftime( \"%s\", ?)", (dateCreation,))
+        temps = tempsEnSec.fetchone()
+        try:
+            self.cur.execute("SELECT imageFile FROM Tickets WHERE idTel = ? AND date = ?", (idSmartPhone, temps[0]))
+            fileName = self.cur.fetchone()
+            os.remove(str(fileName[0]))
+            os.remove(str(fileName[0].replace(".txt", ".png")))
+            self.cur.execute("DELETE FROM Tickets WHERE idTel = ? AND date = ?", (idSmartPhone, temps[0]))
+            
+            self.conn.commit()
+            return 0
+
+        except Exception as e:
+            print("del not good", e)
+            return 1
+        
     
 
     def readTable(self):
@@ -428,8 +444,10 @@ tck4 = "ID*idTel2*DATE*2016-12-12 17:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre
 tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TITRE*unTicket*TYPEBILL*3*SIZEIMAGE*6855*IMAGENAME*nomFichier12"
 
 ##bd = BaseDeDonneeTicket()
-##bdBoutique = BaseDeDonneeBoutique()
-####
+#bdBoutique = BaseDeDonneeBoutique()
+#bdBoutique.readTable()
+#bd.deletFromTable("72c76fc4bed8ec03", "2017-02-16 16:44:03")
+##bd.readTable()
 ######
 ####bdBoutique.insertJeanMedecinBoutiques()
 ############

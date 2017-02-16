@@ -48,10 +48,8 @@ class Data:
 
         
     def getClusters(self):
-        ## peu de donnée : 0.001, 2
-        ## 1000 donnée: 0.0001, 10/15
         
-        opticinstance = optics.optics(self.list, 0.0001, 10)  #####  parametrage
+        opticinstance = optics.optics(self.list, 0.0005, 5)  #####  parametrage
         opticinstance.process()
         print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()

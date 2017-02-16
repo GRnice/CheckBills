@@ -101,6 +101,15 @@ class Server(Thread):
                                     self.bddBoutique.insertToTable(message) 
                                     self.bddBoutique.readTable()
 
+                                elif("DELETETICKET" in message[0:12]): # DELETETICKET*idTel*date
+                                     print(message)
+                                     idTel = message.split("*")[1]
+                                     dateTicket = message.split("*")[2]
+                                     self.bddTicket.deletFromTable(idTel, dateTicket)
+                                     sock.send("CHECKDELETE\r\n".encode('utf-8'))
+                                     self.bddTicket.readTable()
+                                     
+
                                 elif("UPDATEBOUTIQUE" in message[0:14]):  # UPDATEBOUTIQUE*12
                                     print(message)
                                     size = message.split("*")[1]
@@ -116,6 +125,7 @@ class Server(Thread):
                                 elif(len(message) >= 20 and "GET_ZONES_INFLUENCES" in message[0:20]):  ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
                                     print("MESSAGE ", message)
                                     self.bddTicket.generateTestTicketsJM()
+                                    self.bddTicket.readTable()
                                     self.bddTicket.getIdFromTableAsTime(message)  ## recupere les id des boutiques a cet interval de temps
                                     self.bddBoutique.latLongToCsv(self.bddTicket.listBoutiquesId)  ## genere le fichier DataForKmean.csv
                                     self.data.readCsv("DataForKmean")   ## tu peux tjr mettre Datarealist pr précédent fichier
