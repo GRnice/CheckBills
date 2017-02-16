@@ -73,6 +73,7 @@ public class ServiceStorage extends Service
                 Log.e("EP-store","02");
                 Intent nwIntent = new Intent();
                 nwIntent.putExtra("HistoriqueSerialize",statManager.getStats());
+                nwIntent.putExtra("dateHistorique",statManager.getAllDates());
                 nwIntent.setAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
                 sendBroadcast(nwIntent);
             }

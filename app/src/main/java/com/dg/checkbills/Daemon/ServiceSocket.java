@@ -206,15 +206,28 @@ public class ServiceSocket extends Service implements LocationListener
     /**
      * Traite les boutiques transmisent par le serveur
      */
-    private void treatRequestBoutique(String boutiqueStringReceived)
+    private void treatRequestBoutique(String boutiqueStringReceived,boolean appendMod)
     {
-        Log.e("ALL_BOUTIQUE_RECEIVED", boutiqueStringReceived.toString());
+        Log.e("BOUTIQUE_RECEIVED", boutiqueStringReceived);
+        Log.e("SIZE",""+boutiqueStringReceived.length());
+
+        if (boutiqueStringReceived.equals("None"))
+        {
+            Log.e("PAS DE BOUTIQUES","A AJOUTER");
+            return;
+        }
+        Log.e("ALL_BOUTIQUE_RECEIVED", boutiqueStringReceived);
         String[] allBoutiques = boutiqueStringReceived.toString().split("\\_");
-        boutiqueArray = new ArrayList<>();
+        if (!appendMod)
+        {
+            boutiqueArray = new ArrayList<>();
+        }
+
         for (String aBoutique : allBoutiques)
         {
             String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
             Boutique nwBoutique = new Boutique(aBoutiqueSplit[1], aBoutiqueSplit[3]);
+            Log.e("nwboutique",aBoutique);
             BoutiqueManager.store(getBaseContext(), nwBoutique);
             this.boutiqueArray.add(nwBoutique);
         }
@@ -246,10 +259,12 @@ public class ServiceSocket extends Service implements LocationListener
                 billsArray.set(i,nwBill);
             }
         }
+        String requete;
 
-        String requete = "MODIF*ID*" + idTel + "*DATE*" + nwBill.getDate() + "*MONTANT*" + String.valueOf(nwBill.getMontant())
+        requete = "MODIF*ID*" + idTel + "*DATE*" + nwBill.getDate() + "*MONTANT*" + String.valueOf(nwBill.getMontant())
                 + "*IDBOUTIQUE*" + nwBill.getBoutique().getId() + "*TITRE*" + nwBill.getNom() +
                 "*TYPEBILL*" + nwBill.getType();
+
         SenderRequest senderRequest = new SenderRequest(this,requete,"SENDMODIFBILL");
         senderRequest.process();
         arrayOfSender.add(senderRequest);
@@ -354,7 +369,7 @@ public class ServiceSocket extends Service implements LocationListener
         arrayOfSender.remove(senderRequest);
         if (success && senderRequest.getTag() == "TAG_REQUEST-ALL-BOUTIQUES")
         {
-            treatRequestBoutique(response);
+            treatRequestBoutique(response,false); // MODE APPEND A FALSE
         }
         else if (success && senderRequest.getTag().equals("TAG_REQUEST-ZONES-INFLUENCES"))
         {
@@ -365,10 +380,19 @@ public class ServiceSocket extends Service implements LocationListener
             intentBoutique.putExtra("ZONES-INFLUENTES",arrayOfCentres);
             sendBroadcast(intentBoutique);
         }
+        else if (senderRequest.getTag().equals("GETUPDATEBOUTIQUE"))
+        {
+            Log.e("GETUPDATEBOUTIQUE","ENDTASK");
+            if (success)
+            {
+                treatRequestBoutique(response,true); // MODE APPEND A TRUE
+            }
+        }
         else if (success && senderRequest.getTag().equals("SENDMODIFBILL"))
         {
 
         }
+
 
     }
 
@@ -451,6 +475,13 @@ public class ServiceSocket extends Service implements LocationListener
                 String idTel = arg1.getStringExtra("IDTEL");
                 Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
                 sendBill(idTel,nwBill);
+            }
+
+            if (arg1.hasExtra("SYNCHBOUTIQUE"))
+            {
+                SenderRequest senderRqstUPDATE = new SenderRequest(ServiceSocket.this,"UPDATEBOUTIQUE*"+boutiqueArray.size(),"GETUPDATEBOUTIQUE");
+                senderRqstUPDATE.process();
+                arrayOfSender.add(senderRqstUPDATE);
             }
 
             if (arg1.hasExtra("GETBILLS"))

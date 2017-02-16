@@ -156,6 +156,16 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         return true;
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        // SYNCH
+        Log.e("Home-SYNCHRO-boutique","!");
+        Intent intentSynchBoutique = new Intent();
+        intentSynchBoutique.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+        intentSynchBoutique.putExtra("SYNCHBOUTIQUE","");
+        sendBroadcast(intentSynchBoutique);
+    }
+
     public class WakefulReceiver extends WakefulBroadcastReceiver {
         public WakefulReceiver()
         {

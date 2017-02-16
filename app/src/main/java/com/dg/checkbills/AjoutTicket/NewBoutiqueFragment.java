@@ -52,7 +52,7 @@ public class NewBoutiqueFragment extends Fragment {
                 intentNwBoutique.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
                 intentNwBoutique.putExtra("NEWBOUTIQUE",nomBoutique.getText().toString());
                 getActivity().sendBroadcast(intentNwBoutique);
-                ((ProcedureTicket) getActivity()).showTicketInfo(nomBoutique.getText().toString());
+                ((ProcedureTicket) getActivity()).showTicketInfo(nomBoutique.getText().toString(),-1);
             }
         });
         return v;

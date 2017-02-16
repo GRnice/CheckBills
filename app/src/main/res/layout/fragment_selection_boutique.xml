@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="nom de la boutique"
         android:ems="10"
         android:id="@+id/editTextBoutiques"
         android:layout_alignParentTop="true"
@@ -26,6 +25,7 @@
         android:singleLine="false"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@android:color/holo_blue_dark"
-        android:lines="@android:integer/config_shortAnimTime" />
+        android:lines="@android:integer/config_shortAnimTime"
+        android:hint="@string/hintSelectBoutique" />
 
 </RelativeLayout>

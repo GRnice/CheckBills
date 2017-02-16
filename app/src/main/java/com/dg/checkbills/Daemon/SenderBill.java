@@ -116,9 +116,23 @@ public class SenderBill extends Sender implements CommListener
 
                 try
                 {
-                    comm.sendMessage("ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
-                            + "*IDBOUTIQUE*" + billaSend.getBoutique().getId() + "*TITRE*" + billaSend.getNom() +
-                            "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage());
+                    String requete;
+
+                    if (billaSend.getBoutique().getId().equals("-1"))
+                    {
+                        requete= "ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
+                                + "*IDBOUTIQUE*" + billaSend.getBoutique().getNom() + "*TITRE*" + billaSend.getNom() +
+                                "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage();
+
+                    }
+                    else
+                    {
+                        requete= "ID*" + idTel + "*DATE*" + billaSend.getDate() + "*MONTANT*" + String.valueOf(billaSend.getMontant())
+                                + "*IDBOUTIQUE*" + billaSend.getBoutique().getId() + "*TITRE*" + billaSend.getNom() +
+                                "*TYPEBILL*" + billaSend.getType() + "*SIZEIMAGE*" + billaSend.getImage().length + "*IMAGENAME*"+billaSend.getNomImage();
+
+                    }
+                    comm.sendMessage(requete);
                 }
                 catch (IOException e)
                 {

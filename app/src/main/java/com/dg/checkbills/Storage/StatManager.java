@@ -31,6 +31,7 @@ import java.util.Set;
 public class StatManager
 {
     private ArrayList<Statistiques> listOfStats;
+    private ArrayList<String> allDates;
     private SharedPreferences shared;
     /**
      *
@@ -43,11 +44,14 @@ public class StatManager
         // syntaxe MM-yyyy,nbtickets,depenseTotal,nbTicketConsoLoisir,nbTicketConsoProfessionnelle,nbticketConsoAlimentaire,nbTicketConsoVoyage
         Iterator<String> iterator = allData.iterator();
         listOfStats = new ArrayList<>();
+        allDates = new ArrayList<>();
+
         while (iterator.hasNext())
         {
             String next = iterator.next();
             String[] data = next.split("\\,");
-            SimpleDateFormat formatter = new SimpleDateFormat("MM-yyyy");
+            SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss GMT+");
+            Log.e("dateStatMan",""+data[0]);
             Statistiques stat;
             Date date;
             try
@@ -57,6 +61,9 @@ public class StatManager
                         Double.parseDouble(data[2]),Integer.decode(data[3]),
                         Integer.decode(data[4]),Integer.decode(data[5]),Integer.decode(data[6]));
                 listOfStats.add(stat);
+                String[]stringTabDate = date.toString().split("\\s+");
+                String period = ""+stringTabDate[1]+"/"+stringTabDate[5];
+                allDates.add(period);
             }
             catch (ParseException e)
             {
@@ -76,6 +83,11 @@ public class StatManager
         return null;
     }
 
+    public ArrayList<String> getAllDates()
+    {
+        return allDates;
+    }
+
     public ArrayList<Statistiques> getStats()
     {
         return listOfStats;
@@ -89,11 +101,8 @@ public class StatManager
         for (Statistiques stat : listOfStats)
         {
             StringBuilder sb = new StringBuilder();
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(stat.getDate());
-            int month = cal.get(Calendar.MONTH);
-            int year = cal.get(Calendar.YEAR);
-            sb.append(String.valueOf(month)+"-"+String.valueOf(year)+",");
+            Log.e("statdate",stat.getDate().toString());
+            sb.append(stat.getDate().toString()+",");
             sb.append(stat.getNbTickets()+",");
             sb.append(String.valueOf(stat.getDepenseTotal())+",");
             sb.append(String.valueOf(stat.getConsoLoisir())+",");
@@ -114,12 +123,19 @@ public class StatManager
 
         String[] date = bill.getDate().split("\\s+");
         date = date[0].split("\\-");
-        String dateformated = date[1]+"-"+date[2];
+        Log.e("storeBill-annee",""+date[0]);
+        Log.e("storeBill-mois",""+date[1]);
+        Log.e("storeBill-jour",""+date[2]);
+
+        String dateformated = date[1]+"-"+date[0];
+
         SimpleDateFormat formatter = new SimpleDateFormat("MM-yyyy");
         Date dateObj = null;
+
         try
         {
             dateObj = formatter.parse(dateformated);
+            Log.e("dateObjStatManager",""+dateObj.toString());
         }
         catch (ParseException pe)
         {
@@ -132,6 +148,7 @@ public class StatManager
             Statistiques nwstat = new Statistiques(dateObj,0,0,0,0,0,0);
             nwstat.addBill(bill);
             listOfStats.add(nwstat);
+            allDates.add(dateObj.toString());
         }
         else
         {
@@ -142,6 +159,7 @@ public class StatManager
                 Statistiques nwstat = new Statistiques(dateObj,0,0,0,0,0,0);
                 nwstat.addBill(bill);
                 listOfStats.add(nwstat);
+                allDates.add(dateObj.toString());
             }
             else
             {

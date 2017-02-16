@@ -82,7 +82,7 @@ public class ProcedureTicket extends FragmentActivity
         }
         else if (selectionBoutiqueFragment.getView().getVisibility() == View.VISIBLE)
         {
-            showTicketInfo(null);
+            showTicketInfo(null,-1);
         }
         else
         {
@@ -154,11 +154,11 @@ public class ProcedureTicket extends FragmentActivity
         selectionBoutiqueFragment.getView().setVisibility(View.VISIBLE);
     }
 
-    public void showTicketInfo(@Nullable String b)
+    public void showTicketInfo(@Nullable String b,int idBoutique)
     {
         if (b != null)
         {
-            ticketInfoFragment.setBoutiqueSelected(b);
+            ticketInfoFragment.setBoutiqueSelected(b,idBoutique);
         }
         photoFragment.getView().setVisibility(View.INVISIBLE);
         ticketInfoFragment.getView().setVisibility(View.VISIBLE);

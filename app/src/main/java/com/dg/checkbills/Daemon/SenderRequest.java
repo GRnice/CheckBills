@@ -18,7 +18,7 @@ public class SenderRequest extends Sender implements CommListener
     private String request;
     private CommunicationServer comm;
     private AsyncTask task;
-    private StringBuilder boutiqueStringReceived;
+    private StringBuilder StringReceived;
     private String tag;
 
     public SenderRequest(ServiceSocket serv,String request,String tag)
@@ -26,7 +26,7 @@ public class SenderRequest extends Sender implements CommListener
         this.tag = tag;
         this.request = request;
         service = serv;
-        boutiqueStringReceived = new StringBuilder();
+        StringReceived = new StringBuilder();
     }
 
     @Override
@@ -44,16 +44,16 @@ public class SenderRequest extends Sender implements CommListener
             case "MESSAGE":
             {
                 if (message.equals("BOUTIQUECHECK") || message.equals("ZONES_INFLUENCES_CHECK") ||
-                        message.equals("BILLUPDATECHECK") )
+                        message.equals("BILLUPDATECHECK") || message.equals("CHECKUPDATEBOUTIQUE"))
                 {
                     task.cancel(true);
                     comm.interrupt();
-                    service.endTask(this,true,boutiqueStringReceived.toString());
+                    service.endTask(this,true,StringReceived.toString());
 
                 }
                 else
                 {
-                    boutiqueStringReceived.append(message);
+                    StringReceived.append(message);
                 }
                 break;
             }
@@ -86,7 +86,7 @@ public class SenderRequest extends Sender implements CommListener
             comm.start();
             try
             {
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             }
             catch (InterruptedException e)
             {
@@ -98,6 +98,7 @@ public class SenderRequest extends Sender implements CommListener
                 comm.sendMessage(request);
             } catch (IOException e)
             {
+                e.printStackTrace();
                 comm.interrupt();
                 service.endTask(SenderRequest.this,false,null);
             }

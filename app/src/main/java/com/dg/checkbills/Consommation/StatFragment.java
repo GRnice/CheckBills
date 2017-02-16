@@ -8,9 +8,16 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dg.checkbills.R;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class StatFragment extends Fragment implements View.OnTouchListener
@@ -19,17 +26,22 @@ public class StatFragment extends Fragment implements View.OnTouchListener
     private int MIN_DISTANCE = 100;
     private ConsoActivity act;
     private Statistiques stat;
+    private Spinner spinnerDate;
+    private ArrayList<String> allPeriodes;
+    private int selectedDefaultSpinner;
 
     public StatFragment() {
         // Required empty public constructor
     }
 
 
-    public static StatFragment newInstance(ConsoActivity activity,Statistiques stats)
+    public static StatFragment newInstance(ConsoActivity activity,Statistiques stats,ArrayList<String> allPeriodes,int selectedDefaultSpinner)
     {
         StatFragment fragment = new StatFragment();
         fragment.act = activity;
         fragment.stat = stats;
+        fragment.allPeriodes = allPeriodes;
+        fragment.selectedDefaultSpinner = selectedDefaultSpinner;
         return fragment;
     }
 
@@ -47,6 +59,26 @@ public class StatFragment extends Fragment implements View.OnTouchListener
         View v = inflater.inflate(R.layout.fragment_stat, container, false);
         TextView depenseTotal = (TextView) v.findViewById(R.id.tetxViewDepenseTotal);
         depenseTotal.setText(String.valueOf(stat.getDepenseTotal())+" €");
+
+
+        ArrayAdapter<String> adp1=new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_1,allPeriodes);
+        adp1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerDate = (Spinner) v.findViewById(R.id.spinnerDate);
+        spinnerDate.setAdapter(adp1);
+        spinnerDate.setSelection(selectedDefaultSpinner);
+
+        spinnerDate.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                String date = ((TextView) v.findViewById(android.R.id.text1)).getText().toString();
+                act.dateSelected(date);
+                return false;
+            }
+        });
+
 
         TextView nombredeTickets = (TextView) v.findViewById(R.id.textViewNombreTickets);
         nombredeTickets.setText(String.valueOf(stat.getNbTickets()));

@@ -37,8 +37,7 @@ public class TicketInformation extends Fragment
     private EditText editTextNomBillet;
     private Bitmap imgTicket;
     private String ticketDate;
-
-
+    private int idBoutiqueSelected;
 
 
     // Required empty public constructor
@@ -98,7 +97,7 @@ public class TicketInformation extends Fragment
                 Bill nwBill = new Bill(typeAchatSpinner.getSelectedItem().toString()
                         ,nomTicket
                         ,Double.parseDouble(montant)
-                        ,new Boutique("1",selectionBoutique.getText().toString())
+                        ,new Boutique(String.valueOf(idBoutiqueSelected),selectionBoutique.getText().toString())
                         ,ticketDate
                         ,byteArray);
 
@@ -135,10 +134,12 @@ public class TicketInformation extends Fragment
         this.date.setText(ticketDate);
     }
 
-    public void setBoutiqueSelected(String b)
+    public void setBoutiqueSelected(String b,int idBoutique)
     {
+        idBoutiqueSelected = idBoutique;
         selectionBoutique.setText(b);
     }
+
 
     public void setImageTicket(Bitmap ticketBitmap)
     {

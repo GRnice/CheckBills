@@ -13,16 +13,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.dg.checkbills.Constantes.BroadcastAddr;
+import com.dg.checkbills.Data.ArrayUtils;
 import com.dg.checkbills.Home;
 import com.dg.checkbills.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ConsoActivity extends AppCompatActivity
 {
 
     private Fragment fragmentCourant = null;
     private ArrayList<Statistiques> arrayStats;
+    private ArrayList<String> allPeriodes;
     private int cursor = 0;
     private ServiceReceiver serviceReceiver;
 
@@ -30,6 +34,7 @@ public class ConsoActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        allPeriodes = new ArrayList<>();
         serviceReceiver = new ServiceReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
@@ -54,6 +59,13 @@ public class ConsoActivity extends AppCompatActivity
     public void onBackPressed()
     {
         finish();
+    }
+
+    public void dateSelected(String date)
+    {
+        cursor = allPeriodes.indexOf(date);
+        Log.e("dateselected",date);
+        pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor),allPeriodes,cursor));
     }
 
     public void pushFragment(Fragment frag)
@@ -81,7 +93,7 @@ public class ConsoActivity extends AppCompatActivity
             if (cursor > 0)
             {
                 cursor--;
-                pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor)));
+                pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor),allPeriodes,cursor));
             }
         }
         else
@@ -89,7 +101,7 @@ public class ConsoActivity extends AppCompatActivity
             if (cursor < arrayStats.size()-1)
             {
                 cursor++;
-                pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor)));
+                pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor),allPeriodes,cursor));
             }
             // to right ->
         }
@@ -110,12 +122,13 @@ public class ConsoActivity extends AppCompatActivity
             if (arg1.hasExtra("HistoriqueSerialize"))
             {
                 arrayStats = (ArrayList<Statistiques>) arg1.getSerializableExtra("HistoriqueSerialize");
+                allPeriodes = arg1.getStringArrayListExtra("dateHistorique");
                 Log.e("EP-store","03");
                 Log.e("sizearrayDATA",String.valueOf(arrayStats.size()));
                 if (arrayStats.size() > 0)
                 {
                     cursor = arrayStats.size()-1;
-                    pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor)));
+                    pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor),allPeriodes,arrayStats.size()-1));
                 }
 
                 Log.e("BIENRECUSTAT","??");

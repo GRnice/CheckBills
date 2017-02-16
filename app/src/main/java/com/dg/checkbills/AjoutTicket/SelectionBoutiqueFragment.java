@@ -81,7 +81,14 @@ public class SelectionBoutiqueFragment extends Fragment
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String nomBoutique = ( (TextView) view.findViewById(R.id.nomBoutique)).getText().toString();
-                ((ProcedureTicket) getActivity()).showTicketInfo(nomBoutique);
+                for (Boutique boutique : listofBoutiques)
+                {
+                    if (boutique.getNom().equals(nomBoutique))
+                    {
+                        ((ProcedureTicket) getActivity()).showTicketInfo(nomBoutique,Integer.valueOf(boutique.getId()));
+                    }
+                }
+
             }
         });
 

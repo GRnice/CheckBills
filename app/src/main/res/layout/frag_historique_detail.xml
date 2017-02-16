@@ -30,7 +30,8 @@
         android:layout_below="@+id/dateDetailHistorique"
         android:layout_alignEnd="@+id/dateDetailHistorique"
         android:layout_marginEnd="17dp"
-        android:gravity="center_vertical|center_horizontal" />
+        android:gravity="center_vertical|center_horizontal"
+        android:textAlignment="viewStart" />
 
     <TextView
         android:text="Date : 12 Décembre 2016"
@@ -43,7 +44,8 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="18dp"
         android:layout_marginTop="47dp"
-        android:gravity="right" />
+        android:gravity="right"
+        android:textAlignment="viewStart" />
 
 
 
