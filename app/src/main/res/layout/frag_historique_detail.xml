@@ -34,6 +34,13 @@
         android:textAlignment="viewStart" />
 
     <TextView
+        android:text="Categorie : Loisir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewType"
+        android:textSize="24sp" />
+
+    <TextView
         android:text="Date : 12 Décembre 2016"
         android:layout_width="match_parent"
         android:layout_height="0px"

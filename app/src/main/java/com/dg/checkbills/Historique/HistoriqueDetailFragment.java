@@ -47,6 +47,7 @@ public class HistoriqueDetailFragment extends FragmentHistorique
         View view = inflater.inflate(R.layout.frag_historique_detail, container, false);
 
         TextView title = (TextView) view.findViewById(R.id.titleDetailHistoriqueModif);
+        TextView typeBill = (TextView) view.findViewById(R.id.textViewType);
         TextView date = (TextView) view.findViewById(R.id.dateDetailHistorique);
         TextView montant = (TextView) view.findViewById(R.id.montantEditDetailHistorique);
         Button modification = (Button) view.findViewById(R.id.buttonmodifhist);
@@ -75,7 +76,24 @@ public class HistoriqueDetailFragment extends FragmentHistorique
         });
 
         title.setText(this.bill.getNom());
+
+        switch(this.bill.getType())
+        {
+            case "1":
+            {typeBill.setText("Categorie : Alimentaire");
+                break;}
+            case "2":
+            {typeBill.setText("Categorie : Professionnel");
+                break;}
+            case "3":
+            {typeBill.setText("Categorie : Loisir");
+                break;}
+            case "4":
+            {typeBill.setText("Categorie : Voyage");
+                break;}
+        }
         date.setText(this.bill.getDate());
+
         montant.setText("Montant : "+String.valueOf(this.bill.getMontant())+"€");
         return view;
     }
