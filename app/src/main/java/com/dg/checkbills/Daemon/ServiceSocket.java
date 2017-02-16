@@ -12,11 +12,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.text.format.Time;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Constantes.BroadcastAddr;
@@ -50,6 +52,7 @@ public class ServiceSocket extends Service implements LocationListener
     private ActivityReceiver activityReceiver; // ecoute les messages émis par les differentes activity
     private NetworkChangeReceiver networkChangeReceiver;
 
+    private boolean Autho4g;
     private ArrayList<Bill> billsArray; // tableau de tickets
     private ArrayList<Boutique> boutiqueArray; // tableau de boutiques
     private ArrayList<ZoneInfluence> arrayOfCentres; // tableau de centres
@@ -388,12 +391,14 @@ public class ServiceSocket extends Service implements LocationListener
                 treatRequestBoutique(response,true); // MODE APPEND A TRUE
             }
         }
+        else if (senderRequest.getTag().equals("TAGDELETE"))
+        {
+            Log.e("DELETE","ENDTASK");
+        }
         else if (success && senderRequest.getTag().equals("SENDMODIFBILL"))
         {
 
         }
-
-
     }
 
     /**
@@ -484,6 +489,12 @@ public class ServiceSocket extends Service implements LocationListener
                 arrayOfSender.add(senderRqstUPDATE);
             }
 
+            if (arg1.hasExtra("PARAMDATA"))
+            {
+                Autho4g = arg1.getBooleanExtra("PARAMDATA",false);
+                Log.e("AUTHo",""+Autho4g);
+            }
+
             if (arg1.hasExtra("GETBILLS"))
             {
                 Intent intentBills = new Intent();
@@ -516,7 +527,34 @@ public class ServiceSocket extends Service implements LocationListener
             {
                 Bill nwBill = (Bill) arg1.getSerializableExtra("REQUEST-MODIF");
                 sendUpdateBill(nwBill);
+            }
 
+            if (arg1.hasExtra("REQUEST-SUPPR"))
+            {
+                String idBill = arg1.getStringExtra("REQUEST-SUPPR");
+                for (Bill bill : billsArray)
+                {
+                    if (bill.getId().equals(idBill))
+                    {
+                        billsArray.remove(bill); // on le supprime de la liste des bills
+                        if (billsOffline.contains(bill))
+                        {
+                            billsOffline.remove(bill); // si il est aussi dans les billets offlines...
+                        }
+                        SenderRequest senderDelRequest = new SenderRequest(ServiceSocket.this,"DELETETICKET*"+idTel+"*"+bill.getDate(),"TAGDELETE");
+                        senderDelRequest.process();
+
+                        if (queueNomImage.contains(bill.getNomImage())) // si l'image est dans la queue
+                        {
+                            queueNomImage.remove(bill.getNomImage());
+                            ImageManager.deleteImage(getBaseContext(),bill.getNomImage()); // suppression de l'image
+                        }
+                        arrayOfSender.add(senderDelRequest);
+                        Log.e("supprBilletTermine","WWW");
+                        Log.e("SIZEBilletArray",""+billsArray.size());
+                        break;
+                    }
+                }
             }
 
             if (arg1.hasExtra("GET_ZONES_INFLUENCES"))
@@ -567,12 +605,23 @@ public class ServiceSocket extends Service implements LocationListener
                     Log.e("DISCO","youuuuu");
                     isConnected = false;
                 }
-                else if(status==NetworkUtil.NETWORK_STATUS_MOBILE || status== NetworkUtil.NETWORK_STATUS_WIFI)
+                else if(status== NetworkUtil.NETWORK_STATUS_WIFI)
                 {
                     Log.e("darkk","vad");
                     if(!isConnected)
                     {
                         Log.e("connected !","dd");
+                        sendBillsNotOnCloud();
+                    }
+
+                    isConnected = true;
+                }
+                else if(status==2 && Autho4g)
+                {
+                    Log.e("darkk","vad");
+                    if(!isConnected)
+                    {
+                        Log.e("connected en 4g !","dd");
                         sendBillsNotOnCloud();
                     }
 

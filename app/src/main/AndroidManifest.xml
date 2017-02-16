@@ -16,7 +16,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAEHmUBcfWFToSl94UNVlem2z-SQPXjZdE"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAEHmUBcfWFToSl94UNVlem2z-SQPXjZdE" />
+
         <activity
             android:name=".Home"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -41,12 +44,12 @@
             android:name=".Historique.HistoriqueActivity"
             android:label="@string/title_activity_historique"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ZoneInfluence.InfluenceActivity"></activity>
+        <activity android:name=".ZoneInfluence.InfluenceActivity" />
 
         <service android:name=".Daemon.ServiceSocket" />
         <service android:name=".Daemon.ServiceStorage" />
 
-
+        <activity android:name=".Parametres.ParamActivity"></activity>
     </application>
 
 </manifest>

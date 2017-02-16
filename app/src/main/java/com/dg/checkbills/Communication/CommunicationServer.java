@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "10.212.102.221";
+    public static final String SOCKET_ADDR = "172.20.10.5";
 
     public static final int PORT = 3200;
     private Socket m_sock;

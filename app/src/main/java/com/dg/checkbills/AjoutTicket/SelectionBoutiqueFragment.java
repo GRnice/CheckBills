@@ -79,7 +79,8 @@ public class SelectionBoutiqueFragment extends Fragment
 
         aListViewBoutiques.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
                 String nomBoutique = ( (TextView) view.findViewById(R.id.nomBoutique)).getText().toString();
                 for (Boutique boutique : listofBoutiques)
                 {
@@ -88,7 +89,6 @@ public class SelectionBoutiqueFragment extends Fragment
                         ((ProcedureTicket) getActivity()).showTicketInfo(nomBoutique,Integer.valueOf(boutique.getId()));
                     }
                 }
-
             }
         });
 

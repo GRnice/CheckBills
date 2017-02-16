@@ -61,10 +61,15 @@ public class ConsoActivity extends AppCompatActivity
         finish();
     }
 
-    public void dateSelected(String date)
+    public void dateSelected(int position)
     {
-        cursor = allPeriodes.indexOf(date);
-        Log.e("dateselected",date);
+        if (position == cursor)
+        {
+            return;
+        }
+        cursor = position;
+        Log.e("dateselected",""+position);
+        Log.e("DEPENSETOTAL",""+arrayStats.get(cursor).getDepenseTotal());
         pushFragment(StatFragment.newInstance(ConsoActivity.this,arrayStats.get(cursor),allPeriodes,cursor));
     }
 

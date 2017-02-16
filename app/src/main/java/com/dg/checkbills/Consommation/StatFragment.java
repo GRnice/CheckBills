@@ -49,6 +49,7 @@ public class StatFragment extends Fragment implements View.OnTouchListener
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle("Statistiques de consommation");
     }
 
     @Override
@@ -68,8 +69,23 @@ public class StatFragment extends Fragment implements View.OnTouchListener
         spinnerDate = (Spinner) v.findViewById(R.id.spinnerDate);
         spinnerDate.setAdapter(adp1);
         spinnerDate.setSelection(selectedDefaultSpinner);
+        Log.e("ONCREATE","StatFragment");
+        spinnerDate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                act.dateSelected(position);
+            }
 
-        spinnerDate.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+                Log.e("noChange","");
+            }
+        });
+/*
+        spinnerDate.setOnTouchListener(new View.OnTouchListener()
+        {
             @Override
             public boolean onTouch(View v, MotionEvent event)
             {
@@ -78,11 +94,10 @@ public class StatFragment extends Fragment implements View.OnTouchListener
                 return false;
             }
         });
-
+*/
 
         TextView nombredeTickets = (TextView) v.findViewById(R.id.textViewNombreTickets);
         nombredeTickets.setText(String.valueOf(stat.getNbTickets()));
-        stat.getDepenseTotal();
         DrawerStats drawer = (DrawerStats) v.findViewById(R.id.drawerStat);
         drawer.setData(stat.getConsoLoisir(),stat.getConsoPro(),stat.getConsoAlimentaire(),stat.getConsoVoyage());
         v.setOnTouchListener(new View.OnTouchListener() {

@@ -50,25 +50,18 @@ public class StatManager
         {
             String next = iterator.next();
             String[] data = next.split("\\,");
-            SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss GMT+");
             Log.e("dateStatMan",""+data[0]);
             Statistiques stat;
-            Date date;
-            try
-            {
-                date = formatter.parse(data[0]);
-                stat = new Statistiques(date,Integer.decode(data[1]),
-                        Double.parseDouble(data[2]),Integer.decode(data[3]),
-                        Integer.decode(data[4]),Integer.decode(data[5]),Integer.decode(data[6]));
-                listOfStats.add(stat);
-                String[]stringTabDate = date.toString().split("\\s+");
-                String period = ""+stringTabDate[1]+"/"+stringTabDate[5];
-                allDates.add(period);
-            }
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
+            String date;
+
+
+            date = data[0];
+            stat = new Statistiques(date,Integer.decode(data[1]),
+                    Double.parseDouble(data[2]),Integer.decode(data[3]),
+                    Integer.decode(data[4]),Integer.decode(data[5]),Integer.decode(data[6]));
+            listOfStats.add(stat);
+            allDates.add(date);
+
         }
         Collections.sort(listOfStats,new ComparatorStat());
     }
@@ -101,8 +94,8 @@ public class StatManager
         for (Statistiques stat : listOfStats)
         {
             StringBuilder sb = new StringBuilder();
-            Log.e("statdate",stat.getDate().toString());
-            sb.append(stat.getDate().toString()+",");
+            Log.e("statdate",stat.getDate());
+            sb.append(stat.getDate()+",");
             sb.append(stat.getNbTickets()+",");
             sb.append(String.valueOf(stat.getDepenseTotal())+",");
             sb.append(String.valueOf(stat.getConsoLoisir())+",");
@@ -129,37 +122,25 @@ public class StatManager
 
         String dateformated = date[1]+"-"+date[0];
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-yyyy");
-        Date dateObj = null;
-
-        try
-        {
-            dateObj = formatter.parse(dateformated);
-            Log.e("dateObjStatManager",""+dateObj.toString());
-        }
-        catch (ParseException pe)
-        {
-
-        }
 
 
         if (listOfStats.size() == 0)
         {
-            Statistiques nwstat = new Statistiques(dateObj,0,0,0,0,0,0);
+            Statistiques nwstat = new Statistiques(dateformated,0,0,0,0,0,0);
             nwstat.addBill(bill);
             listOfStats.add(nwstat);
-            allDates.add(dateObj.toString());
+            allDates.add(dateformated);
         }
         else
         {
             Statistiques lastStat = listOfStats.get(listOfStats.size()-1);
-            if (lastStat.getDate().compareTo(dateObj) != 0)
+            if (lastStat.getDate().compareTo(dateformated) != 0)
             {
                 // si la date est differente
-                Statistiques nwstat = new Statistiques(dateObj,0,0,0,0,0,0);
+                Statistiques nwstat = new Statistiques(dateformated,0,0,0,0,0,0);
                 nwstat.addBill(bill);
                 listOfStats.add(nwstat);
-                allDates.add(dateObj.toString());
+                allDates.add(dateformated);
             }
             else
             {
@@ -171,7 +152,8 @@ public class StatManager
     private class ComparatorStat implements Comparator<Statistiques>
     {
         @Override
-        public int compare(Statistiques lhs, Statistiques rhs) {
+        public int compare(Statistiques lhs, Statistiques rhs)
+        {
             return lhs.compareTo(rhs.getDate());
         }
     }

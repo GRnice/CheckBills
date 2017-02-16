@@ -46,7 +46,8 @@ public class HistoriqueListingFragment extends FragmentHistorique
     public void onCreate(Bundle saved)
     {
         super.onCreate(saved);
-        this.title = "Historique";
+        this.title = "Historique des tickets";
+        getActivity().setTitle(title);
     }
 
     @Override

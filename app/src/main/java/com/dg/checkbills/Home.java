@@ -24,6 +24,7 @@ import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Daemon.ServiceSocket;
 import com.dg.checkbills.Daemon.ServiceStorage;
 import com.dg.checkbills.Historique.HistoriqueActivity;
+import com.dg.checkbills.Parametres.ParamActivity;
 import com.dg.checkbills.ZoneInfluence.InfluenceActivity;
 
 
@@ -149,6 +150,11 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         {
             Intent intentInfluence = new Intent(Home.this, InfluenceActivity.class);
             startActivityForResult(intentInfluence,1126);
+        }
+        else if (id == R.id.nav_param)
+        {
+            Intent intentParam = new Intent(Home.this, ParamActivity.class);
+            startActivityForResult(intentParam,1127);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

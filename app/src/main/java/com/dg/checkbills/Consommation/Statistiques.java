@@ -1,5 +1,7 @@
 package com.dg.checkbills.Consommation;
 
+import android.util.Log;
+
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.Data.TYPE_CONTENT_BILL;
 
@@ -10,9 +12,9 @@ import java.util.Date;
  * Created by Remy on 16/01/2017.
  */
 
-public class Statistiques implements Comparable<Date>,Serializable
+public class Statistiques implements Comparable<String>,Serializable
 {
-    private Date date;
+    private String date;
     private int nbTickets;
     private double depenseTotal;
     private int consoPro;
@@ -20,7 +22,7 @@ public class Statistiques implements Comparable<Date>,Serializable
     private int consoAlimentaire;
     private int consoLoisir;
 
-    public Statistiques(Date date,int nbTickets,double depenseTotal,int nbTicketLoisir,int nbTicketPro,int nbTicketAlimentaire,int nbTicketVoyage)
+    public Statistiques(String date,int nbTickets,double depenseTotal,int nbTicketLoisir,int nbTicketPro,int nbTicketAlimentaire,int nbTicketVoyage)
     {
         this.date = date;
         this.nbTickets = nbTickets;
@@ -31,7 +33,7 @@ public class Statistiques implements Comparable<Date>,Serializable
         this.consoLoisir = nbTicketLoisir;
     }
 
-    public Date getDate()
+    public String getDate()
     {
         return date;
     }
@@ -96,8 +98,21 @@ public class Statistiques implements Comparable<Date>,Serializable
     }
 
     @Override
-    public int compareTo(Date anotherDate)
+    public int compareTo(String anotherDate)
     {
-        return date.compareTo(anotherDate);
+        // s1.compareTo(s2)
+        // -1 si s1 < s2
+
+        // > 0 si s1 > s2
+
+        String[] dateAnoterSplit = anotherDate.split("\\-");
+        String dateAnother = ""+dateAnoterSplit[1]+dateAnoterSplit[0];
+
+        String[] dateMeSplit = date.split("\\-");
+        String dateMe = ""+dateMeSplit[1]+dateMeSplit[0];
+        Log.e("dateMe",dateMe);
+        Log.e("dateAnother",dateAnother);
+        Log.e("res",""+(Integer.valueOf(dateMe) - Integer.valueOf(dateAnother)));
+        return Integer.valueOf(dateMe) - Integer.valueOf(dateAnother);
     }
 }

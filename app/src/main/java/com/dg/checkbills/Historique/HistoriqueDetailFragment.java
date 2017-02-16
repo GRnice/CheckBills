@@ -1,5 +1,6 @@
 package com.dg.checkbills.Historique;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -11,9 +12,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.ArrayUtils;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.R;
+import com.dg.checkbills.Storage.BillsManager;
 
 import java.util.ArrayList;
 
@@ -28,7 +31,7 @@ public class HistoriqueDetailFragment extends FragmentHistorique
     public HistoriqueDetailFragment()
     {
         super();
-        this.title = "Detail";
+        this.title = "Detail ticket";
     }
 
     public void setCheckedBill(Bill bill)
@@ -56,6 +59,18 @@ public class HistoriqueDetailFragment extends FragmentHistorique
                 HistoriqueModifFragment hmf = HistoriqueModifFragment.newInstance(bill);
                 ((HistoriqueActivity)getActivity()).setFragment(hmf);
                 return;
+            }
+        });
+
+        Button delTicket = (Button) view.findViewById(R.id.butttonSupprimerTicket);
+        delTicket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intentDel = new Intent();
+                intentDel.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
+                intentDel.putExtra("REQUEST-SUPPR",bill.getId());
+                getActivity().sendBroadcast(intentDel);
             }
         });
 

@@ -8,20 +8,26 @@
             android:title="Ajouter un ticket" />
         <item
             android:id="@+id/nav_historique"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_view_list"
             android:title="Historique" />
         <item
             android:id="@+id/nav_parametres"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_timeline"
+            android:title="Statistiques" />
+
+        <item
+            android:id="@+id/nav_param"
+            android:icon="@drawable/ic_settings"
             android:title="Parametres" />
+
     </group>
 
     <item android:title="Communicate">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:icon="@drawable/ic_flag"
+                android:title="Zones influentes" />
         </menu>
     </item>
 

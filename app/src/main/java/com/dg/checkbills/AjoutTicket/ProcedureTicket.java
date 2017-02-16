@@ -78,10 +78,6 @@ public class ProcedureTicket extends FragmentActivity
     {
         if (selectionBoutiqueFragment.getView().getVisibility() == View.VISIBLE)
         {
-            showListingBoutiques();
-        }
-        else if (selectionBoutiqueFragment.getView().getVisibility() == View.VISIBLE)
-        {
             showTicketInfo(null,-1);
         }
         else

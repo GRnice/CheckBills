@@ -56,7 +56,7 @@ public class InfluenceActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_influence);
-
+        setTitle("Zones influentes");
         serviceReceiver = new ServiceReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_ACTIVITY_FROM_SERVICE.getAddr());
