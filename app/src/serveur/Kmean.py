@@ -51,7 +51,7 @@ class Data:
         ## peu de donnée : 0.001, 2
         ## 1000 donnée: 0.0001, 10/15
         
-        opticinstance = optics.optics(self.list, 0.0001, 10)  ##### RECHECK en fct des donnees ds self.list
+        opticinstance = optics.optics(self.list, 0.0001, 10)  #####  parametrage
         opticinstance.process()
         print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -71,8 +71,8 @@ class Data:
                 #print("list FOR KMEAN2 ", self.listCentroid[idx].listCluster, "de taille =", len(self.listCentroid[idx].listCluster))
                 centroid, label = kmeans2(np.array(self.listCentroid[idx].listCluster).astype(np.float), 1, 1)
                 print("centroid generer par kmeans2", centroid)
-                self.listCentroid[idx].latitude = float(centroid[0][0])  ## affectation du reste : lat, long et poids du centroid
-                self.listCentroid[idx].longitude = float(centroid[0][1])
+                self.listCentroid[idx].latitude = float(centroid[0][1])  ## affectation du reste : lat, long et poids du centroid
+                self.listCentroid[idx].longitude = float(centroid[0][0])
                 self.listCentroid[idx].poids = len(listClusters[idx])
 
             ##self.toString()

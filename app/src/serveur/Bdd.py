@@ -24,8 +24,8 @@ class BaseDeDonneeBoutique:
 
             #### les boutiques de base
             b1 = "NOM*Carrefour Nice TNL*LONGITUDE*7.287063*LATITUDE*43.706891"
-            b2 = "NOM*Fnac Nice*LONGITUDE*43.703172*LATITUDE*7.266561"
-            b3 = "NOM*Auchan Nice La trinité*LONGITUDE*43.743102*LATITUDE*7.318041"
+            b2 = "NOM*Fnac Nice*LONGITUDE*7.266561*LATITUDE*43.703172"   
+            b3 = "NOM*Auchan Nice La trinité*LONGITUDE*7.318041*LATITUDE*43.743102"  
             
 
             self.insertToTable(b1) 
@@ -57,8 +57,31 @@ class BaseDeDonneeBoutique:
         rows = self.cur.fetchall()
         for row in rows:
             strSendToClient = strSendToClient + "IDBOUTIQUE*" + str(row[0]) + "*NOM*" + row[1] + "_"
+        print("BOUTIQUE SENT ", strSendToClient.strip("_"))
         return strSendToClient.strip("_")
 
+    def getIdBoutique(self, nameBoutique):
+        self.cur.execute("SELECT idBoutique FROM Boutiques WHERE nomBoutique = ?", (nameBoutique, ))
+        rows = self.cur.fetchall()
+        if(len(rows) == 0):
+            print("get Id not good")
+            return -1
+
+        idBoutique = rows[len(rows) - 1][0]
+        return int(idBoutique)
+  
+
+
+    def getRestBoutique(self, size):  ## retourn IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string 
+        strSendToClient = ""
+        self.cur.execute("SELECT idBoutique, nomBoutique FROM Boutiques WHERE idBoutique > ?", (size, ))
+        rows = self.cur.fetchall()
+        if(len(rows) == 0):
+            return -1
+
+        for row in rows:
+            strSendToClient = strSendToClient + "IDBOUTIQUE*" + str(row[0]) + "*NOM*" + row[1] + "_"
+        return strSendToClient.strip("_")
 
     def getBoutiqueForSelectedTickets(self, identifiant):
         try:
@@ -124,14 +147,14 @@ class BaseDeDonneeBoutique:
 
     def insertJeanMedecinBoutiques(self):
         #### insert les boutiques pour les tests
-        b1 = "NOM*Monoprix Nice Jean Medecin*LONGITUDE*43.702563*LATITUDE*7.266982"
-        b2 = "NOM*Armand Thierry Nice Jean Medecin*LONGITUDE*43.703090*LATITUDE*7.266239"
-        b3 = "NOM*Etam Thierry Nice Jean Medecin*LONGITUDE*43.702755*LATITUDE*7.266821"
-        b4 = "NOM*Ciné Pathé Nice Jean Medecin*LONGITUDE*43.701904*LATITUDE*7.267004"
-        b5 = "NOM*Pimkie Nice Jean Medecin*LONGITUDE*43.700495*LATITUDE*7.268275"
-        b6 = "NOM*Promod Nice Jean Medecin*LONGITUDE*43.700299*LATITUDE*7.268373"
-        b7 = "NOM*Macdo Nice Jean Medecin*LONGITUDE*43.700158*LATITUDE*7.268469"
-        b8 = "NOM*Zara Nice Jean Medecin*LONGITUDE*43.699455*LATITUDE*7.268940"
+        b1 = "NOM*Monoprix Nice Jean Medecin*LONGITUDE*7.266982*LATITUDE*43.702563"   
+        b2 = "NOM*Armand Thierry Nice Jean Medecin*LONGITUDE*7.266239*LATITUDE*43.703090"  
+        b3 = "NOM*Etam Thierry Nice Jean Medecin*LONGITUDE*7.266821*LATITUDE*43.702755"   
+        b4 = "NOM*Ciné Pathé Nice Jean Medecin*LONGITUDE*7.267004*LATITUDE*43.701904"
+        b5 = "NOM*Pimkie Nice Jean Medecin*LONGITUDE*7.268275*LATITUDE*43.700495"  
+        b6 = "NOM*Promod Nice Jean Medecin*LONGITUDE*7.268373*LATITUDE*43.700299"
+        b7 = "NOM*Macdo Nice Jean Medecin*LONGITUDE*7.268469*LATITUDE*43.700158"
+        b8 = "NOM*Zara Nice Jean Medecin*LONGITUDE*7.268940*LATITUDE*43.699455" 
 
         self.insertToTable(b1)
         self.insertToTable(b2)
@@ -150,7 +173,7 @@ class BaseDeDonneeTicket:
         self.cur = self.conn.cursor()
         self.createTable()
         self.listBoutiquesId = []  ## pr kmean
-        self.listGenerationData = [] ## [intGen, DateJour] , intGen = 0,1,2,3  ==> 0 pas de gen, 1 le matin, ... et jour [2016-03-12]  ..
+        self.listGenerationData = [] ## [intGen, DateJour, offSet] , intGen = 0,1,2,3  ==> 0 pas de gen, 1 le matin, ... et jour [2016-03-12]  ..
         self.readUpdateFile()  
         
         
@@ -164,8 +187,6 @@ class BaseDeDonneeTicket:
         except:
             print("Table Tickets NOT created")
             return 1
-
-
 
     
     def writeUpdateFile(self, listGenerationData):  # [periodeJournee, jour, time, offSet]
@@ -188,9 +209,8 @@ class BaseDeDonneeTicket:
                     print("debugREADING ")
                     for i in range(0,4) :
                         self.listGenerationData.append(myList[i])
-                    
- 
-    
+
+                print("READING listGenerationData ", self.listGenerationData)
                     
         except IOError as e:
             print("Unable to open file") #Does not exist OR no read permissions
@@ -213,6 +233,9 @@ class BaseDeDonneeTicket:
         except:
             print("insertNotGood, arg =", ticketInfo)
             return 1
+
+    ##def deletFromTable(self, idTel, date):
+        
 
 
     def getIdFromTableAsTime(self, strDateDebutFin): ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
@@ -257,7 +280,6 @@ class BaseDeDonneeTicket:
             self.cur.execute("DELETE FROM Tickets WHERE idTel = ? AND date = ?", (telID, temps[0]))
             self.conn.commit()
             
-
         except Exception as e:
             print("modify not good ", e)
             return 1
@@ -313,7 +335,7 @@ class BaseDeDonneeTicket:
     def insertTicketsForKmean(self, tempsActuelle, lineCounter):  ## methode qui genere les tickets pr le kmean
         heure = tempsActuelle.split(" ")[1].split(":")[0]
         offSet = int(lineCounter)
-        for i in range(250):
+        for i in range(350):
             minutGen = randint(0, 59)
             secGen = randint(0, 59)
 
@@ -372,18 +394,20 @@ class BaseDeDonneeTicket:
             self.listGenerationData.append(jour)
             self.listGenerationData.append(time)
             self.listGenerationData.append(offSet)  
-            self.writeUpdateFile(self.listGenerationData)  #[periodeJournee, jour, time, offSet]
+            self.writeUpdateFile(self.listGenerationData)  #[periodeJournee, jour, time, offSet], offSet pour le titre des tickets fitif
 
-        elif (len(self.listGenerationData) != 0):  ## pas vide, je rajoute des tickets
-
+        elif (len(self.listGenerationData) != 0 and len(self.listGenerationData) == 4):  ## pas vide, je rajoute des tickets
+            
             
             if( (str(self.listGenerationData[1]) == str(jour) and int(self.listGenerationData[0]) != int(periodeJournee) and periodeJournee != 0) or str(self.listGenerationData[1]) != str(jour) ): ## meme jour mais diff periodes OR si c'est pas le meme jour  --> je genere
-                
-                offSet = self.insertTicketsForKmean(tempsActuelle, offSet)  ## recupere le offset du precedent et mettre a jour mon offset
+                offSetInList = self.listGenerationData[3]
+
+                offSet = self.insertTicketsForKmean(tempsActuelle, offSetInList)  ## recupere le offset du precedent et mettre a jour mon offset
                 self.listGenerationData[0] = periodeJournee  # met a jour la list [periodeJournee, jour, time, offSet]
                 self.listGenerationData[1] = jour
                 self.listGenerationData[2] = heure
                 self.listGenerationData[3] = offSet
+                print("OFFset ", self.listGenerationData[3])
                 self.writeUpdateFile(self.listGenerationData)  ## met a jour le fichier
                 print("list ", self.listGenerationData)
                 print("jour ", jour)
@@ -405,9 +429,13 @@ tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TIT
 
 ##bd = BaseDeDonneeTicket()
 ##bdBoutique = BaseDeDonneeBoutique()
-##
-##bdBoutique.insertJeanMedecinBoutiques()
-########
+####
+######
+####bdBoutique.insertJeanMedecinBoutiques()
+############
+####
+##print(bdBoutique.getIdBoutique("Auchan Nice La trinité"))
+##print("AAA" + str(bdBoutique.getRestBoutique(13)))
 
 ##bd.generateTestTicketsJM()
 ##

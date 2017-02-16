@@ -76,7 +76,7 @@ class Server(Thread):
                             try:
                                 message = data.decode('utf-8')
                                 message = message.rstrip()
-                                print(message)
+                                #print(message)
                                 if ("ID" in message[0:2]):
                                     clientrequest.ticketInfo = message
                                     clientrequest.state+=1
@@ -86,19 +86,32 @@ class Server(Thread):
                                 elif ("MODIF" in message[0:5] and len(message) > 5):
                                     print("MessageModif ", message)
                                     self.bddTicket.modifyTicket(message)
+                                    self.bddTicket.readTable()
                                     sock.send("BILLUPDATECHECK\r\n".encode('utf-8'))
 
                                 elif("REQUEST_ALL_BOUTIQUES" in message[0:21]):
                                     print("requestBoutique du tel")
-                                    print(type(self.bddBoutique.getListBoutique()))
+                                    #print(type(self.bddBoutique.getListBoutique()))
                                     sock.send((self.bddBoutique.getListBoutique() + "\r\n").encode('utf-8'))
                                     sock.send("BOUTIQUECHECK\r\n".encode('utf-8'))
 
                                 elif("NEWBOUTIQUE" in message[0:11]):  # NEWBOUTIQUE*nomDeLaBoutique*LONG*longitude*LAT*latitude
                                     print(message)
                                     sock.send("NEWBOUTIQUECHECK\r\n".encode('utf-8'))
-                                    self.bddBoutique.insertToTable(message) # pas test encore av le smartphone
+                                    self.bddBoutique.insertToTable(message) 
                                     self.bddBoutique.readTable()
+
+                                elif("UPDATEBOUTIQUE" in message[0:14]):  # UPDATEBOUTIQUE*12
+                                    print(message)
+                                    size = message.split("*")[1]
+                                    if(self.bddBoutique.getRestBoutique(int(size)) != -1):  ## id retrouver
+                                        restOfBoutique = self.bddBoutique.getRestBoutique(int(size))
+                                        sock.send((restOfBoutique +"\r\n").encode('utf-8'))
+                                        sock.send("CHECKUPDATEBOUTIQUE\r\n".encode('utf-8'))
+                                    else:
+                                        print("NONE boutique")
+                                        sock.send("None\r\n".encode('utf-8'))
+                                        sock.send("CHECKUPDATEBOUTIQUE\r\n".encode('utf-8'))
 
                                 elif(len(message) >= 20 and "GET_ZONES_INFLUENCES" in message[0:20]):  ## REQUEST_ALL_ZONES_INFLUENCES*2016-12-12 09:20:00*2016-12-12 13:00:00
                                     print("MESSAGE ", message)
@@ -162,9 +175,20 @@ class Server(Thread):
                                     clientrequest.state += 1
                                     print("client State ", clientrequest.state)
 
+
                                     if(clientrequest.state == 2):
                                         sock.send("IMAGECHECK\r\n".encode('utf-8'))
                                         print("insertion")
+                                        print("TICKET info", clientrequest.ticketInfo)
+                                        newTicket = clientrequest.ticketInfo.split("*")
+
+                                        if(not newTicket[7].isdigit()):
+                                            idboutique = self.bddBoutique.getIdBoutique(newTicket[7])  ## cherche l'id de la nouvelle boutique
+                                            res = clientrequest.ticketInfo.split(newTicket[7]) ###  nomBoutique
+                                            clientrequest.ticketInfo = res[0] + str(idboutique) + res[1]
+                                            print("ID Boutique CHANGED ", clientrequest.ticketInfo)
+                                            
+                                        
                                         self.bddTicket.insertToTable(clientrequest.ticketInfo)
                                         self.bddTicket.readTable()  
                                         clientrequest.state = 0  ## reset state

@@ -416,7 +416,7 @@ public class ServiceSocket extends Service implements LocationListener
             BillsManager.store(this, billSent); // on le store
             if (billsOffline.size() > 0 && isConnected) // si il y a d'autres tickets offline on essaye de les transmettre.
             {
-                sendBill(idTel,billsOffline.get(0));
+                sendBillsNotOnCloud();
             }
         }
         else
