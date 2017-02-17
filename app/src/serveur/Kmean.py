@@ -49,7 +49,7 @@ class Data:
         
     def getClusters(self):
         
-        opticinstance = optics.optics(self.list, 0.0005, 5)  #####  parametrage
+        opticinstance = optics.optics(self.list, 0.0005, 10)  #####  parametrage
         opticinstance.process()
         print("nb centroides ", len(opticinstance.get_clusters())) ## nombre de centroides
         return opticinstance.get_clusters()
@@ -62,9 +62,11 @@ class Data:
 
                 for i in range(len(listClusters[idx])):  ## opticinstance.get_clusters[idx][i]  --> represente l'indice des coordo.
                     if(i == (len(listClusters[idx]) - 1)):
-                        self.list[listClusters[idx][i]] = self.list[listClusters[idx][i]] + np.array([.000001, 0.000001]) 
+                        self.list[listClusters[idx][i]] = self.list[listClusters[idx][i]] + np.array([.000001, 0.000001])
 
                     self.listCentroid[idx].listCluster.append(self.list[listClusters[idx][i]])    ## affectation des clusters aux centroids
+                    print("listClusters ", self.list[listClusters[idx][i]])
+                    ##print("len ", len(listClusters[idx]))
 
                 #print("list FOR KMEAN2 ", self.listCentroid[idx].listCluster, "de taille =", len(self.listCentroid[idx].listCluster))
                 centroid, label = kmeans2(np.array(self.listCentroid[idx].listCluster).astype(np.float), 1, 1)
