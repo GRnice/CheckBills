@@ -45,10 +45,10 @@ class BaseDeDonneeBoutique:
             self.cur.execute("INSERT INTO Boutiques(nomBoutique, longitude, latitude) VALUES (?,?,?)",
                             (info[1], info[3], info[5]))  
             self.conn.commit()
-            print("insertGood")
+            #print("insertGood")
             return 0
         except:
-            print("insertNotGood, arg =",boutiqueInfo)
+            #print("insertNotGood, arg =",boutiqueInfo)
             return 1
 
     def getListBoutique(self): ## IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string_IDBOUTIQUE*id*NOM*string 
