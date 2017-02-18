@@ -57,7 +57,7 @@ class BaseDeDonneeBoutique:
         rows = self.cur.fetchall()
         for row in rows:
             strSendToClient = strSendToClient + "IDBOUTIQUE*" + str(row[0]) + "*NOM*" + row[1] + "_"
-        print("BOUTIQUE SENT ", strSendToClient.strip("_"))
+        #print("BOUTIQUE SENT ", strSendToClient.strip("_"))
         return strSendToClient.strip("_")
 
     def getIdBoutique(self, nameBoutique):
@@ -286,7 +286,9 @@ class BaseDeDonneeTicket:
         self.insertToTable(infoStr + "*SIZEIMAGE*" + str(tck1[0]) + "*IMAGENAME*" + str(tck1[1]))
         return 0
 
-    def deletFromTable(self, idSmartPhone, dateCreation):
+
+
+    def deletFromTable(self, idSmartPhone, dateCreation):  ## appeler que pr les vrai tickets, donc le file Name doit exister dans le repertoire
         tempsEnSec = self.cur.execute("SELECT strftime( \"%s\", ?)", (dateCreation,))
         temps = tempsEnSec.fetchone()
         try:
@@ -294,6 +296,8 @@ class BaseDeDonneeTicket:
             fileName = self.cur.fetchone()
             os.remove(str(fileName[0]))
             os.remove(str(fileName[0].replace(".txt", ".png")))
+            
+
             self.cur.execute("DELETE FROM Tickets WHERE idTel = ? AND date = ?", (idSmartPhone, temps[0]))
             
             self.conn.commit()
@@ -303,7 +307,6 @@ class BaseDeDonneeTicket:
             print("del not good", e)
             return 1
         
-    
 
     def readTable(self):
         res = "idTel date montant idBoutique title typeBill sizeImage imageFile\n"
@@ -344,6 +347,8 @@ class BaseDeDonneeTicket:
             return 2
         elif(int(heure) >= 18 and int(heure) <= 23):
             return 3
+        elif(int(heure) >= 0 and int(heure) < 8) :
+            return 4
         else :
             return 0
 
@@ -378,6 +383,9 @@ class BaseDeDonneeTicket:
 
             elif(int(heure) >= 18 and int(heure) <= 23):
                 hourGen = randint(18, 23)
+
+            elif(int(heure) >= 0 and int(heure) < 8):
+                hourGen = "0" + str(randint(0, 7))
 
             offSet += 1
             dateGenerated = tempsActuelle.split(" ")[0] + " " + str(hourGen) + ":" + str(minutGen) + ":" + str(secGen)
@@ -443,11 +451,14 @@ tck3 = "ID*idTel2*DATE*2016-12-12 13:12:44*MONTANT*50*IDBOUTIQUE*1*TITRE*xxtitre
 tck4 = "ID*idTel2*DATE*2016-12-12 17:19:44*MONTANT*50*IDBOUTIQUE*2*TITRE*xxtitre1*TYPEBILL*3*SIZEIMAGE*1215*IMAGENAME*nomFichier4"
 tck5 = "ID*6146b8a7edfd942a*DATE*2016-12-23 08:51:33*MONTANT*45*IDBOUTIQUE*1*TITRE*unTicket*TYPEBILL*3*SIZEIMAGE*6855*IMAGENAME*nomFichier12"
 
-##bd = BaseDeDonneeTicket()
+#bd = BaseDeDonneeTicket()
 #bdBoutique = BaseDeDonneeBoutique()
 #bdBoutique.readTable()
+
 #bd.deletFromTable("72c76fc4bed8ec03", "2017-02-16 16:44:03")
-##bd.readTable()
+#bd.readTable()
+#bd.deletFromTable("6146b8a7edfd942a", "2017-02-17 09:50:26")
+#bd.deletFromTable("6146b8a7edfd942a", "2017-02-17 09:49:59")
 ######
 ####bdBoutique.insertJeanMedecinBoutiques()
 ############

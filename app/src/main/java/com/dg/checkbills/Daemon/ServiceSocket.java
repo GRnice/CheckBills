@@ -171,10 +171,16 @@ public class ServiceSocket extends Service implements LocationListener
             heureFin = dateJour + " " + "17:59:59";
 
         }
-        else if(hour >= 18 && hour < 24) {
+        else if(hour >= 18 && hour <= 23) {
             heureDepart = dateJour + " " + "18:00:00";
             heureFin = dateJour + " " + "23:59:59";
         }
+        else if(hour >= 0 && hour < 8) {
+            heureDepart = dateJour + " " + "00:00:00";
+            heureFin = dateJour + " " + "08:00:00";
+        }
+
+
 
         if(heureDepart.length() != 0 && heureFin.length() != 0) {
             String sendToServer = "GET_ZONES_INFLUENCES*" + heureDepart + "*" + heureFin;
