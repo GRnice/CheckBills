@@ -203,16 +203,16 @@ class BaseDeDonneeTicket:
                 myList = content.split(",")
                 print(myList)
                 if(len(self.listGenerationData) == 4):  ## la bonne taille
-                    print("READING ")
+                    #print("READING ")
                     for i in range(0,4) :
                         self.listGenerationData[i] = myList[i]
 
                 elif(len(self.listGenerationData) == 0):  ## qd je re Run, ou qd je lis une premiere fois le fichier update
-                    print("debugREADING ")
+                    #print("debugREADING ")
                     for i in range(0,4) :
                         self.listGenerationData.append(myList[i])
 
-                print("READING listGenerationData ", self.listGenerationData)
+                #print("READING listGenerationData ", self.listGenerationData)
                     
         except IOError as e:
             print("Unable to open file") #Does not exist OR no read permissions
