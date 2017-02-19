@@ -52,7 +52,7 @@ public class ServiceSocket extends Service implements LocationListener
     private ActivityReceiver activityReceiver; // ecoute les messages émis par les differentes activity
     private NetworkChangeReceiver networkChangeReceiver;
 
-    private boolean Autho4g;
+    private boolean Autho4g = false;
     private ArrayList<Bill> billsArray; // tableau de tickets
     private ArrayList<Boutique> boutiqueArray; // tableau de boutiques
     private ArrayList<ZoneInfluence> arrayOfCentres; // tableau de centres

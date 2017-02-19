@@ -22,6 +22,7 @@ public class ParamActivity extends AppCompatActivity
         setTitle("Parametres");
 
         final Switch switch4G = (Switch) findViewById(R.id.switch4g);
+        switch4G.setChecked(false);
         Button btnValid = (Button) findViewById(R.id.buttonValidParam);
 
         btnValid.setOnClickListener(new View.OnClickListener() {
