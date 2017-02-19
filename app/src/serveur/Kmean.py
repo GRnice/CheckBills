@@ -65,7 +65,7 @@ class Data:
                         self.list[listClusters[idx][i]] = self.list[listClusters[idx][i]] + np.array([.000001, 0.000001])
 
                     self.listCentroid[idx].listCluster.append(self.list[listClusters[idx][i]])    ## affectation des clusters aux centroids
-                    print("listClusters ", self.list[listClusters[idx][i]])
+                    #print("listClusters ", self.list[listClusters[idx][i]])
                     ##print("len ", len(listClusters[idx]))
 
                 #print("list FOR KMEAN2 ", self.listCentroid[idx].listCluster, "de taille =", len(self.listCentroid[idx].listCluster))
