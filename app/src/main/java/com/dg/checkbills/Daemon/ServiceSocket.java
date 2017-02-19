@@ -95,11 +95,11 @@ public class ServiceSocket extends Service implements LocationListener
         }
 
         LocationManager lm = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0, this);
             }
-        }
+
         // ECOUTE DES MESSAGES PROVENANTS DE L'ACTIVITE
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
@@ -111,7 +111,9 @@ public class ServiceSocket extends Service implements LocationListener
         registerReceiver(networkChangeReceiver, intentFilter);
 
 
-        requestBoutique(); // demande de charger les dernieres boutiques
+        SenderRequest senderRqstUPDATE = new SenderRequest(ServiceSocket.this,"UPDATEBOUTIQUE*"+boutiqueArray.size(),"GETUPDATEBOUTIQUE");
+        senderRqstUPDATE.process();
+        arrayOfSender.add(senderRqstUPDATE); // demande de charger les dernieres boutiques
 
         return START_NOT_STICKY;
     }
@@ -119,7 +121,7 @@ public class ServiceSocket extends Service implements LocationListener
     @Override
     public void onDestroy()
     {
-        Log.e("WOOLLL", "SOPPPPPP");
+        Log.e("KILL", "SERVICESOCKET");
 
         try
         {
@@ -127,6 +129,7 @@ public class ServiceSocket extends Service implements LocationListener
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 lm.removeUpdates(this);
             }
+            BoutiqueManager.store(this,boutiqueArray);
             unregisterReceiver(activityReceiver);
             unregisterReceiver(networkChangeReceiver);
         }
@@ -231,7 +234,6 @@ public class ServiceSocket extends Service implements LocationListener
             String[] aBoutiqueSplit = aBoutique.split("\\*"); // IDBOUTIQUE*id*NOM*nom
             Boutique nwBoutique = new Boutique(aBoutiqueSplit[1], aBoutiqueSplit[3]);
             Log.e("nwboutique",aBoutique);
-            BoutiqueManager.store(getBaseContext(), nwBoutique);
             this.boutiqueArray.add(nwBoutique);
         }
 
@@ -313,12 +315,14 @@ public class ServiceSocket extends Service implements LocationListener
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void onProviderEnabled(String provider)
+    {
 
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onProviderDisabled(String provider)
+    {
 
     }
 
@@ -479,7 +483,16 @@ public class ServiceSocket extends Service implements LocationListener
             {
                 String idTel = arg1.getStringExtra("IDTEL");
                 Bill nwBill = (Bill) arg1.getSerializableExtra("BILL");
-                sendBill(idTel,nwBill);
+                if (networkChangeReceiver.status == 2 && !Autho4g) // si en 4g
+                {
+                    SenderBill sender = new SenderBill(ServiceSocket.this,nwBill,idTel);
+                    arrayOfSender.add(sender);
+                    endTask(sender,nwBill,false);
+                }
+                else
+                {
+                    sendBill(idTel,nwBill);
+                }
             }
 
             if (arg1.hasExtra("SYNCHBOUTIQUE"))
@@ -492,7 +505,11 @@ public class ServiceSocket extends Service implements LocationListener
             if (arg1.hasExtra("PARAMDATA"))
             {
                 Autho4g = arg1.getBooleanExtra("PARAMDATA",false);
-                Log.e("AUTHo",""+Autho4g);
+                if (Autho4g && networkChangeReceiver.status == 2)
+                {
+                    sendBillsNotOnCloud();
+                }
+                Log.e("AUTHo 4g",""+Autho4g);
             }
 
             if (arg1.hasExtra("GETBILLS"))
@@ -505,6 +522,10 @@ public class ServiceSocket extends Service implements LocationListener
 
             if (arg1.hasExtra("REQUEST-IMG"))
             {
+                if (networkChangeReceiver.status == 2 && !Autho4g)
+                {
+                    return;
+                }
                 String nomImage = arg1.getStringExtra("REQUEST-IMG");
                 Log.e("Episode 1","requestImage");
                 if (queueNomImage.contains(nomImage))
@@ -592,13 +613,12 @@ public class ServiceSocket extends Service implements LocationListener
     public class NetworkChangeReceiver extends BroadcastReceiver {
 
         public static final String CONNECTIVITY_CHANGED = "android.net.conn.CONNECTIVITY_CHANGE";
-
+        public int status;
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            int status = NetworkUtil.getConnectivityStatusString(context);
+            status = NetworkUtil.getConnectivityStatusString(context);
             if (CONNECTIVITY_CHANGED.equals(intent.getAction()))
             {
-                Log.e("CHANGED","WDD");
                 Log.e("statenet",""+status);
                 if (status == 0)
                 {
@@ -607,22 +627,24 @@ public class ServiceSocket extends Service implements LocationListener
                 }
                 else if(status== NetworkUtil.NETWORK_STATUS_WIFI)
                 {
-                    Log.e("darkk","vad");
                     if(!isConnected)
                     {
-                        Log.e("connected !","dd");
+                        Log.e("connected wifi !","dd");
                         sendBillsNotOnCloud();
                     }
 
                     isConnected = true;
                 }
-                else if(status==2 && Autho4g)
+                else if(status==2)
                 {
-                    Log.e("darkk","vad");
                     if(!isConnected)
                     {
                         Log.e("connected en 4g !","dd");
-                        sendBillsNotOnCloud();
+                        if (Autho4g)
+                        {
+                            sendBillsNotOnCloud();
+                        }
+
                     }
 
                     isConnected = true;

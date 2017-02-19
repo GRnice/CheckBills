@@ -4,7 +4,6 @@ package com.dg.checkbills.Communication;
 import android.app.Service;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.dg.checkbills.Daemon.CommListener;
@@ -30,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CommunicationServer extends Thread implements Runnable
 {
     //public static final String SOCKET_ADDR = "13.93.93.125"; // SERVEUR MICROSOFT AZURE
-    public static final String SOCKET_ADDR = "172.20.10.5";
+    public static final String SOCKET_ADDR = "192.168.1.70";
 
     public static final int PORT = 3200;
     private Socket m_sock;

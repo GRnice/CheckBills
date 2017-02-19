@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Data.Bill;
 import com.dg.checkbills.R;
 
@@ -51,6 +53,11 @@ public class HistoriqueModifFragment extends FragmentHistorique
             @Override
             public void onClick(View v)
             {
+                if (NetworkUtil.getConnectivityStatus(getActivity()) == 0)
+                {
+                    Toast.makeText(getActivity(),"Activez internet",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 String titre = titreEdit.getText().toString();
                 String montant = montantEdit.getText().toString();
                 if (titre.equals(oldBill.getNom()) && montant.equals(oldBill.getMontant()))

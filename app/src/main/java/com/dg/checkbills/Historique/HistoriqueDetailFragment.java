@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Constantes.BroadcastAddr;
 import com.dg.checkbills.Data.ArrayUtils;
 import com.dg.checkbills.Data.Bill;
@@ -68,6 +70,11 @@ public class HistoriqueDetailFragment extends FragmentHistorique
             @Override
             public void onClick(View v)
             {
+                if (NetworkUtil.getConnectivityStatus(getActivity()) == 0)
+                {
+                    Toast.makeText(getActivity(),"Activez internet",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 Intent intentDel = new Intent();
                 intentDel.setAction(BroadcastAddr.ACTION_TO_SERVICE_FROM_ACTIVITY.getAddr());
                 intentDel.putExtra("REQUEST-SUPPR",bill.getId());

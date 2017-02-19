@@ -1,6 +1,7 @@
 package com.dg.checkbills.AjoutTicket;
 
 import android.content.Context;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,7 +16,9 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dg.checkbills.Communication.NetworkUtil;
 import com.dg.checkbills.Data.Boutique;
 import com.dg.checkbills.R;
 
@@ -71,7 +74,19 @@ public class SelectionBoutiqueFragment extends Fragment
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ProcedureTicket) getActivity()).showNewBoutique();
+                final LocationManager manager = (LocationManager) getActivity().getSystemService( Context.LOCATION_SERVICE );
+                if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                    Toast.makeText(getActivity(),"Activez le GPS",Toast.LENGTH_LONG).show();
+                }
+                else if (NetworkUtil.getConnectivityStatus(getActivity()) == NetworkUtil.NETWORK_STATUS_NOT_CONNECTED)
+                {
+                    Toast.makeText(getActivity(),"Activez le wifi",Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    ((ProcedureTicket) getActivity()).showNewBoutique();
+                }
+
             }
         });
 

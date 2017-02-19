@@ -79,7 +79,9 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     public void onDestroy()
     {
         Intent intent = new Intent(Home.this,ServiceStorage.class);
+        Intent intentServiceSocket = new Intent(Home.this,ServiceSocket.class);
         stopService(intent);
+        stopService(intentServiceSocket);
         super.onDestroy();
     }
 
